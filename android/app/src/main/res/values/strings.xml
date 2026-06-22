@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">feuille-de-match-ringuette</string>
+    <string name="title_activity_main">feuille-de-match-ringuette</string>
+    <string name="package_name">ca.karlpaquet.ringuettematch</string>
+    <string name="custom_url_scheme">ca.karlpaquet.ringuettematch</string>
+</resources>
