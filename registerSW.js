@@ -1,1 +1,1 @@
-if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/NOM-DU-REPO/sw.js', { scope: '/NOM-DU-REPO/' })})}
+if('serviceWorker' in navigator) {window.addEventListener('load', () => {navigator.serviceWorker.register('/feuille-de-match-ringuette/sw.js', { scope: '/feuille-de-match-ringuette/' })})}
