@@ -1,0 +1,1 @@
+export const BASE_VERSION = "1.1.0";
