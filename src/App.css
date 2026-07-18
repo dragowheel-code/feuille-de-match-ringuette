@@ -144,6 +144,9 @@ button {
   gap: 12px;
   margin-top: 20px;
 }
+.import-modal-backdrop {
+  z-index: 30;
+}
 .cancel-button {
   background: #94a3b8;
   color: #0f172a;
@@ -352,6 +355,45 @@ button {
   width: auto !important;
   margin: 0;
 }
+.alignement-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin: 12px 0;
+}
+
+.jersey-selector {
+  display: flex;
+  flex-direction: column;
+}
+
+.jersey-selector label {
+  margin-bottom: 6px;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.jersey-selector select {
+  min-width: 140px;
+}
+.app-version {
+  background: #334155;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  text-align: center;
+}
+
+.app-version strong {
+  display: block;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+.app-version div {
+  color: #cbd5e1;
+  margin-top: 2px;
+}
 
 @media (max-width: 900px) {
   .app {
@@ -478,5 +520,14 @@ button {
 .roster-player {
   grid-column: 1 / -1;
 }
+  .alignement-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .jersey-selector select {
+    width: 100%;
+  }
 }
+
 
