@@ -11,7 +11,7 @@ export const APP_INFO = {
 
   copyright: "© 2026 Karl Paquet",
 
-  site: "https://dragowheel.github.io/feuille-de-match-ringuette/",
+  site: "https://dragowheel-code.github.io/feuille-de-match-ringuette/",
 
   stockage: 2,
 };
