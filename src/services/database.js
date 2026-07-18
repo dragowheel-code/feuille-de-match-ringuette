@@ -9,8 +9,13 @@ export function exporterBaseDeDonnees({
   const donnees = {
     version: "1.1",
     dateExport: new Date().toISOString(),
+
     equipes,
-    joueuses,
+
+    joueuses: joueuses.filter(
+      (joueuse) => !joueuse.remplacante
+    ),
+
     officiels,
   };
 

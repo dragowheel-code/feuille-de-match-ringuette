@@ -3,6 +3,7 @@ export function useGestionPartie({
   setMatchInfo,
   setPeriode,
   setEvenements,
+  setJoueuses,
 }) {
   function validerFeuilleMatch() {
     const erreurs = [];
@@ -41,6 +42,9 @@ export function useGestionPartie({
   function nouvellePartie() {
     setPeriode("1");
     setEvenements([]);
+    setJoueuses((anciennesJoueuses) =>
+  anciennesJoueuses.filter((joueuse) => !joueuse.remplacante)
+);
 
     setMatchInfo((anciennesInformations) => ({
       ...anciennesInformations,
