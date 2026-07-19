@@ -9,7 +9,8 @@ import TempsMortModal from "../modals/TempsMortModal";
 function PartieModals({
   matchInfo,
   periode,
-
+  equipes,
+  joueuses,
   buts,
   equipeNomPourBut,
   calculerTempsCorrige,
@@ -141,26 +142,23 @@ function PartieModals({
       />
 
       <RemplacanteModal
-        ouverte={modales.fenetreRemplacanteOuverte}
-        equipeRemplacante={
-          remplacante.equipeRemplacante
-        }
-        numeroRemplacante={
-          remplacante.numeroRemplacante
-        }
-        setNumeroRemplacante={
-          remplacante.setNumeroRemplacante
-        }
-        nomRemplacante={remplacante.nomRemplacante}
-        setNomRemplacante={
-          remplacante.setNomRemplacante
-        }
-        confirmerRemplacante={confirmerRemplacante}
-        fermer={() => {
-          modales.fermerRemplacante();
-          remplacante.reinitialiser();
-        }}
-      />
+       ouverte={modales.fenetreRemplacanteOuverte}
+       equipes={equipes}
+       equipeProvenance={remplacante.equipeProvenance}
+       setEquipeProvenance={remplacante.setEquipeProvenance}
+       equipeRemplacante={remplacante.equipeRemplacante}
+       modeRemplacante={remplacante.modeRemplacante}
+       setModeRemplacante={remplacante.setModeRemplacante}
+       joueuseSelectionnee={remplacante.joueuseSelectionnee}
+       setJoueuseSelectionnee={remplacante.setJoueuseSelectionnee}
+       numeroRemplacante={remplacante.numeroRemplacante}
+       setNumeroRemplacante={remplacante.setNumeroRemplacante}
+       nomRemplacante={remplacante.nomRemplacante}
+       setNomRemplacante={remplacante.setNomRemplacante}
+       joueuses={joueuses}
+       confirmerRemplacante={confirmerRemplacante}
+       fermer={modales.fermerRemplacante}
+     />
 
       <GardienneModal
         ouverte={gardienne.fenetreGardienneOuverte}

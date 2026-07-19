@@ -243,7 +243,8 @@ const exportMatch = useExportMatch({
 <PartieModals
   matchInfo={matchInfo}
   periode={periode}
-
+  equipes={equipes}
+  joueuses={joueuses}
   buts={buts}
   equipeNomPourBut={donneesMatch.equipeNomPourBut}
   calculerTempsCorrige={calculerTempsCorrige}

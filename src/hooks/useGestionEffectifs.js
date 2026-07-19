@@ -45,18 +45,36 @@ export function useGestionEffectifs({
       return;
     }
 
-    const nouvelleJoueuse = {
-      id: creerId(),
-      equipe: remplacante.equipeRemplacante,
-      numero,
-      nom,
-      gardienne: false,
-      capitaine: false,
-      assistanteCapitaine: false,
-      absente: false,
-      suspendue: false,
-      remplacante: true,
-    };
+    let nouvelleJoueuse;
+
+if (remplacante.modeRemplacante === "existante") {
+  const joueuseOriginale = joueuses.find(
+    (j) => String(j.id) === remplacante.joueuseSelectionnee
+  );
+
+  nouvelleJoueuse = {
+    ...joueuseOriginale,
+    equipe: remplacante.equipeRemplacante,
+    numero,
+    nom,
+    remplacante: true,
+    equipeProvenance: remplacante.equipeProvenance,
+  };
+} else {
+  nouvelleJoueuse = {
+    id: creerId(),
+    equipe: remplacante.equipeRemplacante,
+    numero,
+    nom,
+    gardienne: false,
+    capitaine: false,
+    assistanteCapitaine: false,
+    absente: false,
+    suspendue: false,
+    remplacante: true,
+    equipeProvenance: remplacante.equipeProvenance,
+  };
+}
 
     setJoueuses((anciennesJoueuses) => [
       ...anciennesJoueuses,
