@@ -1,4 +1,6 @@
 import { creerId } from "../utils/ids";
+import { numeroUtiliseParRemplacante,} from "../utils/joueuses";
+import { numeroEstDisponible,} from "../utils/joueuses";
 
 export function useGestionEffectifs({
   setMatchInfo,
@@ -22,69 +24,91 @@ export function useGestionEffectifs({
   }
 
   function confirmerRemplacante() {
-    if (!remplacante.equipeRemplacante) {
-      return;
-    }
-
-    const numero = remplacante.numeroRemplacante.trim();
-    const nom = remplacante.nomRemplacante.trim();
-
-    if (!numero || !nom) {
-      alert("Entre le numéro et le nom de la remplaçante.");
-      return;
-    }
-
-    const numeroExiste = joueuses.some(
-      (joueuse) =>
-        joueuse.equipe === remplacante.equipeRemplacante &&
-        joueuse.numero === numero
-    );
-
-    if (numeroExiste) {
-      alert("Ce numéro existe déjà dans cette équipe.");
-      return;
-    }
-
-    let nouvelleJoueuse;
-
-if (remplacante.modeRemplacante === "existante") {
-  const joueuseOriginale = joueuses.find(
-    (j) => String(j.id) === remplacante.joueuseSelectionnee
-  );
-
-  nouvelleJoueuse = {
-    ...joueuseOriginale,
-    equipe: remplacante.equipeRemplacante,
-    numero,
-    nom,
-    remplacante: true,
-    equipeProvenance: remplacante.equipeProvenance,
-  };
-} else {
-  nouvelleJoueuse = {
-    id: creerId(),
-    equipe: remplacante.equipeRemplacante,
-    numero,
-    nom,
-    gardienne: false,
-    capitaine: false,
-    assistanteCapitaine: false,
-    absente: false,
-    suspendue: false,
-    remplacante: true,
-    equipeProvenance: remplacante.equipeProvenance,
-  };
-}
-
-    setJoueuses((anciennesJoueuses) => [
-      ...anciennesJoueuses,
-      nouvelleJoueuse,
-    ]);
-
-    modales.fermerRemplacante();
-    remplacante.reinitialiser();
+  if (!remplacante.equipeRemplacante) {
+    return;
   }
 
+  const numero = remplacante.numeroRemplacante.trim();
+  const nom = remplacante.nomRemplacante.trim();
+
+  if (!numero || !nom) {
+    alert("Entre le numéro et le nom de la remplaçante.");
+    return;
+  }
+
+  const numeroDisponible = numeroEstDisponible(
+    joueuses,
+    remplacante.equipeRemplacante,
+    numero,
+    remplacante.joueuseSelectionnee
+  );
+
+  if (!numeroDisponible) {
+    alert("Ce numéro existe déjà dans cette équipe.");
+    return;
+  }
+
+  const numeroDejaAttribueAUneRemplacante =
+    numeroUtiliseParRemplacante(
+      joueuses,
+      remplacante.equipeRemplacante,
+      numero
+    );
+
+  if (numeroDejaAttribueAUneRemplacante) {
+    alert(
+      "Ce chandail est déjà attribué à une autre remplaçante."
+    );
+    return;
+  }
+
+  let nouvelleJoueuse;
+
+  if (remplacante.modeRemplacante === "existante") {
+    const joueuseOriginale = joueuses.find(
+      (joueuse) =>
+        String(joueuse.id) ===
+        String(remplacante.joueuseSelectionnee)
+    );
+
+    if (!joueuseOriginale) {
+      alert("Sélectionne une joueuse existante.");
+      return;
+    }
+
+    nouvelleJoueuse = {
+      ...joueuseOriginale,
+      id: creerId(),
+      equipe: remplacante.equipeRemplacante,
+      numero,
+      nom,
+      remplacante: true,
+      equipeProvenance: remplacante.equipeProvenance,
+    };
+  } else {
+    nouvelleJoueuse = {
+      id: creerId(),
+      equipe: remplacante.equipeRemplacante,
+      numero,
+      nom,
+      gardienne: false,
+      capitaine: false,
+      assistanteCapitaine: false,
+      absente: false,
+      suspendue: false,
+      remplacante: true,
+      equipeProvenance: remplacante.equipeProvenance,
+    };
+  }
+
+  setJoueuses((anciennesJoueuses) => [
+    ...anciennesJoueuses,
+    nouvelleJoueuse,
+  ]);
+
+  modales.fermerRemplacante();
+  remplacante.reinitialiser();
+}
   function supprimerEquipe() {
     if (!suppressionEquipe.equipeASupprimer) {
       alert("Choisis une équipe à supprimer.");

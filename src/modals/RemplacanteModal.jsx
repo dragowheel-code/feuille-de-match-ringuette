@@ -1,3 +1,7 @@
+import {
+  obtenirChandailsDisponibles,
+} from "../utils/joueuses";
+
 export default function RemplacanteModal({
   ouverte,
   equipeRemplacante,
@@ -22,7 +26,13 @@ export default function RemplacanteModal({
   joueuses = [],
 }) {
   if (!ouverte) return null;
-
+  
+  const chandailsDisponibles =
+  obtenirChandailsDisponibles(
+    joueuses,
+    equipeRemplacante
+  );
+  
   return (
     <div className="modal-backdrop">
       <div className="modal">
@@ -124,6 +134,29 @@ export default function RemplacanteModal({
     setNumeroRemplacante(e.target.value)
   }
 />
+
+{chandailsDisponibles.length > 0 && (
+  <div className="chandails-disponibles">
+    <span>Chandails disponibles :</span>
+
+    <div className="chandails-disponibles-liste">
+      {chandailsDisponibles.map((joueuse) => (
+        <button
+          key={joueuse.id}
+          type="button"
+          className="bouton-chandail"
+          onClick={() =>
+            setNumeroRemplacante(
+              String(joueuse.numero)
+            )
+          }
+        >
+          #{joueuse.numero}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 
 <label>Nom</label>
 

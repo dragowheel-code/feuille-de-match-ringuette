@@ -394,6 +394,31 @@ button {
   color: #cbd5e1;
   margin-top: 2px;
 }
+.chandails-disponibles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.chandails-disponibles-liste {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bouton-chandail {
+  padding: 7px 12px;
+  border: 1px solid #777;
+  border-radius: 6px;
+  background: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.bouton-chandail:hover {
+  background: #eeeeee;
+}
 
 @media (max-width: 900px) {
   .app {
