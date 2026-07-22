@@ -77,10 +77,6 @@ export function creerPunition({
 
     nombrePortions: portions.length,
 
-    // Conservé temporairement pour compatibilité
-    dureeParPortion:
-      penalitesNormalisees[0]?.duree || 0,
-
     dureeTotale,
 
     tempsSortie,
@@ -89,9 +85,8 @@ export function creerPunition({
     tempsRetour: tempsFinPrevue,
 
     annulableParBut: penalitesNormalisees.some(
-      (penalite) =>
-        penalite.annulableParBut === true
-    ),
+  (penalite) => penalite.annulableParBut
+),
 
     annuleeParBut: false,
 

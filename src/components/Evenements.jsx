@@ -53,10 +53,7 @@ export default function Evenements({
                     — {event.punition}
                     {" "}
                     —{" "}
-                    {event.dureeTotale ??
-                      event.dureeParPortion ??
-                      event.duree}{" "}
-                    min
+                    {event.dureeTotale} min
                   </>
                 )}
 
