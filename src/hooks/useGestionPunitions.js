@@ -1,10 +1,6 @@
-import { creerId } from "../utils/ids";
-
-import {
-  ajouterMinutes,
-  calculerTempsCorrige,
-} from "../utils/temps";
-
+import { creerPunition } from "../domain/punitions";
+import { calculerTempsCorrige, } from "../utils/temps";
+import { creerPenalite, } from "../domain/punitions/penalite";
 import { trouverJoueuse } from "../utils/joueuses";
 import { validerPunition } from "../utils/validations";
 import { PENALITES } from "../constants/penalites";
@@ -51,106 +47,91 @@ export function useGestionPunitions({
       alert("Choisis la joueuse punie.");
       return;
     }
+const penalitesActives =
+  (punition.penalites ?? []).slice(
+    0,
+    punition.nombrePenalites
+  );
 
-    if (!punition.typePunition) {
-      alert("Choisis une punition.");
-      return;
+if (
+  penalitesActives.length === 0 ||
+  penalitesActives.some(
+    (penalite) => !penalite.type
+  )
+) {
+  alert("Choisis toutes les pénalités.");
+  return;
+}
+
+const penalitesValidees = penalitesActives.map(
+  (penalite) => {
+    const definition = PENALITES.find(
+      (element) =>
+        element.valeur === penalite.type
+    );
+
+    if (!definition) {
+      return null;
     }
+console.log(definition);
+    return creerPenalite({
+  type: penalite.type,
+  code: definition.code,
+  duree: penalite.duree,
+  categorie: definition.categorie,
+  annulableParBut:
+    definition.annulableParBut === true,
+});
+  }
+);
 
-    const joueuse = trouverJoueuse(
-      joueuses,
-      punition.joueusePunition,
-      equipeNomPourPunition
-    );
+if (
+  penalitesValidees.some(
+    (penalite) => penalite === null
+  )
+) {
+  alert(
+    "Une des pénalités sélectionnées est invalide."
+  );
+  return;
+}
+const joueuse = trouverJoueuse(
+  joueuses,
+  punition.joueusePunition,
+  equipeNomPourPunition
+);
 
-    const erreur = validerPunition(
-      joueuse,
-      punition.joueusePunition,
-      punition.joueusePurgeePar
-    );
+const erreur = validerPunition(
+  joueuse,
+  punition.joueusePunition,
+  punition.joueusePurgeePar
+);
 
-    if (erreur) {
-      alert(erreur);
-      return;
-    }
+if (erreur) {
+  alert(erreur);
+  return;
+}
+ const donneesPunition = creerPunition({
+  equipe: punition.equipePunition,
+  equipeNom: equipeNomPourPunition,
+  periode,
+  tempsTableau:
+    punition.tempsPunitionTableau,
+  tempsCorrige,
 
-    const penaliteSelectionnee = PENALITES.find(
-      (penalite) =>
-        penalite.valeur === punition.typePunition
-    );
+  joueuseNumero:
+    punition.joueusePunition,
 
-    if (!penaliteSelectionnee) {
-      alert("La pénalité sélectionnée est invalide.");
-      return;
-    }
+  joueuseNom: joueuses?.nom || "",
 
-    const tempsSortie = tempsCorrige;
+  purgeeParNumero:
+    punition.joueusePurgeePar,
 
-    const portions = Array.from(
-      {
-        length: punition.nombrePortionsPunition,
-      },
-      (_, index) => {
-        const debutPortion = ajouterMinutes(
-          tempsSortie,
-          index * Number(punition.dureePunition)
-        );
+  penalites: penalitesValidees,
+});
 
-        const finPortion = ajouterMinutes(
-          debutPortion,
-          Number(punition.dureePunition)
-        );
-
-        return {
-          id: creerId(),
-          numero: index + 1,
-          duree: Number(punition.dureePunition),
-          tempsDebut: debutPortion,
-          tempsFinPrevue: finPortion,
-          tempsRetour: finPortion,
-          annulableParBut:
-            penaliteSelectionnee.annulableParBut === true,
-          annuleeParBut: false,
-        };
-      }
-    );
-
-    const tempsFinPrevue =
-      portions.length > 0
-        ? portions[portions.length - 1].tempsFinPrevue
-        : tempsSortie;
-
-    const nouvelEvenement = creerEvenementPunition({
-      equipe: punition.equipePunition,
-      equipeNom: equipeNomPourPunition,
-      periode,
-      tempsTableau: punition.tempsPunitionTableau,
-      tempsCorrige,
-
-      joueuseNumero: punition.joueusePunition,
-      joueuseNom: joueuse?.nom || "",
-      purgeeParNumero: punition.joueusePurgeePar,
-
-      punition: punition.typePunition,
-      categorie: penaliteSelectionnee.categorie,
-
-      nombrePortions: punition.nombrePortionsPunition,
-      dureeParPortion: Number(punition.dureePunition),
-      dureeTotale:
-        Number(punition.dureePunition) *
-        punition.nombrePortionsPunition,
-
-      tempsSortie,
-      tempsDebut: tempsSortie,
-      tempsFinPrevue,
-      tempsRetour: tempsFinPrevue,
-
-      annulableParBut:
-        penaliteSelectionnee.annulableParBut === true,
-      annuleeParBut: false,
-
-      portions,
-    });
+const nouvelEvenement =
+  creerEvenementPunition(donneesPunition);
 
     setEvenements((anciensEvenements) =>
       ajouterEvenementAuDebut(

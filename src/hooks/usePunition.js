@@ -1,5 +1,10 @@
 import { useState } from "react";
 
+const PENALITE_INITIALE = {
+  type: "ACCROCHER / HOOKING",
+  duree: 2,
+};
+
 export function usePunition() {
   const [fenetrePunitionOuverte, setFenetrePunitionOuverte] =
     useState(false);
@@ -16,25 +21,24 @@ export function usePunition() {
   const [joueusePurgeePar, setJoueusePurgeePar] =
     useState("");
 
-  const [typePunition, setTypePunition] =
-    useState("ACCROCHER / HOOKING");
+  const [penalites, setPenalites] = useState([
+    { ...PENALITE_INITIALE },
+  ]);
 
-  const [dureePunition, setDureePunition] =
-    useState("2");
+  const [nombrePenalites, setNombrePenalites] =
+    useState(1);
 
-  const [
-    nombrePortionsPunition,
-    setNombrePortionsPunition,
-  ] = useState(1);
-
-  function ouvrir() {
-    setEquipePunition("Local");
+  function reinitialiserChamps() {
     setTempsPunitionTableau("");
     setJoueusePunition("");
     setJoueusePurgeePar("");
-    setTypePunition("ACCROCHER / HOOKING");
-    setDureePunition("2");
-    setNombrePortionsPunition(1);
+    setNombrePenalites(1);
+    setPenalites([{ ...PENALITE_INITIALE }]);
+  }
+
+  function ouvrir() {
+    setEquipePunition("Local");
+    reinitialiserChamps();
     setFenetrePunitionOuverte(true);
   }
 
@@ -43,10 +47,7 @@ export function usePunition() {
   }
 
   function reinitialiser() {
-    setTempsPunitionTableau("");
-    setJoueusePunition("");
-    setJoueusePurgeePar("");
-    setNombrePortionsPunition(1);
+    reinitialiserChamps();
   }
 
   return {
@@ -55,17 +56,17 @@ export function usePunition() {
     tempsPunitionTableau,
     joueusePunition,
     joueusePurgeePar,
-    typePunition,
-    dureePunition,
-    nombrePortionsPunition,
+
+    penalites,
+    setPenalites,
+
+    nombrePenalites,
+    setNombrePenalites,
 
     setEquipePunition,
     setTempsPunitionTableau,
     setJoueusePunition,
     setJoueusePurgeePar,
-    setTypePunition,
-    setDureePunition,
-    setNombrePortionsPunition,
 
     ouvrir,
     fermer,

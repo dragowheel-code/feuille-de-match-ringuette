@@ -16,15 +16,12 @@ function PartieModals({
   calculerTempsCorrige,
   joueusesDisponibles,
   confirmerBut,
-
   tirBarrage,
   joueusesTirBarrageDisponibles,
   confirmerTirBarrage,
-
   punition,
   joueusesPunitionDisponibles,
   confirmerPunition,
-
   annulationPunition,
   confirmerAnnulationPunition,
   confirmerButSansAnnulation,
@@ -103,15 +100,14 @@ function PartieModals({
         joueusesPunitionDisponibles={
           joueusesPunitionDisponibles
         }
-        typePunition={punition.typePunition}
-        setTypePunition={punition.setTypePunition}
-        dureePunition={punition.dureePunition}
-        setDureePunition={punition.setDureePunition}
-        nombrePortionsPunition={
-          punition.nombrePortionsPunition
+        penalites={punition.penalites}
+        setPenalites={punition.setPenalites}
+        
+        nombrePenalites={
+          punition.nombrePenalites
         }
-        setNombrePortionsPunition={
-          punition.setNombrePortionsPunition
+        setNombrePenalites={
+          punition.setNombrePenalites
         }
         confirmerPunition={confirmerPunition}
         fermer={punition.fermer}

@@ -125,30 +125,6 @@ const resumeVisiteur = {
 };
 resumeVisiteur.total =resumeVisiteur.p1 + resumeVisiteur.p2 + resumeVisiteur.prol + resumeVisiteur.tb;
 
-
-  const codesPunition = {
-      "ACCROCHER / HOOKING": "1",
-      "ASSAUT / CHARGE": "2",
-      "BATON ELEVE / HIGH STICKING": "3",
-      "CINGLER / SLASHING": "4",
-      "DONNER DU COUDE / ELBOWING": "5",
-      "DOUBLE ECHEC / CROSS CHECKING": "6",
-      "FAIRE TREBUCHER / TRIPPING": "7",
-      "MISE EN ECHEC / BODY CONTACT": "8",
-      "OBSTRUCTION / INTERFERENCE": "9",
-      "PLAQUAGE CONTRE LA BANDE / BOARDING": "10",
-      "RETARDER LA PARTIE / DELAY OF GAME": "11",
-      "RETENUE / HOLDING": "12",
-      "SUBSTITUTION ILLEGALE / ILLEGAL SUBSTITUTION": "13",
-      "CONDUITE NON SPORTIVE / UNSPORTSMANLIKE CONDUCT  2 MIN.": "14",
-      "PENALITE MAJEURE / MAJOR PENALTY  4 MIN.": "15",
-      "MAUVAISE CONDUITE / MISCONDUCT  2 MIN.": "16",
-      "PENALITE DE MATCH / MATCH PENALTY  4 MIN.": "17",
-      "LANCER DE PUNITION / PENALTY SHOT": "18",
-      "RUDESSE / ROUGH PLAY  4 MIN.": "19",
-      "ATHLETE EXPULSE POUR AVOIR ACCUMULE 10 MINUTES DE PENALITE": "20"
-};
-
  function drawTeamBlock(y, role, teamName, score, players, goals, penalties, chandail, equipeData, resume, changementGardienne, tempsMorts) {
     blackBar("SOMMAIRE - SUMMARY", y);
     y += 5;
@@ -231,21 +207,87 @@ resumeVisiteur.total =resumeVisiteur.p1 + resumeVisiteur.p2 + resumeVisiteur.pro
       cx += penCols[i];
       doc.line(cx, y + rowH, cx, y + tableH);
     }
-    penalties.slice(0, 12).forEach((pen, i) => {
-      const yy = y + rowH * 2 + i * rowH + 3.1;
-      let x = px;
-      const vals = [ pen.joueuseNumero, pen.purgeeParNumero || "", pen.duree, codesPunition[pen.punition] || "", "", pen.tempsSortie || "", pen.tempsDebut || "", pen.tempsFinPrevue || "", pen.tempsRetour || "",
-];
-      vals.forEach((v, idx) => {
-  if (idx === 1) {
-    lineText(v || "", x + 1, yy, 4.5);
-  } else {
-    centerText(v || "", x, yy, penCols[idx], 5);
+    const lignesPunitions = penalties.flatMap((punition) => {
+  const portions = punition.portions ?? [];
+
+  if (portions.length === 0) {
+    return [
+      {
+        joueuseNumero: punition.joueuseNumero,
+        purgeeParNumero: punition.purgeeParNumero,
+        duree: punition.duree,
+        code: punition.code,
+        tempsSortie: punition.tempsSortie,
+        tempsDebut: punition.tempsDebut,
+        tempsFinPrevue: punition.tempsFinPrevue,
+        tempsRetour: punition.tempsRetour,
+      },
+    ];
   }
 
-  x += penCols[idx];
+  return portions.map((portion) => ({
+    joueuseNumero: punition.joueuseNumero,
+    purgeeParNumero: punition.purgeeParNumero,
+
+    duree: portion.duree,
+    code: portion.code,
+
+    tempsSortie:
+      portion.tempsSortie ??
+      portion.tempsDebut ??
+      "",
+
+    tempsDebut: portion.tempsDebut ?? "",
+
+    tempsFinPrevue:
+      portion.tempsFinPrevue ?? "",
+
+    tempsRetour:
+      portion.tempsRetour ?? "",
+  }));
 });
+
+lignesPunitions
+  .slice(0, 12)
+  .forEach((ligne, i) => {
+    const yy =
+      y + rowH * 2 + i * rowH + 3.1;
+
+    let x = px;
+
+    const vals = [
+      ligne.joueuseNumero,
+      ligne.purgeeParNumero || "",
+      ligne.duree,
+      ligne.code || "",
+      "",
+      ligne.tempsSortie || "",
+      ligne.tempsDebut || "",
+      ligne.tempsFinPrevue || "",
+      ligne.tempsRetour || "",
+    ];
+
+    vals.forEach((valeur, idx) => {
+      if (idx === 1) {
+        lineText(
+          valeur || "",
+          x + 1,
+          yy,
+          4.5
+        );
+      } else {
+        centerText(
+          valeur || "",
+          x,
+          yy,
+          penCols[idx],
+          5
+        );
+      }
+
+      x += penCols[idx];
     });
+  });
 
     const footY = y + tableH;
 

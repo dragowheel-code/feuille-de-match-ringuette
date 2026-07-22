@@ -1,10 +1,12 @@
-import { PENALITES } from "../constants/penalites";
+import PenaliteForm from "../components/PenaliteForm";
 
 export default function PunitionModal({
   ouverte,
   equipePunition,
   setEquipePunition,
   matchInfo,
+  penalites,
+  setPenalites,
   tempsPunitionTableau,
   setTempsPunitionTableau,
   tempsCorrige,
@@ -13,15 +15,12 @@ export default function PunitionModal({
   joueusePurgeePar,
   setJoueusePurgeePar,
   joueusesPunitionDisponibles,
-  typePunition,
-  setTypePunition,
-  dureePunition,
-  setDureePunition,
-  nombrePortionsPunition,
-  setNombrePortionsPunition,
+  nombrePenalites,
+  setNombrePenalites,
   confirmerPunition,
   fermer,
 }) {
+
   if (!ouverte) return null;
 
   return (
@@ -86,62 +85,78 @@ export default function PunitionModal({
           ))}
         </select>
 
-        <label>Punition</label>
-        <select
-          value={typePunition}
-          onChange={(e) => {
-            const valeur = e.target.value;
-            setTypePunition(valeur);
+<label>Pénalités imposées</label>
 
-            const penalite = PENALITES.find(
-              (element) => element.valeur === valeur
-            );
+<div className="radio-group">
+  <label>
+    <input
+      type="radio"
+      name="nombrePenalites"
+      checked={nombrePenalites === 1}
+      onChange={() => setNombrePenalites(1)}
+    />
+    1 pénalité
+  </label>
 
-            if (!penalite) return;
+ <input
+  type="radio"
+  name="nombrePenalites"
+  checked={nombrePenalites === 2}
+  onChange={() => {
+    setNombrePenalites(2);
 
-            setDureePunition(penalite.dureeParPortion);
-            setNombrePortionsPunition(
-              penalite.nombrePortionsParDefaut || 1
-            );
-          }}
-        >
-          <option value="">Choisir une punition</option>
+    setPenalites((anciennesPenalites) => {
+      if (anciennesPenalites.length >= 2) {
+        return anciennesPenalites;
+      }
 
-          {PENALITES.map((penalite) => (
-            <option
-              key={penalite.valeur}
-              value={penalite.valeur}
-            >
-              {penalite.valeur}
-            </option>
-          ))}
-        </select>
+      return [
+        ...anciennesPenalites,
+        {
+          type: "ACCROCHER / HOOKING",
+          duree: 2,
+        },
+      ];
+    });
+  }}
+/>
+    2 pénalités
+</div>
 
-        <label>Nombre de pénalités sur le même appel</label>
-        <select
-          value={nombrePortionsPunition}
-          onChange={(e) =>
-            setNombrePortionsPunition(Number(e.target.value))
-          }
-        >
-          <option value={1}>1</option>
-          <option value={2}>2</option>
-        </select>
+        <PenaliteForm
+  titre="Pénalité 1"
+  penalite={penalites[0]}
+  onChange={(nouvellePenalite) => {
+    const nouvellesPenalites = [...penalites];
+    nouvellesPenalites[0] = nouvellePenalite;
+    setPenalites(nouvellesPenalites);
+  }}
+  setNombrePenalites={setNombrePenalites}
+/>        
+{nombrePenalites === 2 && (
+  <PenaliteForm
+    titre="Pénalité 2"
+    penalite={
+      penalites[1] ?? {
+        type: "ACCROCHER / HOOKING",
+        duree: 2,
+      }
+    }
+    onChange={(nouvellePenalite) => {
+      const nouvellesPenalites = [...penalites];
 
-        <label>Durée par pénalité</label>
-        <select
-          value={dureePunition}
-          onChange={(e) =>
-            setDureePunition(Number(e.target.value))
-          }
-        >
-          <option value={0}>Aucune durée</option>
-          <option value={2}>2 min</option>
-          <option value={4}>4 min</option>
-          <option value={5}>5 min</option>
-          <option value={10}>10 min</option>
-        </select>
+      while (nouvellesPenalites.length < 2) {
+        nouvellesPenalites.push({
+          type: "ACCROCHER / HOOKING",
+          duree: 2,
+        });
+      }
 
+      nouvellesPenalites[1] = nouvellePenalite;
+      setPenalites(nouvellesPenalites);
+    }}
+  />
+)}
         <div className="modal-actions">
           <button onClick={confirmerPunition}>
             Confirmer la punition

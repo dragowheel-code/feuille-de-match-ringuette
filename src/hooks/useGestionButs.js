@@ -2,6 +2,7 @@ import { creerEvenementBut, ajouterEvenementAuDebut } from "../services/evenemen
 import { trouverJoueuse } from "../utils/joueuses";
 import { calculerTempsCorrige } from "../utils/temps";
 import { validerBut } from "../utils/validations";
+import { mettreAJourPunitionApresBut, trouverPortionActive, } from "../domain/punitions";
 
 export function useGestionButs({
   matchInfo,
@@ -23,31 +24,42 @@ export function useGestionButs({
   }
 
   function trouverPunitionsActives(
-    equipeQuiMarque,
-    tempsButCorrige
-  ) {
-    const equipeAdverse =
-      equipeQuiMarque === "Local" ? "Visiteur" : "Local";
+  equipeQuiMarque,
+  tempsButCorrige
+) {
+  const equipeAdverse =
+    equipeQuiMarque === "Local" ? "Visiteur" : "Local";
 
-    return evenements.filter((event) => {
-      if (event.type !== "Punition") {
-        return false;
-      }
+  return evenements.filter((event) => {
+    if (event.type !== "Punition") {
+      return false;
+    }
 
-      if (event.equipe !== equipeAdverse) {
-        return false;
-      }
+    if (event.equipe !== equipeAdverse) {
+      return false;
+    }
+    console.log(
+  JSON.stringify(event.portions[0], null, 2)
+);
 
-      if (event.annuleeParBut) {
-        return false;
-      }
+    const portionActive = trouverPortionActive(
+      event.portions ?? []
+    );
 
-      return (
-        event.tempsRetour &&
-        event.tempsRetour > tempsButCorrige
-      );
-    });
-  }
+    if (!portionActive) {
+      return false;
+    }
+
+    if (!portionActive.annulableParBut) {
+      return false;
+    }
+
+    return (
+      portionActive.tempsRetour &&
+      portionActive.tempsRetour > tempsButCorrige
+    );
+  });
+}
 
   function confirmerBut() {
     if (!buts.tempsTableau.trim()) {
@@ -193,24 +205,22 @@ export function useGestionButs({
     );
 
     setEvenements((anciensEvenements) => {
-      const evenementsMisAJour =
-        anciensEvenements.map((event) =>
-          String(event.id) === idPunition
-            ? {
-                ...event,
-                tempsRetour:
-                  annulationPunition.butEnAttente
-                    .tempsCorrige,
-                annuleeParBut: true,
-              }
-            : event
-        );
+  const evenementsMisAJour = anciensEvenements.map(
+    (event) =>
+      String(event.id) === idPunition
+        ? mettreAJourPunitionApresBut(
+            event,
+            annulationPunition.butEnAttente
+              .tempsCorrige
+          )
+        : event
+  );
 
-      return ajouterEvenementAuDebut(
-        evenementsMisAJour,
-        annulationPunition.butEnAttente
-      );
-    });
+  return ajouterEvenementAuDebut(
+    evenementsMisAJour,
+    annulationPunition.butEnAttente
+  );
+});
 
     annulationPunition.reinitialiser();
   }

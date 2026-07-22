@@ -1,4 +1,4 @@
-import { trouverJoueusesDisponibles } from "../utils/joueuses";
+import { obtenirJoueusesEquipe } from "../utils/joueuses";
 
 export function useDonneesMatch({
   equipes,
@@ -24,19 +24,19 @@ export function useDonneesMatch({
       : matchInfo.equipeVisiteuse;
 
   const joueusesDisponibles =
-    trouverJoueusesDisponibles(
+    obtenirJoueusesEquipe(
       joueuses,
       equipeNomPourBut
     );
 
   const joueusesPunitionDisponibles =
-    trouverJoueusesDisponibles(
+    obtenirJoueusesEquipe(
       joueuses,
       gestionPunitions.equipeNomPourPunition
     );
 
   const joueusesTirBarrageDisponibles =
-    trouverJoueusesDisponibles(
+    obtenirJoueusesEquipe(
       joueuses,
       gestionTirBarrage.equipeNomPourTirBarrage
     );
