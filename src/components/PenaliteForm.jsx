@@ -4,7 +4,7 @@ export default function PenaliteForm({
   titre,
   penalite,
   onChange,
- }) {
+}) {
   return (
     <div className="penalite-form">
       <h3>{titre}</h3>
@@ -12,20 +12,24 @@ export default function PenaliteForm({
       <label>Type de pénalité</label>
 
       <select
-        value={penalite.type}
+        value={penalite.libelle}
         onChange={(e) => {
           const valeur = e.target.value;
 
-          const definitionPenalite = PENALITES.find(
-            (element) => element.valeur === valeur
-          );
+          const definitionPenalite =
+            PENALITES.find(
+              (element) =>
+                element.libelle === valeur
+            );
 
           onChange({
             ...penalite,
-            type: valeur,
+            libelle: valeur,
             duree: definitionPenalite
-  ? Number(definitionPenalite.dureeParDefaut)
-  : penalite.duree,
+              ? Number(
+                  definitionPenalite.dureeParDefaut
+                )
+              : penalite.duree,
           });
         }}
       >
@@ -33,14 +37,16 @@ export default function PenaliteForm({
           Choisir une pénalité
         </option>
 
-        {PENALITES.map((definitionPenalite) => (
-          <option
-            key={definitionPenalite.valeur}
-            value={definitionPenalite.valeur}
-          >
-            {definitionPenalite.valeur}
-          </option>
-        ))}
+        {PENALITES.map(
+          (definitionPenalite) => (
+            <option
+              key={definitionPenalite.libelle}
+              value={definitionPenalite.libelle}
+            >
+              {definitionPenalite.libelle}
+            </option>
+          )
+        )}
       </select>
 
       <label>Durée</label>

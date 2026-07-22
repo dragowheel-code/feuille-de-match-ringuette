@@ -24,8 +24,9 @@ export function creerPortionsPunition(
     penalite.annulableParBut === true
   ),
 
-  type: penalite.type,
+  libelle: penalite.libelle,
   code: penalite.code,
+  lettre: penalite.lettre ?? null,
   categorie: penalite.categorie,
 };
 

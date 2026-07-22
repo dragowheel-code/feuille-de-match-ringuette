@@ -260,7 +260,7 @@ lignesPunitions
       ligne.purgeeParNumero || "",
       ligne.duree,
       ligne.code || "",
-      "",
+      ligne.lettre || "",
       ligne.tempsSortie || "",
       ligne.tempsDebut || "",
       ligne.tempsFinPrevue || "",

@@ -1,5 +1,5 @@
 export function calculerLibellePunition(penalites) {
   return penalites
-    .map((penalite) => penalite.type)
+    .map((penalite) => penalite.libelle)
     .join(" + ");
 }

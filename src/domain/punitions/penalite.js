@@ -1,13 +1,15 @@
 export function creerPenalite({
-  type,
+  libelle,
   code,
+  lettre = null,
   duree,
   categorie,
   annulableParBut,
 }) {
   return {
-    type,
+    libelle,
     code,
+    lettre,
     duree: Number(duree),
     categorie,
     annulableParBut,

@@ -16,19 +16,27 @@ export function creerPunition({
   purgeeParNumero,
   penalites,
 }) {
+ 
   const tempsSortie = tempsCorrige;
 
   const penalitesNormalisees = penalites.map(
   (penalite) =>
     creerPenalite({
-      type: penalite.type,
+      libelle: penalite.libelle,
       code: penalite.code,
       duree: penalite.duree,
+      lettre: penalite.lettre ?? null,
       categorie: penalite.categorie,
       annulableParBut:
         penalite.annulableParBut === true,
     })
 );
+
+  penalitesNormalisees.map((p) => ({
+    libelle: p.libelle,
+    code: p.code,
+    lettre: p.lettre,
+  }))
 
   const portions = creerPortionsPunition(
     tempsSortie,

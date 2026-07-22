@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const PENALITE_INITIALE = {
-  type: "ACCROCHER / HOOKING",
+  libelle: "ACCROCHER / HOOKING",
   duree: 2,
 };
 

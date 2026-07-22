@@ -38,10 +38,7 @@ export function useGestionButs({
     if (event.equipe !== equipeAdverse) {
       return false;
     }
-    console.log(
-  JSON.stringify(event.portions[0], null, 2)
-);
-
+   
     const portionActive = trouverPortionActive(
       event.portions ?? []
     );

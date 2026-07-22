@@ -1,10 +1,11 @@
-import { creerPunition } from "../domain/punitions";
+import {
+  creerPunition,
+  creerPenalite,
+  trouverDefinitionPenalite,
+} from "../domain/punitions";
 import { calculerTempsCorrige, } from "../utils/temps";
-import { creerPenalite, } from "../domain/punitions/penalite";
 import { trouverJoueuse } from "../utils/joueuses";
 import { validerPunition } from "../utils/validations";
-import { PENALITES } from "../constants/penalites";
-
 import {
   ajouterEvenementAuDebut,
   creerEvenementPunition,
@@ -56,7 +57,7 @@ const penalitesActives =
 if (
   penalitesActives.length === 0 ||
   penalitesActives.some(
-    (penalite) => !penalite.type
+    (penalite) => !penalite.libelle
   )
 ) {
   alert("Choisis toutes les pénalités.");
@@ -65,18 +66,19 @@ if (
 
 const penalitesValidees = penalitesActives.map(
   (penalite) => {
-    const definition = PENALITES.find(
-      (element) =>
-        element.valeur === penalite.type
-    );
+    const definition =
+  trouverDefinitionPenalite(
+    penalite.libelle
+  );
 
     if (!definition) {
       return null;
     }
-console.log(definition);
-    return creerPenalite({
-  type: penalite.type,
+
+   return creerPenalite({
+  libelle: penalite.libelle,
   code: definition.code,
+  lettre: definition.lettre ?? null,
   duree: penalite.duree,
   categorie: definition.categorie,
   annulableParBut:

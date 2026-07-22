@@ -16,3 +16,5 @@ export { mettreAJourPunitionApresBut } from "./annulation/mettreAJourPunitionApr
 export { recalculerTempsPortions } from "./annulation/recalculerTempsPortions";
 export { traiterAnnulationParBut } from "./annulation/traiterAnnulationParBut";
 export { trouverPortionActive } from "./annulation/trouverPortionActive";
+// Fonctionnel//
+export { trouverDefinitionPenalite } from "./definitions/trouverDefinitionPenalite";
