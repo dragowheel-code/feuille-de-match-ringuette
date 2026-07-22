@@ -113,7 +113,7 @@ export default function PunitionModal({
       return [
         ...anciennesPenalites,
         {
-          type: "ACCROCHER / HOOKING",
+          libelle: "ACCROCHER / HOOKING",
           duree: 2,
         },
       ];
@@ -138,7 +138,7 @@ export default function PunitionModal({
     titre="Pénalité 2"
     penalite={
       penalites[1] ?? {
-        type: "ACCROCHER / HOOKING",
+        libelle: "ACCROCHER / HOOKING",
         duree: 2,
       }
     }
@@ -147,7 +147,7 @@ export default function PunitionModal({
 
       while (nouvellesPenalites.length < 2) {
         nouvellesPenalites.push({
-          type: "ACCROCHER / HOOKING",
+          libelle: "ACCROCHER / HOOKING",
           duree: 2,
         });
       }
