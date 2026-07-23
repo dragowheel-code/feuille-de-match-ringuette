@@ -1,4 +1,5 @@
 import { DUREES_PERIODE } from "../constants/dureesPeriode";
+import { mettreAJourMatch } from "../domain/match";
 
 export default function ConfigurationModal({
   ouverte,
@@ -17,6 +18,11 @@ export default function ConfigurationModal({
   operateurs30sDisponibles,
 }) {
   if (!ouverte) return null;
+  function modifierMatch(modifications) {
+  setMatchInfo(
+    mettreAJourMatch(matchInfo, modifications)
+  );
+}
 
   return (
     <div className="modal-backdrop">
@@ -29,12 +35,11 @@ export default function ConfigurationModal({
           <label>Numéro de partie</label>
           <input
             value={matchInfo.numeroPartie || ""}
-            onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
-                numeroPartie: e.target.value,
-              })
-            }
+           onChange={(e) =>
+  modifierMatch({
+    numeroPartie: e.target.value,
+  })
+}
             placeholder="Exemple : 104"
           />
 
@@ -43,22 +48,19 @@ export default function ConfigurationModal({
             type="date"
             value={matchInfo.date || ""}
             onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
-                date: e.target.value,
-              })
-            }
+  modifierMatch({
+    date: e.target.value,
+  })
+}
           />
 
           <label>Aréna</label>
           <input
             value={matchInfo.arena || ""}
             onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
+              modifierMatch({
                 arena: e.target.value,
-              })
-            }
+              })            }
             placeholder="Exemple : Aréna Guy Carbonneau"
           />
 
@@ -66,11 +68,10 @@ export default function ConfigurationModal({
           <select
             value={matchInfo.calibre || "U12"}
             onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
+              modifierMatch({
                 calibre: e.target.value,
-              })
-            }
+                })
+              }
           >
             <option value="U10">U10</option>
             <option value="U12">U12</option>
@@ -106,11 +107,10 @@ export default function ConfigurationModal({
               <select
                 value={matchInfo.equipeLocale || ""}
                 onChange={(e) =>
-                  setMatchInfo({
-                    ...matchInfo,
-                    equipeLocale: e.target.value,
-                  })
-                }
+  modifierMatch({
+    equipeLocale: e.target.value,
+  })
+}
               >
                 <option value="">Choisir</option>
 
@@ -129,11 +129,10 @@ export default function ConfigurationModal({
               <select
                 value={matchInfo.equipeVisiteuse || ""}
                 onChange={(e) =>
-                  setMatchInfo({
-                    ...matchInfo,
-                    equipeVisiteuse: e.target.value,
-                  })
-                }
+  modifierMatch({
+    equipeVisiteuse: e.target.value,
+  })
+}
               >
                 <option value="">Choisir</option>
 
@@ -155,8 +154,7 @@ export default function ConfigurationModal({
               type="checkbox"
               checked={matchInfo.envoyerCourrielLocal || false}
               onChange={(e) =>
-                setMatchInfo({
-                  ...matchInfo,
+              modifierMatch({
                   envoyerCourrielLocal: e.target.checked,
                 })
               }
@@ -175,8 +173,7 @@ export default function ConfigurationModal({
                 matchInfo.envoyerCourrielVisiteur || false
               }
               onChange={(e) =>
-                setMatchInfo({
-                  ...matchInfo,
+                modifierMatch({
                   envoyerCourrielVisiteur: e.target.checked,
                 })
               }
@@ -194,8 +191,7 @@ export default function ConfigurationModal({
             type="text"
             value={matchInfo.courrielPersonnalise || ""}
             onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
+              modifierMatch({
                 courrielPersonnalise: e.target.value,
               })
             }
@@ -219,8 +215,7 @@ export default function ConfigurationModal({
           <select
             value={matchInfo.arbitrePrincipal || ""}
             onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
+              modifierMatch({
                 arbitrePrincipal: e.target.value,
               })
             }
@@ -238,8 +233,7 @@ export default function ConfigurationModal({
           <select
             value={matchInfo.arbitreSecondaire || ""}
             onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
+              modifierMatch({
                 arbitreSecondaire: e.target.value,
               })
             }
@@ -257,8 +251,7 @@ export default function ConfigurationModal({
           <select
             value={matchInfo.chronometreur || ""}
             onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
+              modifierMatch({
                 chronometreur: e.target.value,
               })
             }
@@ -276,8 +269,7 @@ export default function ConfigurationModal({
           <select
             value={matchInfo.marqueur || ""}
             onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
+              modifierMatch({
                 marqueur: e.target.value,
               })
             }
@@ -295,8 +287,7 @@ export default function ConfigurationModal({
           <select
             value={matchInfo.operateur30s || ""}
             onChange={(e) =>
-              setMatchInfo({
-                ...matchInfo,
+              modifierMatch({
                 operateur30s: e.target.value,
               })
             }

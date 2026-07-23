@@ -1,4 +1,11 @@
 import CouleurApercu from "./CouleurApercu";
+import { mettreAJourMatch } from "../domain/match";
+
+function modifierMatch(modifications) {
+  setMatchInfo(
+    mettreAJourMatch(matchInfo, modifications)
+  );
+}
 
 export default function Alignements({
   joueuses,
@@ -118,11 +125,10 @@ export default function Alignements({
     <select
       value={matchInfo.couleurLocaleChoisie}
       onChange={(e) =>
-        setMatchInfo({
-          ...matchInfo,
-          couleurLocaleChoisie: e.target.value,
-        })
-      }
+  modifierMatch({
+    couleurLocaleChoisie: e.target.value,
+  })
+}
     >
       <option value="primaire">
         {equipeLocaleData?.nomCouleurPrimaire || "Primaire"}
@@ -180,11 +186,10 @@ export default function Alignements({
     <select
       value={matchInfo.couleurVisiteuseChoisie}
       onChange={(e) =>
-        setMatchInfo({
-          ...matchInfo,
-          couleurVisiteuseChoisie: e.target.value,
-        })
-      }
+  modifierMatch({
+    couleurVisiteuseChoisie: e.target.value,
+  })
+}
     >
       <option value="primaire">
         {equipeVisiteuseData?.nomCouleurPrimaire || "Primaire"}

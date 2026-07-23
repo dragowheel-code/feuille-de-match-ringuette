@@ -1,27 +1,7 @@
 import { useState } from "react";
 import { chargerDepuisStockage } from "../services/storage";
 import { usePersistanceDonnees } from "./usePersistanceDonnees";
-
-const MATCH_INFO_INITIAL = {
-  numeroPartie: "",
-  date: "",
-  arena: "",
-  calibre: "U12",
-  equipeLocale: "",
-  equipeVisiteuse: "",
-  couleurLocaleChoisie: "primaire",
-  couleurVisiteuseChoisie: "primaire",
-  arbitrePrincipal: "",
-  arbitreSecondaire: "",
-  chronometreur: "",
-  marqueur: "",
-  operateur30s: "",
-  heureDebut: "",
-  heureFin: "",
-  envoyerCourrielLocal: true,
-  envoyerCourrielVisiteur: false,
-  courrielPersonnalise: "",
-};
+import { creerMatch } from "../domain/match";
 
 export function useDonneesApplication() {
   const [officiels, setOfficiels] = useState(() =>
@@ -30,9 +10,9 @@ export function useDonneesApplication() {
 
   const [matchInfo, setMatchInfo] = useState(() =>
     chargerDepuisStockage(
-      "matchInfo",
-      MATCH_INFO_INITIAL
-    )
+  "matchInfo",
+  creerMatch()
+)
   );
 
   const [equipes, setEquipes] = useState(() =>
