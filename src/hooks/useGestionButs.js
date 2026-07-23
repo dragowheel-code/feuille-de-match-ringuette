@@ -1,4 +1,4 @@
-import { creerEvenementBut, ajouterEvenementAuDebut } from "../services/evenements";
+import { creerEvenementBut, ajouterEvenementAuDebut } from "../domain/evenements";
 import { trouverJoueuse } from "../utils/joueuses";
 import { calculerTempsCorrige } from "../utils/temps";
 import { validerBut } from "../utils/validations";

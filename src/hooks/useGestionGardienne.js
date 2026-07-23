@@ -1,7 +1,7 @@
 import {
   ajouterEvenementAuDebut,
   creerEvenementGardienne,
-} from "../services/evenements";
+} from "../domain/evenements";
 
 import { calculerTempsCorrige } from "../utils/temps";
 

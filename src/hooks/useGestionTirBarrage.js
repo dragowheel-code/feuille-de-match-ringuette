@@ -2,7 +2,7 @@ import { trouverJoueuse } from "../utils/joueuses";
 
 import {
   creerEvenementTirBarrage,
-} from "../services/evenements";
+} from "../domain/evenements";
 
 export function useGestionTirBarrage({
   matchInfo,

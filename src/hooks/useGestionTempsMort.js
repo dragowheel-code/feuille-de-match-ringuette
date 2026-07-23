@@ -1,7 +1,7 @@
 import {
   ajouterEvenementAuDebut,
   creerEvenementTempsMort,
-} from "../services/evenements";
+} from "../domain/evenements";
 
 export function useGestionTempsMort({
   matchInfo,

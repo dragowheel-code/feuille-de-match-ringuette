@@ -9,7 +9,7 @@ import { validerPunition } from "../utils/validations";
 import {
   ajouterEvenementAuDebut,
   creerEvenementPunition,
-} from "../services/evenements";
+} from "../domain/evenements";
 
 export function useGestionPunitions({
   matchInfo,
