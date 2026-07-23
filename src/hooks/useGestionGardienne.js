@@ -2,7 +2,7 @@ import {
   ajouterEvenementAuDebut,
   creerEvenementGardienne,
 } from "../domain/evenements";
-
+import { TYPES_EVENEMENT, } from "../domain/evenements";
 import { calculerTempsCorrige } from "../utils/temps";
 
 export function useGestionGardienne({
@@ -25,7 +25,7 @@ export function useGestionGardienne({
   function confirmerChangementGardienne() {
     const changementExiste = evenements.some(
       (event) =>
-        event.type === "Changement gardienne" &&
+        event.type === TYPES_EVENEMENT.CHANGEMENT_GARDIENNE &&
         event.equipe === gardienne.equipeGardienne
     );
 

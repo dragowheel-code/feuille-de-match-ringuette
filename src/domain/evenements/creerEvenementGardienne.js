@@ -1,8 +1,9 @@
 import { creerEvenement } from "./creerEvenement";
+import { TYPES_EVENEMENT } from "./typesEvenement";
 
 export function creerEvenementGardienne(data) {
   return creerEvenement({
-    type: "Changement gardienne",
+    type: TYPES_EVENEMENT.GARDIENNE,
     ...data,
   });
 }

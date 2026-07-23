@@ -1,5 +1,6 @@
 import jsPDF from "jspdf";
 import logoRingette from "../assets/logo-ringette.png";
+import { TYPES_EVENEMENT, } from "../domain/evenements";
 
 export function creerPDF({
   sauvegarder = true,
@@ -23,9 +24,9 @@ export function creerPDF({
   const contentWidth = pageWidth - margin * 2;
   const rowH = 4.2;
 
-  const buts = evenements.filter((event) => event.type === "But");
-  const punitions = evenements.filter((event) => event.type === "Punition");
-  const tirsBarrage = evenements.filter((event) => event.type === "Tir de barrage");
+  const buts = evenements.filter((event) => event.type === TYPES_EVENEMENT.BUT);
+  const punitions = evenements.filter((event) => event.type === TYPES_EVENEMENT.PUNITION);
+  const tirsBarrage = evenements.filter((event) => event.type === TYPES_EVENEMENT.TIR_DE_BARRAGE);
   const tirsBarrageLocal = tirsBarrage.filter((event) => event.equipe === "Local" && event.reussi);
   const tirsBarrageVisiteur = tirsBarrage.filter((event) => event.equipe === "Visiteur" && event.reussi);
   const butsLocal = buts.filter((event) => event.equipe === "Local").reverse();
@@ -36,13 +37,13 @@ export function creerPDF({
   const joueusesVisiteuses = joueuses.filter((joueuse) => joueuse.equipe === matchInfo.equipeVisiteuse && !joueuse.absente);
   const absentesLocales = joueuses.filter((joueuse) => joueuse.equipe === matchInfo.equipeLocale && joueuse.absente);
   const absentesVisiteuses = joueuses.filter((joueuse) => joueuse.equipe === matchInfo.equipeVisiteuse && joueuse.absente);
-  const changementsGardienne = evenements.filter((event) => event.type === "Changement gardienne");
+  const changementsGardienne = evenements.filter((event) => event.type === TYPES_EVENEMENT.CHANGEMENT_GARDIENNE);
   const changementGardienneLocal = changementsGardienne.find((event) => event.equipe === "Local");
   const changementGardienneVisiteur = changementsGardienne.find((event) => event.equipe === "Visiteur");
   const chandailLocal = matchInfo.couleurLocaleChoisie === "primaire" ? equipeLocaleData?.nomCouleurPrimaire : equipeLocaleData?.nomCouleurSecondaire;
   const chandailVisiteur = matchInfo.couleurVisiteuseChoisie === "primaire" ? equipeVisiteuseData?.nomCouleurPrimaire : equipeVisiteuseData?.nomCouleurSecondaire;
-  const tempsMortsLocal = evenements.filter((event) => event.type === "Temps mort" && event.equipe === "Local").length;
-  const tempsMortsVisiteur = evenements.filter((event) => event.type === "Temps mort" && event.equipe === "Visiteur").length;
+  const tempsMortsLocal = evenements.filter((event) => event.type === TYPES_EVENEMENT.TEMPS_MORT && event.equipe === "Local").length;
+  const tempsMortsVisiteur = evenements.filter((event) => event.type === TYPES_EVENEMENT.TEMPS_MORT && event.equipe === "Visiteur").length;
 
   function txt(value) {return String(value || "");
   }

@@ -1,4 +1,5 @@
 import { obtenirJoueusesEquipe } from "../utils/joueuses";
+import { TYPES_EVENEMENT, } from "../domain/evenements";
 
 export function useDonneesMatch({
   equipes,
@@ -43,13 +44,13 @@ export function useDonneesMatch({
 
   const scoreLocal = evenements.filter(
     (event) =>
-      event.type === "But" &&
+      event.type === TYPES_EVENEMENT.BUT &&
       event.equipe === "Local"
   ).length;
 
   const scoreVisiteur = evenements.filter(
     (event) =>
-      event.type === "But" &&
+      event.type === TYPES_EVENEMENT.BUT &&
       event.equipe === "Visiteur"
   ).length;
 

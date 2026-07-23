@@ -1,4 +1,8 @@
-import { creerEvenementBut, ajouterEvenementAuDebut } from "../domain/evenements";
+import {
+  creerEvenementBut,
+  ajouterEvenementAuDebut,
+  TYPES_EVENEMENT,
+} from "../domain/evenements";
 import { trouverJoueuse } from "../utils/joueuses";
 import { calculerTempsCorrige } from "../utils/temps";
 import { validerBut } from "../utils/validations";
@@ -31,9 +35,9 @@ export function useGestionButs({
     equipeQuiMarque === "Local" ? "Visiteur" : "Local";
 
   return evenements.filter((event) => {
-    if (event.type !== "Punition") {
-      return false;
-    }
+    if (event.type !== TYPES_EVENEMENT.PUNITION) {
+  return false;
+}
 
     if (event.equipe !== equipeAdverse) {
       return false;
@@ -225,7 +229,7 @@ export function useGestionButs({
   function retirerDernierBut(equipe) {
     const dernierBut = evenements.find(
       (event) =>
-        event.type === "But" &&
+        event.type === TYPES_EVENEMENT.BUT &&
         event.equipe === equipe
     );
 

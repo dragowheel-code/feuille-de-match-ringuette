@@ -1,8 +1,9 @@
 import { creerEvenement } from "./creerEvenement";
+import { TYPES_EVENEMENT } from "./typesEvenement";
 
 export function creerEvenementTirBarrage(data) {
   return creerEvenement({
-    type: "Tir de barrage",
+    type: TYPES_EVENEMENT.TIR_BARRAGE,
     ...data,
   });
 }

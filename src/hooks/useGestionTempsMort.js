@@ -2,6 +2,7 @@ import {
   ajouterEvenementAuDebut,
   creerEvenementTempsMort,
 } from "../domain/evenements";
+import { TYPES_EVENEMENT, } from "../domain/evenements";
 
 export function useGestionTempsMort({
   matchInfo,
@@ -17,7 +18,7 @@ export function useGestionTempsMort({
   function confirmerTempsMort() {
     const dejaUtilise = evenements.some(
       (event) =>
-        event.type === "Temps mort" &&
+        event.type === TYPES_EVENEMENT.TEMPS_MORT &&
         event.equipe === tempsMort.equipeTempsMort &&
         event.periode === periode
     );

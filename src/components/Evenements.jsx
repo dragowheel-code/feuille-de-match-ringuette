@@ -1,3 +1,5 @@
+import { TYPES_EVENEMENT } from "../domain/evenements";
+
 export default function Evenements({
   evenements,
   supprimerEvenement,
@@ -30,7 +32,7 @@ export default function Evenements({
                   </>
                 )}
 
-                {event.type === "But" && (
+                {event.type === TYPES_EVENEMENT.BUT && (
                   <>
                     {" "}
                     — But #{event.buteuseNumero}{" "}
@@ -44,7 +46,7 @@ export default function Evenements({
                   </>
                 )}
 
-                {event.type === "Punition" && (
+                {event.type === TYPES_EVENEMENT.PUNITION && (
                   <>
                     {" "}
                     — #{event.joueuseNumero}{" "}
@@ -57,7 +59,7 @@ export default function Evenements({
                   </>
                 )}
 
-                {event.type === "Tir de barrage" && (
+                {event.type === TYPES_EVENEMENT.TIR_DE_BARRAGE && (
                   <>
                     {" "}
                     — #{event.joueuseNumero}{" "}
@@ -75,7 +77,7 @@ export default function Evenements({
                   </>
                 )}
 
-                {event.type === "Temps mort" && (
+                {event.type === TYPES_EVENEMENT.TEMPS_MORT && (
                   <> — Temps mort utilisé</>
                 )}
               </span>
