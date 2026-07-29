@@ -5,6 +5,9 @@ import ListeOfficielsModal from "../modals/ListeOfficielsModal";
 import SuppressionOfficielModal from "../modals/SuppressionOfficielModal";
 import SuppressionEquipeModal from "../modals/SuppressionEquipeModal";
 import SuppressionJoueuseModal from "../modals/SuppressionJoueuseModal";
+import { useState } from "react";
+
+import OfficielModal from "../modals/OfficielModal";
 
 import {
   importerAlignementTournoiExcel,
@@ -50,6 +53,8 @@ function GestionModals({
   setPageActive,
   effacerSauvegarde,
 
+  ajouterOfficiel,
+  modifierOfficiel,
   suppressionOfficiel,
   supprimerOfficiel,
 
@@ -59,6 +64,90 @@ function GestionModals({
   suppressionJoueuse,
   supprimerJoueuse,
 }) {
+  const OFFICIEL_VIDE = {
+  mode: "ajout",
+  id: null,
+  nom: "",
+  arbitre: false,
+  chronometreur: false,
+  marqueur: false,
+  operateur30s: false,
+};
+
+function ouvrirAjoutOfficiel() {
+  setOfficielFormulaire({
+    ...OFFICIEL_VIDE,
+  });
+
+  modales.fermerParametres();
+  modales.ouvrirAjoutOfficiel();
+}
+
+function ouvrirModificationOfficiel(officiel) {
+  setOfficielFormulaire({
+    mode: "modification",
+    id: officiel.id,
+    nom: officiel.nom ?? "",
+    arbitre: Boolean(officiel.arbitre),
+    chronometreur: Boolean(officiel.chronometreur),
+    marqueur: Boolean(officiel.marqueur),
+    operateur30s: Boolean(officiel.operateur30s),
+  });
+
+  modales.fermerListeOfficiels();
+  modales.ouvrirAjoutOfficiel();
+}
+
+function confirmerOfficiel() {
+  const nomNettoye = officielFormulaire.nom.trim();
+
+  if (!nomNettoye) {
+    alert("Le nom de l’officiel est obligatoire.");
+    return;
+  }
+
+  const auMoinsUnRole =
+    officielFormulaire.arbitre ||
+    officielFormulaire.chronometreur ||
+    officielFormulaire.marqueur ||
+    officielFormulaire.operateur30s;
+
+  if (!auMoinsUnRole) {
+    alert("Sélectionne au moins un rôle pour cet officiel.");
+    return;
+  }
+
+  const donnees = {
+    nom: nomNettoye,
+    arbitre: officielFormulaire.arbitre,
+    chronometreur: officielFormulaire.chronometreur,
+    marqueur: officielFormulaire.marqueur,
+    operateur30s: officielFormulaire.operateur30s,
+  };
+
+  let succes;
+
+  if (officielFormulaire.mode === "modification") {
+    succes = modifierOfficiel(
+      officielFormulaire.id,
+      donnees
+    );
+  } else {
+    succes = ajouterOfficiel(donnees);
+  }
+
+  if (succes === false) {
+    return;
+  }
+
+  modales.fermerAjoutOfficiel();
+
+  setOfficielFormulaire({
+    ...OFFICIEL_VIDE,
+  });
+}
+const [officielFormulaire, setOfficielFormulaire] =
+  useState(OFFICIEL_VIDE);
   return (
     <>
       <ConfigurationModal
@@ -129,6 +218,8 @@ function GestionModals({
           modales.fermerParametres();
           modales.ouvrirListeOfficiels();
         }}
+        ouvrirAjoutOfficiel={ouvrirAjoutOfficiel}
+
         ouvrirSuppressionEquipe={() => {
           modales.fermerParametres();
           modales.ouvrirSuppressionEquipe();
@@ -160,10 +251,24 @@ function GestionModals({
       />
 
       <ListeOfficielsModal
-        ouverte={modales.fenetreListeOfficielsOuverte}
-        officiels={officiels}
-        fermer={modales.fermerListeOfficiels}
-      />
+  ouverte={modales.fenetreListeOfficielsOuverte}
+  officiels={officiels}
+  modifierOfficiel={ouvrirModificationOfficiel}
+  fermer={modales.fermerListeOfficiels}
+/>
+<OfficielModal
+  ouverte={modales.fenetreAjoutOfficielOuverte}
+  officiel={officielFormulaire}
+  setOfficiel={setOfficielFormulaire}
+  confirmer={confirmerOfficiel}
+  fermer={() => {
+    modales.fermerAjoutOfficiel();
+
+    setOfficielFormulaire({
+      ...OFFICIEL_VIDE,
+    });
+  }}
+/>
 
       <SuppressionOfficielModal
         ouverte={modales.fenetreSuppressionOfficielOuverte}

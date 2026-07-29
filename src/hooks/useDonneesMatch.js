@@ -54,21 +54,21 @@ export function useDonneesMatch({
       event.equipe === "Visiteur"
   ).length;
 
-  const arbitresDisponibles = officiels.filter(
-    (officiel) => officiel.arbitre
-  );
+  const arbitresDisponibles = Array.isArray(officiels)
+  ? officiels.filter((officiel) => officiel.arbitre)
+  : [];
 
-  const chronometreursDisponibles = officiels.filter(
-    (officiel) => officiel.chronometreur
-  );
+  const chronometreursDisponibles = Array.isArray(officiels)
+  ? officiels.filter((officiel) => officiel.chronometreur)
+  : [];
 
-  const marqueursDisponibles = officiels.filter(
-    (officiel) => officiel.marqueur
-  );
+const marqueursDisponibles = Array.isArray(officiels)
+  ? officiels.filter((officiel) => officiel.marqueur)
+  : [];
 
-  const operateurs30sDisponibles = officiels.filter(
-    (officiel) => officiel.operateur30s
-  );
+const operateurs30sDisponibles = Array.isArray(officiels)
+  ? officiels.filter((officiel) => officiel.operateur30s)
+  : [];
 
   const destinataires = [
     matchInfo.envoyerCourrielLocal

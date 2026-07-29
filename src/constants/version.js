@@ -1,7 +1,7 @@
 export const APP_INFO = {
   nom: "Feuille de match Ringuette",
 
-  version: "1.0.0",
+  version: "1.1.0",
   build: "2026-07-18",
   statut: "Stable",
 

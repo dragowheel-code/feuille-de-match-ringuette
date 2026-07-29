@@ -1,3 +1,5 @@
+import { nouvellePartie as creerNouvellePartie } from "../domain/match";
+
 export function useGestionPartie({
   matchInfo,
   setMatchInfo,
@@ -46,16 +48,9 @@ export function useGestionPartie({
   anciennesJoueuses.filter((joueuse) => !joueuse.remplacante)
 );
 
-    setMatchInfo((anciennesInformations) => ({
-      ...anciennesInformations,
-      numeroPartie: "",
-      date: "",
-      arena: "",
-      equipeLocale: "",
-      equipeVisiteuse: "",
-      heureDebut: "",
-      heureFin: "",
-    }));
+    setMatchInfo(
+  creerNouvellePartie(matchInfo)
+);
   }
 
   function effacerSauvegarde() {

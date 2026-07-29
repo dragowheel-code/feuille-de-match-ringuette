@@ -28,10 +28,8 @@ export function exporterBaseDeDonnees({
   const lien = document.createElement("a");
 
   lien.href = url;
-  lien.download = `RinguetteDB-${new Date()
-    .toISOString()
-    .slice(0, 10)}.json`;
-
+  lien.download = "baseDeDonnees.json";
+   
   lien.click();
   URL.revokeObjectURL(url);
 }

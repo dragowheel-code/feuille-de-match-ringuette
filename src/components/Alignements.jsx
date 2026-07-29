@@ -1,11 +1,6 @@
 import CouleurApercu from "./CouleurApercu";
 import { mettreAJourMatch } from "../domain/match";
-
-function modifierMatch(modifications) {
-  setMatchInfo(
-    mettreAJourMatch(matchInfo, modifications)
-  );
-}
+import { ROLES_JOUEUSE } from "../domain/joueuses";
 
 export default function Alignements({
   joueuses,
@@ -22,6 +17,13 @@ export default function Alignements({
   changerSuspension,
   changerRoleJoueuse,
 }) {
+
+  function modifierMatch(modifications) {
+  setMatchInfo(
+    mettreAJourMatch(matchInfo, modifications)
+  );
+}
+
   function afficherJoueuses(equipeNom) {
     return joueuses
       .filter((joueuse) => joueuse.equipe === equipeNom)
@@ -52,40 +54,48 @@ export default function Alignements({
             </label>
 
             <label>
-              <input
-                type="checkbox"
-                checked={joueuse.gardienne || false}
-                onChange={() =>
-                  changerRoleJoueuse(joueuse.id, "gardienne")
-                }
-              />
-              Gard.
-            </label>
+  <input
+    type="checkbox"
+    checked={joueuse.gardienne || false}
+    onChange={() =>
+      changerRoleJoueuse(
+        joueuse.id,
+        ROLES_JOUEUSE.GARDIENNE
+      )
+    }
+  />
+  Gard.
+</label>
 
-            <label>
-              <input
-                type="checkbox"
-                checked={joueuse.capitaine || false}
-                onChange={() =>
-                  changerRoleJoueuse(joueuse.id, "capitaine")
-                }
-              />
-              Cap.
-            </label>
+<label>
+  <input
+    type="checkbox"
+    checked={joueuse.capitaine || false}
+    onChange={() =>
+      changerRoleJoueuse(
+        joueuse.id,
+        ROLES_JOUEUSE.CAPITAINE
+      )
+    }
+  />
+  Cap.
+</label>
 
-            <label>
-              <input
-                type="checkbox"
-                checked={joueuse.assistanteCapitaine || false}
-                onChange={() =>
-                  changerRoleJoueuse(
-                    joueuse.id,
-                    "assistanteCapitaine"
-                  )
-                }
-              />
-              Ass.
-            </label>
+<label>
+  <input
+    type="checkbox"
+    checked={
+      joueuse.assistanteCapitaine || false
+    }
+    onChange={() =>
+      changerRoleJoueuse(
+        joueuse.id,
+        ROLES_JOUEUSE.ASSISTANTE_CAPITAINE
+      )
+    }
+  />
+  Ass.
+</label>
           </div>
         </div>
       ));

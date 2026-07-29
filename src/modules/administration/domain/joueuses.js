@@ -1,0 +1,51 @@
+export function creerJoueuse({
+  id,
+  equipe = "",
+  numero = "",
+  nom = "",
+
+  numeroInscription = "",
+  dateNaissance = "",
+  adresse = "",
+  ville = "",
+  codePostal = "",
+  telephone = "",
+  sexe = "",
+  categorie = "",
+  codeCategorie = "",
+  saison = "",
+
+  gardienne = false,
+  capitaine = false,
+  assistanteCapitaine = false,
+  absente = false,
+  suspendue = false,
+  remplacante = false,
+  equipeProvenance = "",
+}) {
+  return {
+    id,
+    equipe: String(equipe).trim(),
+    numero: String(numero).trim(),
+    nom: String(nom).trim(),
+
+    numeroInscription: String(numeroInscription).trim(),
+    dateNaissance: String(dateNaissance).trim(),
+    adresse: String(adresse).trim(),
+    ville: String(ville).trim(),
+    codePostal: String(codePostal).trim(),
+    telephone: String(telephone).trim(),
+    sexe: String(sexe).trim(),
+    categorie: String(categorie).trim(),
+    codeCategorie: String(codeCategorie).trim(),
+    saison: String(saison).trim(),
+
+    gardienne: Boolean(gardienne),
+    capitaine: Boolean(capitaine),
+    assistanteCapitaine: Boolean(assistanteCapitaine),
+    absente: Boolean(absente),
+    suspendue: Boolean(suspendue),
+    remplacante: Boolean(remplacante),
+    equipeProvenance: String(equipeProvenance).trim(),
+  };
+}

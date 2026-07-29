@@ -4,6 +4,7 @@ export default function ParametresModal({
   fermer,
   ouvrirImportExcel,
   ouvrirListeOfficiels,
+  ouvrirAjoutOfficiel,
   ouvrirSuppressionEquipe,
   ouvrirSuppressionOfficiel,
   ouvrirSuppressionJoueuse,
@@ -54,16 +55,23 @@ export default function ParametresModal({
         </div>
 
         <div className="config-section">
-          <h3>Officiels</h3>
+  <h3>Officiels</h3>
 
-          <button onClick={ouvrirListeOfficiels}>
-  Voir les officiels
-</button>
+  <button onClick={ouvrirAjoutOfficiel}>
+    Ajouter un officiel
+  </button>
 
-<button onClick={ouvrirSuppressionOfficiel}>
-  Supprimer un officiel
-</button>
-        </div>
+  <button onClick={ouvrirListeOfficiels}>
+    Voir ou modifier les officiels
+  </button>
+
+  <button
+    className="delete-button"
+    onClick={ouvrirSuppressionOfficiel}
+  >
+    Supprimer un officiel
+  </button>
+</div>
 
         <div className="config-section">
           <h3>Application</h3>

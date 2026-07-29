@@ -1,15 +1,31 @@
 import { creerId } from "../utils/ids";
-import { numeroUtiliseParRemplacante,} from "../utils/joueuses";
-import { numeroEstDisponible,} from "../utils/joueuses";
 
+import {
+  numeroUtiliseParRemplacante,
+  numeroEstDisponible,
+} from "../utils/joueuses";
+
+import {
+  changerPresence as basculerPresence,
+  changerSuspension as basculerSuspension,
+  changerRoleJoueuse as appliquerChangementRole,
+} from "../domain/joueuses";
+
+import {
+  creerOfficiel,
+  modifierOfficiel as mettreAJourOfficiel,
+  supprimerOfficiel as retirerOfficiel,
+  retirerOfficielDesRoles,
+  remplacerNomOfficielDansRoles,
+} from "../domain/officiels";
 export function useGestionEffectifs({
   setMatchInfo,
-
   setEquipes,
 
   joueuses,
   setJoueuses,
 
+  officiels,
   setOfficiels,
 
   modales,
@@ -87,18 +103,30 @@ export function useGestionEffectifs({
     };
   } else {
     nouvelleJoueuse = {
-      id: creerId(),
-      equipe: remplacante.equipeRemplacante,
-      numero,
-      nom,
-      gardienne: false,
-      capitaine: false,
-      assistanteCapitaine: false,
-      absente: false,
-      suspendue: false,
-      remplacante: true,
-      equipeProvenance: remplacante.equipeProvenance,
-    };
+  id: creerId(),
+  equipe: remplacante.equipeRemplacante,
+  numero,
+  nom,
+
+  numeroInscription: "",
+  dateNaissance: "",
+  adresse: "",
+  ville: "",
+  codePostal: "",
+  telephone: "",
+  sexe: "",
+  categorie: "",
+  codeCategorie: "",
+  saison: "",
+
+  gardienne: false,
+  capitaine: false,
+  assistanteCapitaine: false,
+  absente: false,
+  suspendue: false,
+  remplacante: true,
+  equipeProvenance: remplacante.equipeProvenance,
+};
   }
 
   setJoueuses((anciennesJoueuses) => [
@@ -177,6 +205,109 @@ export function useGestionEffectifs({
     modales.fermerSuppressionJoueuse();
   }
 
+  function ajouterOfficiel(nouvelOfficiel) {
+  const nom = nouvelOfficiel.nom.trim();
+
+  if (!nom) {
+    alert("Entre le nom de l’officiel.");
+    return;
+  }
+
+  const nomExisteDeja = officiels.some(
+    (officiel) =>
+      officiel.nom.toLowerCase() === nom.toLowerCase()
+  );
+
+  if (nomExisteDeja) {
+    alert("Cet officiel existe déjà.");
+    return;
+  }
+  const auMoinsUnRole =
+  nouvelOfficiel.arbitre ||
+  nouvelOfficiel.chronometreur ||
+  nouvelOfficiel.marqueur ||
+  nouvelOfficiel.operateur30s;
+
+if (!auMoinsUnRole) {
+  alert("Choisis au moins un rôle pour cet officiel.");
+  return;
+}
+
+  setOfficiels((anciensOfficiels) => [
+    ...anciensOfficiels,
+    creerOfficiel({
+      ...nouvelOfficiel,
+      id: creerId(),
+      nom,
+    }),
+  ]);
+}
+
+function modifierOfficiel(idOfficiel, modifications) {
+  console.log("modifierOfficiel");
+console.log(officiels, Array.isArray(officiels));
+  const officielActuel = officiels.find(
+    (officiel) =>
+      String(officiel.id) === String(idOfficiel)
+  );
+
+  if (!officielActuel) {
+    alert("Officiel introuvable.");
+    return;
+  }
+
+  const nouveauNom = modifications.nom.trim();
+
+  if (!nouveauNom) {
+    alert("Entre le nom de l’officiel.");
+    return;
+  }
+
+  const nomExisteDeja = officiels.some(
+    (officiel) =>
+      String(officiel.id) !== String(idOfficiel) &&
+      officiel.nom.toLowerCase() ===
+        nouveauNom.toLowerCase()
+  );
+
+  if (nomExisteDeja) {
+    alert("Un autre officiel porte déjà ce nom.");
+    return;
+  }
+
+  const auMoinsUnRole =
+    modifications.arbitre ||
+    modifications.chronometreur ||
+    modifications.marqueur ||
+    modifications.operateur30s;
+
+  if (!auMoinsUnRole) {
+    alert("Choisis au moins un rôle pour cet officiel.");
+    return;
+  }
+
+  setOfficiels((anciensOfficiels) =>
+    mettreAJourOfficiel(
+      anciensOfficiels,
+      idOfficiel,
+      {
+        ...modifications,
+        nom: nouveauNom,
+      }
+    )
+  );
+
+  if (officielActuel.nom !== nouveauNom) {
+    setMatchInfo((anciennesInformations) =>
+      remplacerNomOfficielDansRoles(
+        anciennesInformations,
+        officielActuel.nom,
+        nouveauNom
+      )
+    );
+  }
+}
+
   function supprimerOfficiel() {
     if (!suppressionOfficiel.officielASupprimer) {
       alert("Choisis un officiel à supprimer.");
@@ -191,143 +322,82 @@ export function useGestionEffectifs({
     }
 
     setOfficiels((anciensOfficiels) =>
-      anciensOfficiels.filter(
-        (officiel) => officiel.nom !== nomOfficiel
-      )
-    );
+  retirerOfficiel(
+    anciensOfficiels,
+    nomOfficiel
+  )
+);
 
-    setMatchInfo((anciennesInformations) => ({
-      ...anciennesInformations,
-
-      arbitrePrincipal:
-        anciennesInformations.arbitrePrincipal === nomOfficiel
-          ? ""
-          : anciennesInformations.arbitrePrincipal,
-
-      arbitreSecondaire:
-        anciennesInformations.arbitreSecondaire === nomOfficiel
-          ? ""
-          : anciennesInformations.arbitreSecondaire,
-
-      chronometreur:
-        anciennesInformations.chronometreur === nomOfficiel
-          ? ""
-          : anciennesInformations.chronometreur,
-
-      marqueur:
-        anciennesInformations.marqueur === nomOfficiel
-          ? ""
-          : anciennesInformations.marqueur,
-
-      operateur30s:
-        anciennesInformations.operateur30s === nomOfficiel
-          ? ""
-          : anciennesInformations.operateur30s,
-    }));
+    setMatchInfo((anciennesInformations) =>
+  retirerOfficielDesRoles(
+    anciennesInformations,
+    nomOfficiel
+  )
+);
 
     suppressionOfficiel.reinitialiser();
     modales.fermerSuppressionOfficiel();
   }
 
   function changerPresence(id) {
-    setJoueuses((anciennesJoueuses) =>
-      anciennesJoueuses.map((joueuse) =>
-        joueuse.id === id
-          ? {
-              ...joueuse,
-              absente: !joueuse.absente,
-            }
-          : joueuse
-      )
-    );
-  }
+  setJoueuses((anciennesJoueuses) =>
+    anciennesJoueuses.map((joueuse) =>
+      joueuse.id === id
+        ? basculerPresence(joueuse)
+        : joueuse
+    )
+  );
+}
 
   function changerSuspension(id) {
-    setJoueuses((anciennesJoueuses) =>
-      anciennesJoueuses.map((joueuse) =>
-        joueuse.id === id
-          ? {
-              ...joueuse,
-              suspendue: !joueuse.suspendue,
-            }
-          : joueuse
-      )
-    );
-  }
+  setJoueuses((anciennesJoueuses) =>
+    anciennesJoueuses.map((joueuse) =>
+      joueuse.id === id
+        ? basculerSuspension(joueuse)
+        : joueuse
+    )
+  );
+}
 
   function changerRoleJoueuse(id, role) {
-    setJoueuses((anciennesJoueuses) => {
-      const joueuseCible = anciennesJoueuses.find(
-        (joueuse) => joueuse.id === id
-      );
+  setJoueuses((anciennesJoueuses) => {
+    const resultat = appliquerChangementRole(
+      anciennesJoueuses,
+      id,
+      role
+    );
 
-      if (!joueuseCible) {
-        return anciennesJoueuses;
-      }
-
-      const equipe = joueuseCible.equipe;
-      const valeurActuelle = joueuseCible[role] || false;
-
-      if (role === "gardienne" && !valeurActuelle) {
-        const nombreGardiennes = anciennesJoueuses.filter(
-          (joueuse) =>
-            joueuse.equipe === equipe &&
-            joueuse.gardienne
-        ).length;
-
-        if (nombreGardiennes >= 2) {
+    if (!resultat.succes) {
+      switch (resultat.raison) {
+        case "MAX_GARDIENNES":
           alert("Maximum 2 gardiennes par équipe.");
-          return anciennesJoueuses;
-        }
+          break;
+
+        case "MAX_LETTRES":
+          alert("Maximum de 3 lettres (C et A) par équipe.");
+          break;
+
+        default:
+          break;
       }
+    }
 
-      if (role === "capitaine" && !valeurActuelle) {
-        return anciennesJoueuses.map((joueuse) =>
-          joueuse.equipe === equipe
-            ? {
-                ...joueuse,
-                capitaine: joueuse.id === id,
-              }
-            : joueuse
-        );
-      }
+    return Array.isArray(resultat.joueuses)
+  ? resultat.joueuses
+  : anciennesJoueuses;
+  });
+}
 
-      if (
-        role === "assistanteCapitaine" &&
-        !valeurActuelle
-      ) {
-        const nombreAssistantes =
-          anciennesJoueuses.filter(
-            (joueuse) =>
-              joueuse.equipe === equipe &&
-              joueuse.assistanteCapitaine
-          ).length;
-
-        if (nombreAssistantes >= 2) {
-          alert("Maximum 2 assistantes par équipe.");
-          return anciennesJoueuses;
-        }
-      }
-
-      return anciennesJoueuses.map((joueuse) =>
-        joueuse.id === id
-          ? {
-              ...joueuse,
-              [role]: !valeurActuelle,
-            }
-          : joueuse
-      );
-    });
-  }
-
-  return {
-    ouvrirFenetreRemplacante,
-    confirmerRemplacante,
-    supprimerEquipe,
-    supprimerJoueuse,
-    supprimerOfficiel,
-    changerPresence,
-    changerSuspension,
-    changerRoleJoueuse,
-  };
+ return {
+  ouvrirFenetreRemplacante,
+  confirmerRemplacante,
+  supprimerEquipe,
+  supprimerJoueuse,
+  ajouterOfficiel,
+  modifierOfficiel,
+  supprimerOfficiel,
+  changerPresence,
+  changerSuspension,
+  changerRoleJoueuse,
+};
 }

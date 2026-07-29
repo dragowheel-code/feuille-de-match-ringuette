@@ -1,0 +1,27 @@
+import { STATUTS_COMPARAISON } from "../comparateurs/statuts";
+import { ACTIONS_IMPORTATION } from "./actionsImportation";
+
+export function determinerActionParDefaut(statut) {
+  switch (statut) {
+    case STATUTS_COMPARAISON.NOUVELLE:
+      return ACTIONS_IMPORTATION.AJOUTER;
+
+    case STATUTS_COMPARAISON.MISE_A_JOUR:
+      return ACTIONS_IMPORTATION.METTRE_A_JOUR;
+
+    case STATUTS_COMPARAISON.IDENTIQUE:
+      return ACTIONS_IMPORTATION.IGNORER;
+
+    case STATUTS_COMPARAISON.CORRESPONDANCE_PROBABLE:
+      return ACTIONS_IMPORTATION.VERIFIER;
+
+    case STATUTS_COMPARAISON.DOUBLON:
+      return ACTIONS_IMPORTATION.IGNORER;
+
+    case STATUTS_COMPARAISON.CONFLIT:
+      return ACTIONS_IMPORTATION.VERIFIER;
+
+    default:
+      return ACTIONS_IMPORTATION.IGNORER;
+  }
+}

@@ -1,6 +1,7 @@
 export default function ListeOfficielsModal({
   ouverte,
   officiels,
+  modifierOfficiel,
   fermer,
 }) {
   if (!ouverte) return null;
@@ -11,28 +12,51 @@ export default function ListeOfficielsModal({
         <h2>Liste des officiels</h2>
 
         {officiels.length === 0 ? (
-          <p>Aucun officiel importé.</p>
+          <p>Aucun officiel enregistré.</p>
         ) : (
-          <ul>
-            {officiels.map((officiel) => (
-              <li key={officiel.id}>
-                <strong>{officiel.nom}</strong>
-                {" — "}
-                {[
-                  officiel.arbitre && "Arbitre",
-                  officiel.chronometreur && "Chronométreur",
-                  officiel.marqueur && "Marqueur",
-                  officiel.operateur30s && "Opérateur 30 sec.",
-                ]
-                  .filter(Boolean)
-                  .join(", ")}
-              </li>
-            ))}
+          <ul className="liste-officiels">
+            {officiels.map((officiel) => {
+              const roles = [
+                officiel.arbitre && "Arbitre",
+                officiel.chronometreur &&
+                  "Chronométreur",
+                officiel.marqueur && "Marqueur",
+                officiel.operateur30s &&
+                  "Opérateur 30 sec.",
+              ]
+                .filter(Boolean)
+                .join(", ");
+
+              return (
+                <li
+                  key={officiel.id}
+                  className="ligne-officiel"
+                >
+                  <div>
+                    <strong>{officiel.nom}</strong>
+
+                    <div>
+                      {roles || "Aucun rôle assigné"}
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      modifierOfficiel(officiel)
+                    }
+                  >
+                    Modifier
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
 
         <div className="modal-actions">
           <button
+            type="button"
             className="cancel-button"
             onClick={fermer}
           >

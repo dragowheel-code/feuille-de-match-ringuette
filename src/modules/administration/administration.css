@@ -1,0 +1,217 @@
+.administration-app {
+  min-height: 100vh;
+  padding: 32px;
+  background:
+    linear-gradient(
+      135deg,
+      rgba(7, 31, 56, 0.97),
+      rgba(18, 61, 94, 0.94)
+    );
+  color: #ffffff;
+}
+
+.administration-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto 32px;
+  padding: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(8px);
+}
+
+.administration-surtitre {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.administration-entete h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3.4rem);
+}
+
+.administration-description {
+  max-width: 700px;
+  margin: 12px 0 0;
+  line-height: 1.6;
+  opacity: 0.88;
+}
+
+.administration-bouton-retour {
+  flex-shrink: 0;
+  padding: 12px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.administration-bouton-retour:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.administration-contenu {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.administration-section-entete {
+  margin-bottom: 22px;
+}
+
+.administration-section-entete h2 {
+  margin: 0 0 8px;
+  font-size: 1.75rem;
+}
+
+.administration-section-entete p {
+  margin: 0;
+  line-height: 1.6;
+  opacity: 0.82;
+}
+
+.administration-grille {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
+}
+
+.administration-carte {
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.administration-carte-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.administration-carte h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+
+.administration-carte p {
+  flex: 1;
+  margin: 18px 0;
+  line-height: 1.55;
+  opacity: 0.84;
+}
+
+.administration-statut {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 0.72rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.administration-carte button {
+  align-self: flex-start;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 9px;
+  font: inherit;
+  font-weight: 700;
+}
+
+.administration-carte button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+@media (max-width: 700px) {
+  .administration-app {
+    padding: 16px;
+  }
+
+  .administration-entete {
+    flex-direction: column;
+    padding: 22px;
+  }
+
+  .administration-bouton-retour {
+    width: 100%;
+  }
+}
+.administration-importation {
+  margin-top: 1.5rem;
+  max-width: 760px;
+}
+
+.administration-importation-bouton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1rem;
+  padding: 0.8rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background: #1f5f99;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.administration-importation-bouton:hover {
+  filter: brightness(1.08);
+}
+
+.administration-fichier-selectionne {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  border-radius: 8px;
+
+  background: #24425e;
+  border: 1px solid #3c5f7f;
+  color: #ffffff;
+}
+
+.administration-fichier-selectionne h4 {
+  color: #ffffff;
+}
+
+.administration-fichier-selectionne p {
+  color: #d9e7f5;
+}
+
+.administration-message-erreur {
+  margin-top: 1rem;
+  padding: 0.8rem;
+  border: 1px solid #b42318;
+  border-radius: 6px;
+  background: #fff1f0;
+  color: #8a1c13;
+  font-weight: 600;
+}
+
+.administration-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.administration-bouton-secondaire {
+  margin-bottom: 1rem;
+}

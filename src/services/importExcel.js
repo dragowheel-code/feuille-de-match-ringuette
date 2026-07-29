@@ -1,5 +1,6 @@
 import * as XLSX from "xlsx";
 import { creerId } from "../utils/ids";
+import { ROLES_JOUEUSE } from "../domain/joueuses";
 
 export function importerEquipesExcel({
   event,
@@ -137,22 +138,38 @@ export function importerJoueusesExcel({
 
       const joueusesImportees = lignes
         .map((ligne) => ({
-          id: creerId(),
-          equipe: String(ligne.Equipe || "").trim(),
-          numero: String(ligne.Numero || "").trim(),
-          nom: String(ligne.Nom || "").trim(),
-          gardienne:
-            String(ligne.Gardienne || "").trim().toUpperCase() === "OUI",
-          capitaine:
-            String(ligne.Capitaine || "").trim().toUpperCase() === "OUI",
-          assistanteCapitaine:
-            String(ligne.AssistanteCapitaine || "")
-              .trim()
-              .toUpperCase() === "OUI",
-          absente: false,
-          suspendue: false,
-          remplacante: false,
-        }))
+  id: creerId(),
+
+  equipe: String(ligne.Equipe || "").trim(),
+  numero: String(ligne.Numero || "").trim(),
+  nom: String(ligne.Nom || "").trim(),
+
+  numeroInscription: "",
+  dateNaissance: "",
+  adresse: "",
+  ville: "",
+  codePostal: "",
+  telephone: "",
+  sexe: "",
+  categorie: "",
+  codeCategorie: "",
+  saison: "",
+
+  gardienne:
+    String(ligne.Gardienne || "").trim().toUpperCase() === "OUI",
+
+  capitaine:
+    String(ligne.Capitaine || "").trim().toUpperCase() === "OUI",
+
+  assistanteCapitaine:
+    String(ligne.AssistanteCapitaine || "")
+      .trim()
+      .toUpperCase() === "OUI",
+
+  absente: false,
+  suspendue: false,
+  remplacante: false,
+}))
         .filter(
           (joueuse) =>
             joueuse.equipe &&
@@ -322,18 +339,35 @@ export function importerAlignementTournoiExcel({
             return null;
           }
 
-          return {
-            id: creerId(),
-            equipe: nomEquipe,
-            numero,
-            nom: nomComplet,
-            gardienne: type.toLowerCase().includes("gardienne"),
-            capitaine: false,
-            assistanteCapitaine: false,
-            absente: false,
-            suspendue: false,
-            remplacante: false,
-          };
+         return {
+  id: creerId(),
+
+  equipe: nomEquipe,
+  numero,
+  nom: nomComplet,
+
+  numeroInscription: "",
+  dateNaissance: "",
+  adresse: "",
+  ville: "",
+  codePostal: "",
+  telephone: "",
+  sexe: "",
+  categorie: "",
+  codeCategorie: "",
+  saison: "",
+
+  [ROLES_JOUEUSE.GARDIENNE]:
+    type.toLowerCase().includes("gardienne"),
+
+  [ROLES_JOUEUSE.CAPITAINE]: false,
+
+  [ROLES_JOUEUSE.ASSISTANTE_CAPITAINE]: false,
+
+  absente: false,
+  suspendue: false,
+  remplacante: false,
+};
         })
         .filter(
           (joueuse) =>

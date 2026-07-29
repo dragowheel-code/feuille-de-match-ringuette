@@ -37,6 +37,11 @@ export function useModales() {
   setFenetreRemplacanteOuverte,
 ] = useState(false);
 
+const [
+  fenetreAjoutOfficielOuverte,
+  setFenetreAjoutOfficielOuverte,
+] = useState(false);
+
   function ouvrirConfiguration() {
     setFenetreConfigOuverte(true);
   }
@@ -68,6 +73,14 @@ export function useModales() {
   function fermerListeOfficiels() {
     setFenetreListeOfficielsOuverte(false);
   }
+
+  function ouvrirAjoutOfficiel() {
+  setFenetreAjoutOfficielOuverte(true);
+}
+
+function fermerAjoutOfficiel() {
+  setFenetreAjoutOfficielOuverte(false);
+}
 
   function ouvrirSuppressionJoueuse() {
     setFenetreSuppressionJoueuseOuverte(true);
@@ -116,6 +129,10 @@ function fermerRemplacante() {
     fenetreListeOfficielsOuverte,
     ouvrirListeOfficiels,
     fermerListeOfficiels,
+    
+    fenetreAjoutOfficielOuverte,
+    ouvrirAjoutOfficiel,
+    fermerAjoutOfficiel,
 
     fenetreSuppressionJoueuseOuverte,
     ouvrirSuppressionJoueuse,

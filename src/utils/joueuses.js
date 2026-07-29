@@ -47,6 +47,7 @@ export function obtenirJoueusesEquipe(
   joueuses,
   equipe
 ) {
+ 
   return joueuses.filter(
     (joueuse) => joueuse.equipe === equipe
   );

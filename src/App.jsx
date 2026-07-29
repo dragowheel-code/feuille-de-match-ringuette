@@ -24,14 +24,12 @@ import {useGestionTirBarrage} from "./hooks/useGestionTirBarrage";
 import {useGestionGardienne} from "./hooks/useGestionGardienne";
 import { useGestionTempsMort } from "./hooks/useGestionTempsMort";
 import { useGestionPartie } from "./hooks/useGestionPartie";
-import { useDonneesApplication } from "./hooks/useDonneesApplication";
 import { useHorloge } from "./hooks/useHorloge";
 import { useDonneesMatch } from "./hooks/useDonneesMatch";
 import {calculerTempsCorrige as calculerTempsCorrigeUtil,} from "./utils/temps";
 import { COULEURS } from "./constants/couleurs";
 
-function App() {
-    const donneesApplication = useDonneesApplication();
+function App({ donneesApplication }) {
     const {
     matchInfo,
     setMatchInfo,
@@ -74,6 +72,8 @@ function App() {
   setEquipes,
   joueuses,
   setJoueuses,
+
+  officiels,
   setOfficiels,
 
   modales,
@@ -234,6 +234,8 @@ const exportMatch = useExportMatch({
   operateurs30sDisponibles={donneesMatch.operateurs30sDisponibles}
   setPageActive={setPageActive}
   effacerSauvegarde={gestionPartie.effacerSauvegarde}
+  ajouterOfficiel={gestionEffectifs.ajouterOfficiel}
+  modifierOfficiel={gestionEffectifs.modifierOfficiel}
   suppressionOfficiel={suppressionOfficiel}
   supprimerOfficiel={gestionEffectifs.supprimerOfficiel}
   suppressionEquipe={suppressionEquipe}
