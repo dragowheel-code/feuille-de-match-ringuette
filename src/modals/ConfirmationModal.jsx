@@ -37,13 +37,15 @@ export default function ConfirmationModal({
             {texteConfirmer}
           </button>
 
-          <button
-            type="button"
-            className="cancel-button"
-            onClick={fermer}
-          >
-            {texteAnnuler}
-          </button>
+          {texteAnnuler && (
+  <button
+    type="button"
+    className="cancel-button"
+    onClick={fermer}
+  >
+    {texteAnnuler}
+  </button>
+)}
         </div>
       </div>
     </div>

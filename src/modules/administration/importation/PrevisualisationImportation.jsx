@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "./PrevisualisationImportation.css";
 import importerParticipantes from "./importerParticipantes";
+import ConfirmationModal from "../../../modals/ConfirmationModal";
 
 const LIBELLES_CHAMPS = {
   dateNaissance: "Date de naissance",
@@ -46,6 +47,12 @@ function PrevisualisationImportation({
   const [lignesDeselectionnees, setLignesDeselectionnees] =
     useState([]);
 
+    const [confirmationOuverte, setConfirmationOuverte] =
+  useState(false);
+
+  const [rapportImportation, setRapportImportation] =
+  useState(null);
+
   if (!previsualisation) {
     return null;
   }
@@ -89,6 +96,46 @@ const totalParticipantes =
 
 const toutesSelectionnees =
   lignesDeselectionnees.length === 0;
+
+  function confirmerImportation() {
+  const participantesSelectionnees = [
+    ...nouvelles,
+    ...misesAJour,
+  ].filter((ligne, index) => {
+    const type =
+      index < nouvelles.length
+        ? "nouvelle"
+        : "mise-a-jour";
+
+    const indexLocal =
+      index < nouvelles.length
+        ? index
+        : index - nouvelles.length;
+
+    const identifiant =
+      creerIdentifiantLigne(
+        ligne,
+        type,
+        indexLocal
+      );
+
+    return ligneEstSelectionnee(identifiant);
+  });
+
+  const resultat = importerParticipantes({
+    participantesSelectionnees,
+    joueuses,
+  });
+
+  if (!resultat.validation?.valide) {
+    console.error(resultat.validation);
+    return;
+  }
+
+  setJoueuses(resultat.joueuses);
+setConfirmationOuverte(false);
+setRapportImportation(resultat.rapport);
+}
 
   return (
     <div className="administration-resultat-analyse">
@@ -206,47 +253,7 @@ const toutesSelectionnees =
   type="button"
   className="administration-previsualisation-bouton-importer"
   disabled={totalSelectionnees === 0}
-  onClick={() => {
-    const participantesSelectionnees = [
-      ...nouvelles,
-      ...misesAJour,
-    ].filter((ligne, index) => {
-      const type =
-        index < nouvelles.length
-          ? "nouvelle"
-          : "mise-a-jour";
-
-      const indexLocal =
-        index < nouvelles.length
-          ? index
-          : index - nouvelles.length;
-
-      const identifiant =
-        creerIdentifiantLigne(
-          ligne,
-          type,
-          indexLocal
-        );
-
-      return ligneEstSelectionnee(
-        identifiant
-      );
-    });
-
-    const resultat = importerParticipantes({
-  participantesSelectionnees,
-  joueuses,
-});
-
-if (!resultat.validation?.valide) {
-  console.error(resultat.validation);
-  return;
-}
-
-setJoueuses(resultat.joueuses);
-
-console.log(resultat);
-  }}
+  onClick={() => setConfirmationOuverte(true)}
 >
   Importer ({totalSelectionnees})
 </button>
@@ -433,6 +440,40 @@ console.log(resultat);
           )}
         </section>
       )}
+      <ConfirmationModal
+  ouverte={confirmationOuverte}
+  titre="Confirmer l’importation"
+  message="Les participantes sélectionnées seront ajoutées ou mises à jour dans l’application."
+  resume={[
+    `${totalSelectionnees} participante(s) sélectionnée(s)`,
+    `${nouvelles.length} nouvelle(s) disponible(s)`,
+    `${misesAJour.length} mise(s) à jour disponible(s)`,
+  ]}
+  texteConfirmer={`Importer (${totalSelectionnees})`}
+  texteAnnuler="Annuler"
+  confirmer={confirmerImportation}
+  fermer={() => setConfirmationOuverte(false)}
+/>
+<ConfirmationModal
+  ouverte={rapportImportation !== null}
+  titre="Importation terminée"
+  message="Les participantes sélectionnées ont été importées avec succès."
+  resume={
+    rapportImportation
+      ? [
+          `${rapportImportation.ajoutees} joueuse(s) ajoutée(s)`,
+          `${rapportImportation.misesAJour} mise(s) à jour`,
+          `${rapportImportation.ignorees} ignorée(s)`,
+          `${rapportImportation.aVerifier} à vérifier`,
+          `Total : ${rapportImportation.total}`,
+        ]
+      : []
+  }
+  texteConfirmer="Fermer"
+  texteAnnuler=""
+  confirmer={() => setRapportImportation(null)}
+  fermer={() => setRapportImportation(null)}
+/>
     </div>
   );
 }

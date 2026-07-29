@@ -185,8 +185,11 @@
   color: #1f2937;
 }
 
-.administration-previsualisation-ligne > p {
-  color: #334155;
+.administration-resultat-analyse
+  .administration-previsualisation-ligne
+  > p {
+  color: #334155 !important;
+  -webkit-text-fill-color: #334155;
 }
 
 .administration-previsualisation-ligne > p span {
