@@ -1,0 +1,160 @@
+import { useState } from "react";
+
+import ListeAssociations from "./ListeAssociations";
+import AssociationModal from "./AssociationModal";
+
+function GestionAssociations({
+  retour,
+  gestionAssociations,
+}) {
+  
+  const {
+  associations,
+  ajouterAssociation,
+  modifierAssociation,
+  supprimerAssociation,
+} = gestionAssociations;
+
+  const [
+    fenetreAssociationOuverte,
+    setFenetreAssociationOuverte,
+  ] = useState(false);
+
+  const [
+    erreursAssociation,
+    setErreursAssociation,
+  ] = useState([]);
+
+  const [associationSelectionnee, setAssociationSelectionnee] = useState(null);
+
+  const formulaireAssociationInitial = {
+  code: "",
+  nom: "",
+  abreviation: "",
+  ville: "",
+  nomEquipes: "",
+  logo: null,
+  couleurPrimaire: "#000000",
+  couleurSecondaire: "#FFFFFF",
+};
+
+const [
+  formulaireAssociation,
+  setFormulaireAssociation,
+] = useState(formulaireAssociationInitial);
+
+
+  function ouvrirAjoutAssociation() {
+  setErreursAssociation([]);
+  setAssociationSelectionnee(null);
+  setFormulaireAssociation(formulaireAssociationInitial);
+  setFenetreAssociationOuverte(true);
+}
+
+  function fermerAjoutAssociation() {
+  setErreursAssociation([]);
+  setAssociationSelectionnee(null);
+  setFenetreAssociationOuverte(false);
+}
+
+function ouvrirModificationAssociation(association) {
+  setErreursAssociation([]);
+
+  setAssociationSelectionnee(association);
+
+  setFormulaireAssociation({
+    code: association.code,
+    nom: association.nom,
+    abreviation: association.abreviation,
+    ville: association.ville,
+    nomEquipes: association.nomEquipes,
+    logo: association.logo,
+    couleurPrimaire: association.couleurPrimaire,
+    couleurSecondaire: association.couleurSecondaire,
+  });
+
+  setFenetreAssociationOuverte(true);
+}
+
+  function enregistrerAssociation(donneesAssociation) {
+  const resultat = associationSelectionnee
+    ? modifierAssociation({
+        ...donneesAssociation,
+        id: associationSelectionnee.id,
+      })
+    : ajouterAssociation(donneesAssociation);
+
+  if (!resultat.succes) {
+    setErreursAssociation(resultat.erreurs);
+    return;
+  }
+
+  fermerAjoutAssociation();
+}
+
+function demanderSuppression(association) {
+  const confirmation = window.confirm(
+    `Supprimer l'association « ${association.nom} » ?`
+  );
+
+  if (!confirmation) {
+    return;
+  }
+
+  const resultat = supprimerAssociation(association.id);
+
+  if (!resultat.succes) {
+    window.alert(
+      resultat.erreur ?? "Impossible de supprimer l'association."
+    );
+  }
+}
+  return (
+    <section className="gestion-associations">
+      <header className="gestion-associations-entete">
+        <div>
+          <h1>Associations</h1>
+          <p>
+            Gérez les associations enregistrées dans
+            la base de données.
+          </p>
+        </div>
+
+        <div className="gestion-associations-actions">
+          <button
+            type="button"
+            onClick={retour}
+          >
+            Retour
+          </button>
+
+          <button
+            type="button"
+            onClick={ouvrirAjoutAssociation}
+          >
+            Nouvelle association
+          </button>
+        </div>
+      </header>
+
+      <ListeAssociations
+  associations={associations}
+  modifierAssociation={ouvrirModificationAssociation}
+  demanderSuppression={demanderSuppression}
+/>
+
+  <AssociationModal
+  ouverte={fenetreAssociationOuverte}
+  fermer={fermerAjoutAssociation}
+  enregistrer={enregistrerAssociation}
+  formulaire={formulaireAssociation}
+  setFormulaire={setFormulaireAssociation}
+  association={associationSelectionnee}
+  erreurs={erreursAssociation}
+/>
+
+    </section>
+  );
+}
+
+export default GestionAssociations;

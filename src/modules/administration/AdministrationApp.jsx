@@ -2,9 +2,14 @@ import { useState } from "react";
 import AdministrationAccueil from "./AdministrationAccueil";
 import ImportationAdministration from "./importation/ImportationAdministration";
 import "./administration.css";
+import GestionAssociations from "../../components/administration/associations/GestionAssociations";
+import GestionEquipes from "../../components/administration/equipes/GestionEquipes";
+import { useGestionAssociations } from "../../hooks/useGestionAssociations";
 
 const PAGES_ADMINISTRATION = {
   ACCUEIL: "accueil",
+  ASSOCIATIONS: "associations",
+  EQUIPES: "equipes",
   IMPORTATION: "importation",
 };
 
@@ -15,16 +20,26 @@ function AdministrationApp({
   const [pageActive, setPageActive] = useState(
     PAGES_ADMINISTRATION.ACCUEIL
   );
+  const gestionAssociations = useGestionAssociations();
 
   function retournerFeuilleMatch() {
     window.location.hash = "";
   }
 
   function ouvrirSection(sectionId) {
-    if (sectionId === "donnees") {
-      setPageActive(PAGES_ADMINISTRATION.IMPORTATION);
-    }
+  if (sectionId === "associations") {
+    setPageActive(PAGES_ADMINISTRATION.ASSOCIATIONS);
+    return;
   }
+  if (sectionId === "equipes") {
+  setPageActive(PAGES_ADMINISTRATION.EQUIPES);
+  return;
+}
+
+  if (sectionId === "donnees") {
+    setPageActive(PAGES_ADMINISTRATION.IMPORTATION);
+  }
+}
 
   function retournerAccueilAdministration() {
     setPageActive(PAGES_ADMINISTRATION.ACCUEIL);
@@ -60,6 +75,18 @@ function AdministrationApp({
         />
       )}
 
+      {pageActive === PAGES_ADMINISTRATION.ASSOCIATIONS && (
+  <GestionAssociations
+    retour={retournerAccueilAdministration}
+    gestionAssociations={gestionAssociations}
+  />
+)}
+{pageActive === PAGES_ADMINISTRATION.EQUIPES && (
+  <GestionEquipes
+    retour={retournerAccueilAdministration}
+    associations={gestionAssociations.associations}
+  />
+)}
       {pageActive === PAGES_ADMINISTRATION.IMPORTATION && (
         <ImportationAdministration
           retournerAccueil={retournerAccueilAdministration}

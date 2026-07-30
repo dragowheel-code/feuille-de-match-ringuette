@@ -4,17 +4,17 @@ const SECTIONS_ADMINISTRATION = [
     titre: "Associations",
     description:
       "Créer et gérer les associations, leurs coordonnées, leurs logos et leurs couleurs.",
-    statut: "Prochaine étape",
-    active: false,
+    statut: "En développement",
+    active: true,
   },
   {
-    id: "equipes",
-    titre: "Équipes",
-    description:
-      "Gérer les équipes appartenant aux différentes associations.",
-    statut: "À venir",
-    active: false,
-  },
+  id: "equipes",
+  titre: "Équipes",
+  description:
+    "Gérer les équipes appartenant aux différentes associations.",
+  statut: "En développement",
+  active: true,
+},
   {
     id: "joueuses",
     titre: "Joueuses",
@@ -44,7 +44,7 @@ const SECTIONS_ADMINISTRATION = [
     titre: "Importation et exportation",
     description:
       "Importer, exporter et publier les données d'une association.",
-    statut: "En développement",
+    statut: "En fonction",
     active: true,
   },
 ];
