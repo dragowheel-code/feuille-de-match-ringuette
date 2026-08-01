@@ -9,20 +9,43 @@ export default function executerImportation({
     differences: ligne.differences ?? [],
   }));
 
+  let nouvellesJoueuses = [...joueuses];
+
+  for (const operation of operations) {
+    if (operation.action === "ajouter") {
+      nouvellesJoueuses.push(operation.participante);
+      continue;
+    }
+
+    nouvellesJoueuses = nouvellesJoueuses.map((joueuse) => {
+      if (joueuse.id !== operation.joueuse?.id) {
+        return joueuse;
+      }
+
+      return {
+        ...joueuse,
+        ...operation.participante,
+        id: joueuse.id,
+      };
+    });
+  }
+
   return {
     operations,
+
     resume: {
       ajoutees: operations.filter(
         (operation) => operation.action === "ajouter"
       ).length,
 
       misesAJour: operations.filter(
-        (operation) => operation.action === "mettreAJour"
+        (operation) =>
+          operation.action === "mettreAJour"
       ).length,
 
       ignorees: 0,
     },
 
-    joueuses,
+    joueuses: nouvellesJoueuses,
   };
 }

@@ -28,6 +28,7 @@ function GestionAssociations({
   const [associationSelectionnee, setAssociationSelectionnee] = useState(null);
 
   const formulaireAssociationInitial = {
+  active: false,
   code: "",
   nom: "",
   abreviation: "",
@@ -63,6 +64,7 @@ function ouvrirModificationAssociation(association) {
   setAssociationSelectionnee(association);
 
   setFormulaireAssociation({
+    active: Boolean(association.active),
     code: association.code,
     nom: association.nom,
     abreviation: association.abreviation,
@@ -84,12 +86,18 @@ function ouvrirModificationAssociation(association) {
       })
     : ajouterAssociation(donneesAssociation);
 
-  if (!resultat.succes) {
-    setErreursAssociation(resultat.erreurs);
+  if (!resultat?.succes) {
+    setErreursAssociation(
+      resultat?.erreurs ?? [
+        "Impossible d'enregistrer l'association.",
+      ]
+    );
     return;
   }
 
-  fermerAjoutAssociation();
+  setErreursAssociation([]);
+  setAssociationSelectionnee(null);
+  setFenetreAssociationOuverte(false);
 }
 
 function demanderSuppression(association) {

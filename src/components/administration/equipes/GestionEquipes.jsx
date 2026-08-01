@@ -1,19 +1,21 @@
 import { useState } from "react";
-import { useGestionEquipes } from "../../../hooks/useGestionEquipes";
+import { obtenirNomEquipe } from "../../../domain/equipes/obtenirNomEquipe";
 
 import ListeEquipes from "./ListeEquipes";
 import EquipeModal from "./EquipeModal";
 
 function GestionEquipes({
   retour,
-  associations,
+  associationActive,
+  saisonActive,
+  gestionEquipes,
 }) {
   const {
-    equipes,
-    ajouterEquipe,
-    modifierEquipe,
-    supprimerEquipe,
-  } = useGestionEquipes();
+  equipes,
+  ajouterEquipe,
+  modifierEquipe,
+  supprimerEquipe,
+} = gestionEquipes;
 
   const [
     fenetreEquipeOuverte,
@@ -31,11 +33,26 @@ function GestionEquipes({
   ] = useState(null);
 
   const formulaireEquipeInitial = {
-    associationId: "",
-    nom: "",
-    abreviation: "",
-    calibre: "",
-  };
+  saisonId: saisonActive?.id || "",
+  associationId:
+    associationActive?.id || "",
+
+  categorie: "",
+  niveau: "",
+  numeroEquipe: "",
+
+  abreviation: "",
+};
+  const equipesAffichees =
+  associationActive && saisonActive
+    ? equipes.filter(
+        (equipe) =>
+          equipe.associationId ===
+            associationActive.id &&
+          equipe.saisonId ===
+            saisonActive.id
+      )
+    : [];
 
   const [
     formulaireEquipe,
@@ -45,7 +62,13 @@ function GestionEquipes({
   function ouvrirAjoutEquipe() {
     setErreursEquipe([]);
     setEquipeSelectionnee(null);
-    setFormulaireEquipe(formulaireEquipeInitial);
+    setFormulaireEquipe({
+  ...formulaireEquipeInitial,
+
+  saisonId: saisonActive?.id || "",
+  associationId:
+    associationActive?.id || "",
+});
     setFenetreEquipeOuverte(true);
   }
 
@@ -60,14 +83,22 @@ function GestionEquipes({
     setEquipeSelectionnee(equipe);
 
     setFormulaireEquipe({
-      associationId: equipe.associationId,
-      nom: equipe.nom,
-      abreviation: equipe.abreviation,
-      calibre: equipe.calibre,
-    });
+  saisonId: equipe.saisonId ?? "",
+  associationId:
+    equipe.associationId ?? "",
+
+  categorie: equipe.categorie ?? "",
+  niveau: equipe.niveau ?? "",
+  numeroEquipe:
+    equipe.numeroEquipe ?? "",
+
+  abreviation:
+    equipe.abreviation ?? "",
+});
 
     setFenetreEquipeOuverte(true);
   }
+  
 
   function enregistrerEquipe(donneesEquipe) {
     const resultat = equipeSelectionnee
@@ -87,7 +118,7 @@ function GestionEquipes({
 
   function demanderSuppression(equipe) {
     const confirmation = window.confirm(
-      `Supprimer l'équipe « ${equipe.nom} » ?`
+      `Supprimer l'équipe « ${obtenirNomEquipe(equipe)} » ?`
     );
 
     if (!confirmation) {
@@ -125,31 +156,36 @@ function GestionEquipes({
           </button>
 
           <button
-            type="button"
-            onClick={ouvrirAjoutEquipe}
-          >
-            Nouvelle équipe
-          </button>
+  type="button"
+  onClick={ouvrirAjoutEquipe}
+  disabled={!associationActive || !saisonActive}
+>
+  Nouvelle équipe
+</button>
         </div>
       </header>
 
       <ListeEquipes
-        equipes={equipes}
-        associations={associations}
-        modifierEquipe={ouvrirModificationEquipe}
-        demanderSuppression={demanderSuppression}
-      />
+  equipes={equipesAffichees}
+  associations={
+    associationActive ? [associationActive] : []
+  }
+  modifierEquipe={ouvrirModificationEquipe}
+  demanderSuppression={demanderSuppression}
+/>
 
       <EquipeModal
-        ouverte={fenetreEquipeOuverte}
-        fermer={fermerAjoutEquipe}
-        enregistrer={enregistrerEquipe}
-        formulaire={formulaireEquipe}
-        setFormulaire={setFormulaireEquipe}
-        equipe={equipeSelectionnee}
-        associations={associations}
-        erreurs={erreursEquipe}
-      />
+  ouverte={fenetreEquipeOuverte}
+  fermer={fermerAjoutEquipe}
+  enregistrer={enregistrerEquipe}
+  formulaire={formulaireEquipe}
+  setFormulaire={setFormulaireEquipe}
+  equipe={equipeSelectionnee}
+  associations={
+    associationActive ? [associationActive] : []
+  }
+  erreurs={erreursEquipe}
+/>
     </section>
   );
   

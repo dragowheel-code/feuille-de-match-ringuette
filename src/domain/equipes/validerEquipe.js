@@ -1,57 +1,76 @@
-export function validerEquipe(equipe, equipes = []) {
+function normaliser(valeur) {
+  return String(valeur ?? "")
+    .trim()
+    .toLowerCase();
+}
+
+export function validerEquipe(
+  equipe,
+  equipes = []
+) {
   const erreurs = [];
 
-  // Association
-  if (!equipe.associationId?.trim()) {
-    erreurs.push("L'association est obligatoire.");
-  }
-
-  // Nom
-  if (!equipe.nom?.trim()) {
-    erreurs.push("Le nom de l'équipe est obligatoire.");
-  }
-
-  // Abréviation
-  if (!equipe.abreviation?.trim()) {
-    erreurs.push("L'abréviation est obligatoire.");
-  }
-
-  // Calibre
-  if (!equipe.calibre?.trim()) {
-    erreurs.push("Le calibre est obligatoire.");
-  }
-
-  // Nom unique dans la même association et le même calibre
-  const nomExiste = equipes.some(
-    (e) =>
-      e.id !== equipe.id &&
-      e.associationId === equipe.associationId &&
-      e.calibre.trim().toLowerCase() ===
-        equipe.calibre.trim().toLowerCase() &&
-      e.nom.trim().toLowerCase() ===
-        equipe.nom.trim().toLowerCase()
-  );
-
-  if (nomExiste) {
+  if (!equipe.saisonId?.trim()) {
     erreurs.push(
-      "Une équipe porte déjà ce nom pour cette association et ce calibre."
+      "La saison est obligatoire."
     );
   }
 
-  // Abréviation unique dans la même association et le même calibre
-  const abreviationExiste = equipes.some(
-    (e) =>
-      e.id !== equipe.id &&
-      e.associationId === equipe.associationId &&
-      e.calibre.trim().toLowerCase() ===
-        equipe.calibre.trim().toLowerCase() &&
-      e.abreviation.trim().toUpperCase() ===
-        equipe.abreviation.trim().toUpperCase()
-  );
-
-  if (abreviationExiste) {
+  if (!equipe.associationId?.trim()) {
     erreurs.push(
-      "Cette abréviation est déjà utilisée pour cette association et ce calibre."
+      "L'association est obligatoire."
+    );
+  }
+
+  if (!equipe.categorie?.trim()) {
+    erreurs.push(
+      "La catégorie est obligatoire."
+    );
+  }
+
+  if (!equipe.niveau?.trim()) {
+    erreurs.push(
+      "Le niveau est obligatoire."
+    );
+  }
+
+  if (!equipe.abreviation?.trim()) {
+    erreurs.push(
+      "Le code SportPlus est obligatoire."
+    );
+  }
+
+  const equipeIdentiqueExiste =
+    equipes.some((equipeExistante) => {
+      if (
+        equipeExistante.id === equipe.id
+      ) {
+        return false;
+      }
+
+      return (
+        equipeExistante.saisonId ===
+          equipe.saisonId &&
+        equipeExistante.associationId ===
+          equipe.associationId &&
+        normaliser(
+          equipeExistante.categorie
+        ) ===
+          normaliser(equipe.categorie) &&
+        normaliser(
+          equipeExistante.niveau
+        ) ===
+          normaliser(equipe.niveau) &&
+        normaliser(
+          equipeExistante.numeroEquipe
+        ) ===
+          normaliser(equipe.numeroEquipe)
+      );
+    });
+
+  if (equipeIdentiqueExiste) {
+    erreurs.push(
+      "Cette équipe existe déjà pour cette association et cette saison."
     );
   }
 

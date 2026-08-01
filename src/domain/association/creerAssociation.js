@@ -1,6 +1,8 @@
 export function creerAssociation({
   id = crypto.randomUUID(),
 
+  active = false,
+
   code = "",
 
   nom = "",
@@ -16,7 +18,7 @@ export function creerAssociation({
 } = {}) {
   return {
     id,
-
+    active,
     code: code.trim().toUpperCase(),
 
     nom: nom.trim(),

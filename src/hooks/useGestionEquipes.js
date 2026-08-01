@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEtatPersistant } from "./useEtatPersistant";
 
 import { obtenirBaseDeDonnees } from "../services/baseDeDonneesV2";
 
@@ -8,13 +8,20 @@ import { supprimerEquipe as retirerEquipe } from "../domain/equipes/supprimerEqu
 import { validerEquipe } from "../domain/equipes/validerEquipe";
 
 export function useGestionEquipes() {
-  const [equipes, setEquipes] = useState(() => {
-    const baseDeDonnees = obtenirBaseDeDonnees();
+  const [equipes, setEquipes] =
+  useEtatPersistant(
+    "ringuette-v2-equipes",
+    () => {
+      const baseDeDonnees =
+        obtenirBaseDeDonnees();
 
-    return Array.isArray(baseDeDonnees.equipes)
-      ? baseDeDonnees.equipes
-      : [];
-  });
+      return Array.isArray(
+        baseDeDonnees.equipes
+      )
+        ? baseDeDonnees.equipes
+        : [];
+    }
+  );
 
   function obtenirEquipeParId(idEquipe) {
     return equipes.find(

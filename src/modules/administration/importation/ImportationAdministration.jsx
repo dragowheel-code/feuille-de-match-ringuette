@@ -11,6 +11,7 @@ import PrevisualisationImportation from "./PrevisualisationImportation";
 
 function ImportationAdministration({
   retournerAccueil,
+  associationActive,
   joueuses,
   setJoueuses,
 }) {
@@ -57,6 +58,13 @@ function ImportationAdministration({
   async function analyserFichier() {
     try {
       setErreur("");
+      
+      if (!associationActive) {
+  setErreur(
+    "Une association active est requise avant d'importer les joueuses."
+  );
+  return;
+}
 
       const resultat = await lireSportPlusXls(fichierSelectionne);
       const detection = detecterSportPlus(resultat);
@@ -83,10 +91,16 @@ function ImportationAdministration({
       );
 
       const participantes = sections
-        .flatMap((section) =>
-          extraireParticipantesSportPlus(section)
-        )
-        .map(adapterParticipanteSportPlus);
+  .flatMap((section) =>
+    extraireParticipantesSportPlus(section)
+  )
+  .map(adapterParticipanteSportPlus)
+  .map((participante) => ({
+    ...participante,
+    associationId:
+      associationActive?.id ?? "",
+    equipeId: "",
+  }));
 
       const validation = validerParticipantes(participantes);
 

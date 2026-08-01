@@ -1,21 +1,29 @@
 export function creerEquipe({
   id = crypto.randomUUID(),
 
+  saisonId = "",
   associationId = "",
 
-  nom = "",
-  abreviation = "",
+  categorie = "",
+  niveau = "",
+  numeroEquipe = "",
 
-  calibre = "",
+  abreviation = "",
 } = {}) {
   return {
     id,
 
+    saisonId,
     associationId,
 
-    nom: nom.trim(),
-    abreviation: abreviation.trim().toUpperCase(),
+    categorie: categorie.trim(),
+    niveau: niveau.trim().toUpperCase(),
+    numeroEquipe: String(
+      numeroEquipe ?? ""
+    ).trim(),
 
-    calibre: calibre.trim(),
+    abreviation: abreviation
+      .trim()
+      .toUpperCase(),
   };
 }

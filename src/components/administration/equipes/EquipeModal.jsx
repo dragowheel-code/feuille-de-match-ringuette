@@ -67,34 +67,58 @@ function EquipeModal({
           </label>
 
           <label>
-            Nom
-            <input
-              type="text"
-              name="nom"
-              value={formulaire.nom}
-              onChange={changerChamp}
-            />
-          </label>
+  Catégorie
+  <input
+    type="text"
+    name="categorie"
+    value={formulaire.categorie}
+    onChange={changerChamp}
+  />
+</label>
 
-          <label>
-            Abréviation
-            <input
-              type="text"
-              name="abreviation"
-              value={formulaire.abreviation}
-              onChange={changerChamp}
-            />
-          </label>
+<label>
+  Niveau
+  <input
+    type="text"
+    name="niveau"
+    value={formulaire.niveau}
+    onChange={changerChamp}
+    placeholder="Ex. A, B, AA"
+  />
+</label>
 
-          <label>
-            Calibre
-            <input
-              type="text"
-              name="calibre"
-              value={formulaire.calibre}
-              onChange={changerChamp}
-            />
-          </label>
+<label>
+  Numéro d'équipe
+  <input
+    type="text"
+    inputMode="numeric"
+    name="numeroEquipe"
+    value={formulaire.numeroEquipe}
+    onChange={(evenement) => {
+      const valeur = evenement.target.value.replace(
+        /\D/g,
+        ""
+      );
+
+      setFormulaire((precedent) => ({
+        ...precedent,
+        numeroEquipe: valeur,
+      }));
+    }}
+    placeholder="Optionnel : 1, 2, 3..."
+  />
+</label>
+
+<label>
+  Code SportPlus
+  <input
+    type="text"
+    name="abreviation"
+    value={formulaire.abreviation}
+    onChange={changerChamp}
+    placeholder="Ex. 2-N-26"
+  />
+</label>
 
           <div className="modal-actions">
             <button

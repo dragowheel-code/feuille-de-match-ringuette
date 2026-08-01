@@ -1,4 +1,8 @@
 import baseDeDonneesInitiale from "../data/baseDeDonnees2.json";
+import {
+  chargerBaseAdministration,
+  sauvegarderBaseAdministration,
+} from "./persistanceAdministration";
 
 const MODELE_BASE_V2 = {
   version: "2.0.0",
@@ -11,6 +15,19 @@ const MODELE_BASE_V2 = {
   officiels: [],
 };
 
+function normaliserBaseDeDonnees(base) {
+  return {
+    ...base,
+
+    associations: Array.isArray(base.associations)
+      ? base.associations.map((association) => ({
+          ...association,
+          active: Boolean(association.active),
+        }))
+      : [],
+  };
+}
+
 export function creerBaseDeDonnees() {
   const base = structuredClone(MODELE_BASE_V2);
 
@@ -20,7 +37,19 @@ return base;
 }
 
 export function obtenirBaseDeDonnees() {
-  return structuredClone(baseDeDonneesInitiale);
+  const baseInitiale =
+    normaliserBaseDeDonnees(
+      structuredClone(baseDeDonneesInitiale)
+    );
+
+  return chargerBaseAdministration(
+    baseInitiale
+  );
+}
+export function sauvegarderBaseDeDonnees(base) {
+  sauvegarderBaseAdministration(
+    normaliserBaseDeDonnees(base)
+  );
 }
 
 export function validerBaseDeDonnees(base) {
@@ -64,6 +93,92 @@ export function mettreAJourEquipes(
   return {
     ...base,
     equipes: [...equipes],
+  };
+}
+export function obtenirJoueuses(base) {
+  return [...base.joueuses];
+}
+
+export function mettreAJourJoueuses(
+  base,
+  joueuses
+) {
+  return {
+    ...base,
+    joueuses: [...joueuses],
+  };
+}
+export function obtenirSaisons(base) {
+  return [...base.saisons];
+}
+
+export function mettreAJourSaisons(
+  base,
+  saisons
+) {
+  return {
+    ...base,
+    saisons: [...saisons],
+  };
+}
+export function obtenirChandails(base) {
+  return [...base.chandails];
+}
+
+export function mettreAJourChandails(
+  base,
+  chandails
+) {
+  return {
+    ...base,
+    chandails: [...chandails],
+  };
+}
+export function obtenirPantalons(base) {
+  return [...base.pantalons];
+}
+
+export function mettreAJourPantalons(
+  base,
+  pantalons
+) {
+  return {
+    ...base,
+    pantalons: [...pantalons],
+  };
+}
+export function obtenirAffectationsJoueuses(
+  base
+) {
+  return [...base.affectationsJoueuses];
+}
+
+export function mettreAJourAffectationsJoueuses(
+  base,
+  affectationsJoueuses
+) {
+  return {
+    ...base,
+    affectationsJoueuses: [
+      ...affectationsJoueuses,
+    ],
+  };
+}
+export function obtenirAttributionsChandails(
+  base
+) {
+  return [...base.attributionsChandails];
+}
+
+export function mettreAJourAttributionsChandails(
+  base,
+  attributionsChandails
+) {
+  return {
+    ...base,
+    attributionsChandails: [
+      ...attributionsChandails,
+    ],
   };
 }
 export function construireBaseDeDonnees({
@@ -119,5 +234,5 @@ export async function importerBaseDeDonnees(fichier) {
     );
   }
 
-  return base;
+  return normaliserBaseDeDonnees(base);
 }

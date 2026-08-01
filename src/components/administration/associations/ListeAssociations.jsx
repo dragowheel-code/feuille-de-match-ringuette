@@ -20,6 +20,12 @@ function ListeAssociations({
         >
           <div className="association-carte-informations">
             <h3>{association.nom}</h3>
+            
+            {association.active && (
+  <p className="association-active">
+    ✓ Association active
+  </p>
+)}
 
             <p>
               <strong>Abréviation :</strong>{" "}

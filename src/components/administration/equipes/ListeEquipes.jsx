@@ -1,6 +1,7 @@
+import { obtenirNomEquipe } from "../../../domain/equipes/obtenirNomEquipe";
+
 function ListeEquipes({
   equipes = [],
-  associations = [],
   modifierEquipe,
   demanderSuppression,
 }) {
@@ -12,62 +13,56 @@ function ListeEquipes({
     );
   }
 
-  function obtenirAssociation(equipe) {
-    return associations.find(
-      (association) =>
-        association.id === equipe.associationId
-    );
-  }
-
   return (
     <div className="equipes-liste">
-      {equipes.map((equipe) => {
-        const association = obtenirAssociation(equipe);
+      {equipes.map((equipe) => (
+  <article
+    key={equipe.id}
+    className="equipe-carte"
+  >
+    <div className="equipe-carte-informations">
+      <h3>{obtenirNomEquipe(equipe)}</h3>
 
-        return (
-          <article
-            key={equipe.id}
-            className="equipe-carte"
-          >
-            <div className="equipe-carte-informations">
-              <h3>{equipe.nom}</h3>
+      <p>
+        <strong>Catégorie :</strong>{" "}
+        {equipe.categorie || "Non définie"}
+      </p>
 
-              <p>
-                <strong>Association :</strong>{" "}
-                {association?.nom || "Non définie"}
-              </p>
+      <p>
+        <strong>Niveau :</strong>{" "}
+        {equipe.niveau || "Non défini"}
+      </p>
 
-              <p>
-                <strong>Abréviation :</strong>{" "}
-                {equipe.abreviation || "Non définie"}
-              </p>
+      <p>
+        <strong>Équipe :</strong>{" "}
+        {equipe.numeroEquipe || "Aucun numéro"}
+      </p>
 
-              <p>
-                <strong>Calibre :</strong>{" "}
-                {equipe.calibre || "Non défini"}
-              </p>
-            </div>
+      <p>
+        <strong>Code SportPlus :</strong>{" "}
+        {equipe.abreviation || "Non défini"}
+      </p>
+    </div>
 
-            <div className="equipe-carte-actions">
-              <button
-                type="button"
-                onClick={() => modifierEquipe(equipe)}
-              >
-                Modifier
-              </button>
+    <div className="equipe-carte-actions">
+      <button
+        type="button"
+        onClick={() => modifierEquipe(equipe)}
+      >
+        Modifier
+      </button>
 
-              <button
-                type="button"
-                onClick={() =>
-                  demanderSuppression(equipe)
-                }
-              >
-                Supprimer
-              </button>
-            </div>
-          </article>
-        );
-      })}
+      <button
+        type="button"
+        onClick={() =>
+          demanderSuppression(equipe)
+        }
+      >
+        Supprimer
+      </button>
+    </div>
+  </article>
+))}
     </div>
   );
 }

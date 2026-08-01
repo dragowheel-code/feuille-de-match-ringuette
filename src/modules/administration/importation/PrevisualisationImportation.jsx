@@ -132,7 +132,17 @@ const toutesSelectionnees =
     return;
   }
 
-  setJoueuses(resultat.joueuses);
+  console.table(
+  resultat.joueuses,
+  [
+    "id",
+    "nomComplet",
+    "numeroInscription",
+    "codeCategorie",
+  ]
+);
+
+setJoueuses(resultat.joueuses);
 setConfirmationOuverte(false);
 setRapportImportation(resultat.rapport);
 }

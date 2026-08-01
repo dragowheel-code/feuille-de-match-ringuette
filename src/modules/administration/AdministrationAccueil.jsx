@@ -8,6 +8,14 @@ const SECTIONS_ADMINISTRATION = [
     active: true,
   },
   {
+  id: "saisons",
+  titre: "Saisons",
+  description:
+    "Créer et gérer les saisons utilisées pour les affectations, les équipes et les historiques.",
+  statut: "En développement",
+  active: true,
+},
+  {
   id: "equipes",
   titre: "Équipes",
   description:
@@ -16,13 +24,29 @@ const SECTIONS_ADMINISTRATION = [
   active: true,
 },
   {
-    id: "joueuses",
-    titre: "Joueuses",
-    description:
-      "Gérer les joueuses et leurs affectations saisonnières.",
-    statut: "À venir",
-    active: false,
-  },
+  id: "joueuses",
+  titre: "Joueuses",
+  description:
+    "Gérer les joueuses et leurs affectations saisonnières.",
+  statut: "En développement",
+  active: true,
+},
+{
+  id: "affectations",
+  titre: "Affectations",
+  description:
+    "Attribuer les joueuses aux équipes pour chaque saison.",
+  statut: "À venir",
+  active: true,
+},
+{
+  id: "equipements",
+  titre: "Équipements",
+  description:
+    "Gérer les équipements physiques, leur disponibilité et leurs affectations.",
+  statut: "À venir",
+  active: false,
+},
   {
     id: "personnel",
     titre: "Personnel d'équipe",

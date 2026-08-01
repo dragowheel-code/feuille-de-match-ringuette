@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEtatPersistant } from "./useEtatPersistant";
 
 import { obtenirBaseDeDonnees } from "../services/baseDeDonneesV2";
 
@@ -8,13 +8,20 @@ import { supprimerAssociation as retirerAssociation } from "../domain/associatio
 import { validerAssociation } from "../domain/association/validerAssociation";
 
 export function useGestionAssociations() {
-  const [associations, setAssociations] = useState(() => {
-    const baseDeDonnees = obtenirBaseDeDonnees();
+  const [associations, setAssociations] =
+  useEtatPersistant(
+    "ringuette-v2-associations",
+    () => {
+      const baseDeDonnees =
+        obtenirBaseDeDonnees();
 
-    return Array.isArray(baseDeDonnees.associations)
-      ? baseDeDonnees.associations
-      : [];
-  });
+      return Array.isArray(
+        baseDeDonnees.associations
+      )
+        ? baseDeDonnees.associations
+        : [];
+    }
+  );
 
   function obtenirAssociationParId(idAssociation) {
     return associations.find(
@@ -23,7 +30,8 @@ export function useGestionAssociations() {
   }
 
   function ajouterAssociation(formulaire) {
-  const nouvelleAssociation = creerAssociation(formulaire);
+  const nouvelleAssociation =
+    creerAssociation(formulaire);
 
   const validation = validerAssociation(
     nouvelleAssociation,
@@ -37,10 +45,22 @@ export function useGestionAssociations() {
     };
   }
 
-  setAssociations((associationsActuelles) => [
-    ...associationsActuelles,
-    nouvelleAssociation,
-  ]);
+  setAssociations((associationsActuelles) => {
+    const associationsMisesAJour =
+      nouvelleAssociation.active
+        ? associationsActuelles.map(
+            (association) => ({
+              ...association,
+              active: false,
+            })
+          )
+        : associationsActuelles;
+
+    return [
+      ...associationsMisesAJour,
+      nouvelleAssociation,
+    ];
+  });
 
   return {
     succes: true,
@@ -79,18 +99,30 @@ export function useGestionAssociations() {
     };
   }
 
-  setAssociations((associationsActuelles) =>
-    remplacerAssociation(
-      associationsActuelles,
-      associationModifiee
-    )
-  );
+  setAssociations((associationsActuelles) => {
+  const associationsMisesAJour =
+    associationModifiee.active
+      ? associationsActuelles.map((association) =>
+          association.id === associationModifiee.id
+            ? association
+            : {
+                ...association,
+                active: false,
+              }
+        )
+      : associationsActuelles;
 
-  return {
-    succes: true,
-    association: associationModifiee,
-    erreurs: [],
-  };
+  return remplacerAssociation(
+    associationsMisesAJour,
+    associationModifiee
+  );
+});
+
+return {
+  succes: true,
+  association: associationModifiee,
+  erreurs: [],
+};
 }
 
   function supprimerAssociation(idAssociation) {
@@ -116,6 +148,11 @@ export function useGestionAssociations() {
       association: associationExistante,
     };
   }
+  function obtenirAssociationActive() {
+  return associations.find(
+    (association) => association.active === true
+  );
+}
 
   return {
     associations,
@@ -123,5 +160,6 @@ export function useGestionAssociations() {
     modifierAssociation,
     supprimerAssociation,
     obtenirAssociationParId,
+    obtenirAssociationActive
   };
 }

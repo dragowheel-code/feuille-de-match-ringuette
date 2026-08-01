@@ -16,13 +16,13 @@ function AssociationModal({
   }
 
   function changerChamp(evenement) {
-    const { name, value } = evenement.target;
+  const { name, value, type, checked } = evenement.target;
 
-    setFormulaire((precedent) => ({
-      ...precedent,
-      [name]: value,
-    }));
-  }
+  setFormulaire((precedent) => ({
+    ...precedent,
+    [name]: type === "checkbox" ? checked : value,
+  }));
+}
 
   function soumettre(evenement) {
     evenement.preventDefault();
@@ -117,6 +117,16 @@ function AssociationModal({
               onChange={changerChamp}
             />
           </label>
+          
+<label>
+  <input
+    type="checkbox"
+    name="active"
+    checked={Boolean(formulaire.active)}
+    onChange={changerChamp}
+  />
+  Association active
+</label>
 
 <LogoUploader
   valeur={formulaire.logo}
