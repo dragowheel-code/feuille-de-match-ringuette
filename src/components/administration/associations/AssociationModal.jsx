@@ -99,21 +99,21 @@ function AssociationModal({
           </label>
 
           <label>
-            Couleur primaire
+            Couleur Fonce
             <input
               type="color"
-              name="couleurPrimaire"
-              value={formulaire.couleurPrimaire}
+              name="couleur Fonce"
+              value={formulaire.couleurFonce}
               onChange={changerChamp}
             />
           </label>
 
           <label>
-            Couleur secondaire
+            Couleur Clair
             <input
               type="color"
-              name="couleurSecondaire"
-              value={formulaire.couleurSecondaire}
+              name="couleur Clair"
+              value={formulaire.couleurClair}
               onChange={changerChamp}
             />
           </label>

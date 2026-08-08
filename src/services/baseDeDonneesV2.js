@@ -10,9 +10,16 @@ const MODELE_BASE_V2 = {
   dateCreation: null,
 
   associations: [],
+  saisons: [],
   equipes: [],
   joueuses: [],
   officiels: [],
+
+  affectations: [],
+
+  chandails: [],
+  pantalons: [],
+  attributionsChandails: [],
 };
 
 function normaliserBaseDeDonnees(base) {
@@ -25,6 +32,39 @@ function normaliserBaseDeDonnees(base) {
           active: Boolean(association.active),
         }))
       : [],
+      saisons: Array.isArray(base.saisons)
+  ? base.saisons
+  : [],
+
+equipes: Array.isArray(base.equipes)
+  ? base.equipes
+  : [],
+
+joueuses: Array.isArray(base.joueuses)
+  ? base.joueuses
+  : [],
+
+officiels: Array.isArray(base.officiels)
+  ? base.officiels
+  : [],
+
+affectations: Array.isArray(base.affectations)
+  ? base.affectations
+  : [],
+
+chandails: Array.isArray(base.chandails)
+  ? base.chandails
+  : [],
+
+pantalons: Array.isArray(base.pantalons)
+  ? base.pantalons
+  : [],
+
+attributionsChandails: Array.isArray(
+  base.attributionsChandails
+)
+  ? base.attributionsChandails
+  : [],
   };
 }
 
@@ -62,11 +102,16 @@ export function validerBaseDeDonnees(base) {
   }
 
   return (
-    Array.isArray(base.associations) &&
-    Array.isArray(base.equipes) &&
-    Array.isArray(base.joueuses) &&
-    Array.isArray(base.officiels)
-  );
+  Array.isArray(base.associations) &&
+  Array.isArray(base.saisons) &&
+  Array.isArray(base.equipes) &&
+  Array.isArray(base.joueuses) &&
+  Array.isArray(base.officiels) &&
+  Array.isArray(base.affectations) &&
+  Array.isArray(base.chandails) &&
+  Array.isArray(base.pantalons) &&
+  Array.isArray(base.attributionsChandails)
+);
 }
 
 export function obtenirAssociations(base) {
@@ -122,7 +167,9 @@ export function mettreAJourSaisons(
   };
 }
 export function obtenirChandails(base) {
-  return [...base.chandails];
+  return Array.isArray(base.chandails)
+    ? [...base.chandails]
+    : [];
 }
 
 export function mettreAJourChandails(
@@ -147,21 +194,19 @@ export function mettreAJourPantalons(
     pantalons: [...pantalons],
   };
 }
-export function obtenirAffectationsJoueuses(
-  base
-) {
-  return [...base.affectationsJoueuses];
+export function obtenirAffectations(base) {
+  return Array.isArray(base.affectations)
+    ? [...base.affectations]
+    : [];
 }
 
-export function mettreAJourAffectationsJoueuses(
+export function mettreAJourAffectations(
   base,
-  affectationsJoueuses
+  affectations
 ) {
   return {
     ...base,
-    affectationsJoueuses: [
-      ...affectationsJoueuses,
-    ],
+    affectations: [...affectations],
   };
 }
 export function obtenirAttributionsChandails(
@@ -184,20 +229,34 @@ export function mettreAJourAttributionsChandails(
 export function construireBaseDeDonnees({
   base,
   associations,
+  saisons,
   equipes,
   joueuses,
   officiels,
+  affectations,
+  chandails,
+  pantalons,
+  attributionsChandails,
 }) {
   return {
-    ...base,
+  ...base,
 
-    dateExport: new Date().toISOString(),
+  dateExport: new Date().toISOString(),
 
-    associations: [...associations],
-    equipes: [...equipes],
-    joueuses: [...joueuses],
-    officiels: [...officiels],
-  };
+  associations: [...associations],
+  saisons: [...saisons],
+  equipes: [...equipes],
+  joueuses: [...joueuses],
+  officiels: [...officiels],
+
+  affectations: [...affectations],
+  chandails: [...chandails],
+  pantalons: [...pantalons],
+
+  attributionsChandails: [
+    ...attributionsChandails,
+  ],
+};
 }
 
 export function exporterBaseDeDonnees(base) {

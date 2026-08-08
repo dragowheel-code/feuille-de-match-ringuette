@@ -9,3 +9,6 @@ export { ROLES_JOUEUSE } from "./roles";
 // Gestion des gardiennes //
 export { compterGardiennes } from "./compterGardiennes";
 export { peutAjouterGardienne } from "./peutAjouterGardienne";
+// Distribution équipements //
+export * from "./obtenirJoueusesAssociation";
+export * from "./obtenirOptionsDistributionChandails";

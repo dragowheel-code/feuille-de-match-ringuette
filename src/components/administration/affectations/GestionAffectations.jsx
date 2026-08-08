@@ -4,9 +4,13 @@ import { obtenirNomEquipe } from "../../../domain/equipes/obtenirNomEquipe";
 import { obtenirAdmissibiliteCategorie } from "../../../domain/categories/obtenirAdmissibiliteCategorie";
 import { obtenirCategorieEquipe } from "../../../domain/equipes/obtenirCategorieEquipe";
 import { validerAffectationsEquipe } from "../../../domain/affectation/validerAffectationsEquipe";
-import AccordeonCategorie from "./AccordeonCategorie";
 import { CATEGORIES } from "../../../domain/categories/categories";
+
+import AccordeonCategorie from "./AccordeonCategorie";
 import TableauCategorie from "./TableauCategorie";
+import BarreOutilsAffectations from "./BarreOutilsAffectations";
+import { normaliserCategorie } from "../../../domain/categories/normaliserCategorie";
+import { obtenirAutresEquipesJoueuse } from "../../../domain/affectation/obtenirAutresEquipesJoueuse";
 
 function GestionAffectations({
   retour,
@@ -26,10 +30,7 @@ function GestionAffectations({
     setEtatAffectations,
   ] = useState({});
 
-  const [
-  recherche,
-  setRecherche,
-] = useState("");
+  const [recherche, setRecherche] = useState("");
 
   const {
     affectations,
@@ -63,6 +64,12 @@ function GestionAffectations({
           ) {
             return false;
           }
+          console.log(
+  "Catégories présentes :",
+  [...new Set(joueuses.map(
+    (joueuse) => joueuse.categorie
+  ))]
+);
 
           const admissibilite =
             obtenirAdmissibiliteCategorie(
@@ -75,45 +82,44 @@ function GestionAffectations({
           return admissibilite.type !== null;
         })
       : [];
-      const joueusesFiltrees =
-  joueusesDisponibles
-    .filter((joueuse) =>
-      joueuse.nomComplet
-        .toLowerCase()
-        .includes(
-          recherche.toLowerCase()
-        )
-    )
-    .sort((a, b) => {
-      const ordreCategorie = {
-        Moustique: 1,
-        Novice: 2,
-        Atome: 3,
-        Benjamine: 4,
-        Junior: 5,
-        Cadette: 6,
-        Inter: 7,
-      };
 
-      const ordreA =
-        ordreCategorie[
-          a.categorie
-        ] ?? 999;
+  const joueusesFiltrees =
+    joueusesDisponibles
+      .filter((joueuse) =>
+        joueuse.nomComplet
+          .toLowerCase()
+          .includes(recherche.toLowerCase())
+      )
+      .sort((a, b) => {
+        const ordreCategorie = {
+          Moustique: 1,
+          Novice: 2,
+          Atome: 3,
+          Benjamine: 4,
+          Junior: 5,
+          Cadette: 6,
+          Inter: 7,
+        };
 
-      const ordreB =
-        ordreCategorie[
-          b.categorie
-        ] ?? 999;
+        const ordreA =
+  ordreCategorie[
+    normaliserCategorie(a.categorie)
+  ] ?? 999;
 
-      if (ordreA !== ordreB) {
-        return ordreA - ordreB;
-      }
+const ordreB =
+  ordreCategorie[
+    normaliserCategorie(b.categorie)
+  ] ?? 999;
 
-      return a.nomComplet.localeCompare(
-        b.nomComplet,
-        "fr-CA"
-      );
-    });
+        if (ordreA !== ordreB) {
+          return ordreA - ordreB;
+        }
+
+        return a.nomComplet.localeCompare(
+          b.nomComplet,
+          "fr-CA"
+        );
+      });
 
   const nombreAffectees = Object.values(
     etatAffectations
@@ -130,21 +136,43 @@ function GestionAffectations({
     (etat) => etat.derogationHaut
   ).length;
 
-  function affecterToutesLesJoueuses() {
-    if (!equipeSelectionnee) {
-      return;
-    }
+  function obtenirAdmissibiliteJoueuse(joueuse) {
+    return obtenirAdmissibiliteCategorie(
+      obtenirCategorieEquipe(
+        equipeSelectionnee
+      ),
+      joueuse.categorie
+    );
+  }
 
-    const nouvelEtat = {};
+  function obtenirAutresEquipesPourJoueuse(
+  joueuse
+) {
+  if (!equipeSelectionnee) {
+    return [];
+  }
 
-    joueusesDisponibles.forEach((joueuse) => {
+  return obtenirAutresEquipesJoueuse(
+    affectations,
+    equipes,
+    joueuse.id,
+    equipeSelectionnee.id
+  );
+}
+
+  function affecterJoueuses(listeJoueuses) {
+  if (!equipeSelectionnee) {
+    return;
+  }
+
+  setEtatAffectations((etatActuel) => {
+    const nouvelEtat = {
+      ...etatActuel,
+    };
+
+    listeJoueuses.forEach((joueuse) => {
       const admissibilite =
-        obtenirAdmissibiliteCategorie(
-          obtenirCategorieEquipe(
-            equipeSelectionnee
-          ),
-          joueuse.categorie
-        );
+        obtenirAdmissibiliteJoueuse(joueuse);
 
       nouvelEtat[joueuse.id] = {
         assignee:
@@ -158,18 +186,60 @@ function GestionAffectations({
       };
     });
 
-    setEtatAffectations(nouvelEtat);
-  }
+    return nouvelEtat;
+  });
+}
+
+function affecterToutesLesJoueuses() {
+  affecterJoueuses(joueusesDisponibles);
+}
+
+function affecterCategorie(categorie) {
+  const joueusesCategorie =
+    joueusesDisponibles.filter(
+      (joueuse) =>
+        normaliserCategorie(
+          joueuse.categorie
+        ) === categorie
+    );
+
+  affecterJoueuses(joueusesCategorie);
+}
+function retirerCategorie(categorie) {
+  const idsJoueusesCategorie =
+    joueusesDisponibles
+      .filter(
+        (joueuse) =>
+          normaliserCategorie(
+            joueuse.categorie
+          ) === categorie
+      )
+      .map((joueuse) => joueuse.id);
+
+  setEtatAffectations((etatActuel) => {
+    const nouvelEtat = {
+      ...etatActuel,
+    };
+
+    idsJoueusesCategorie.forEach(
+      (joueuseId) => {
+        delete nouvelEtat[joueuseId];
+      }
+    );
+
+    return nouvelEtat;
+  });
+}
 
   function retirerToutesLesJoueuses() {
     setEtatAffectations({});
   }
 
   function changerEquipe(evenement) {
-    const equipeId =
-      evenement.target.value;
+    const equipeId = evenement.target.value;
 
     setEquipeSelectionneeId(equipeId);
+    setRecherche("");
 
     if (!equipeId) {
       setEtatAffectations({});
@@ -272,14 +342,6 @@ function GestionAffectations({
     );
   }
 
-function obtenirAdmissibiliteJoueuse(joueuse) {
-  return obtenirAdmissibiliteCategorie(
-    obtenirCategorieEquipe(
-      equipeSelectionnee
-    ),
-    joueuse.categorie
-  );
-}
   return (
     <section className="gestion-affectations">
       <header className="gestion-affectations-entete">
@@ -333,126 +395,108 @@ function obtenirAdmissibiliteJoueuse(joueuse) {
           </p>
         ) : (
           <div className="affectations-selection">
-            <label>
-              Équipe
-
-              <select
-                value={
-                  equipeSelectionneeId
-                }
-                onChange={changerEquipe}
-              >
-                <option value="">
-                  Sélectionner une équipe
-                </option>
-
-                {equipesDisponibles.map(
-                  (equipe) => (
-                    <option
-                      key={equipe.id}
-                      value={equipe.id}
-                    >
-                      {obtenirNomEquipe(
-                        equipe
-                      )}
-                    </option>
-                  )
-                )}
-              </select>
-            </label>
+            <BarreOutilsAffectations
+              equipeSelectionneeId={
+                equipeSelectionneeId
+              }
+              equipesDisponibles={
+                equipesDisponibles
+              }
+              changerEquipe={changerEquipe}
+              obtenirNomEquipe={
+                obtenirNomEquipe
+              }
+              nombreAffectees={
+                nombreAffectees
+              }
+              nombrePE={nombrePE}
+              recherche={recherche}
+              setRecherche={setRecherche}
+              affecterToutesLesJoueuses={
+                affecterToutesLesJoueuses
+              }
+              retirerToutesLesJoueuses={
+                retirerToutesLesJoueuses
+              }
+            />
 
             {equipeSelectionnee && (
-              <>
-                <div className="resume-affectations">
-                  <strong>
-                    {nombreAffectees} / 19
-                    joueuses
-                  </strong>
+              <div className="affectations-joueuses">
+                <h3>
+                  Joueuses disponibles
+                </h3>
 
-                  {" • "}
+                {joueusesFiltrees.length ===
+                0 ? (
+                  <p>
+                    Aucune joueuse ne correspond
+                    à la recherche.
+                  </p>
+                ) : (
+                  CATEGORIES.map(
+                    (categorie) => {
+                      const joueusesCategorie =
+  joueusesFiltrees.filter(
+    (joueuse) =>
+      normaliserCategorie(
+        joueuse.categorie
+      ) === categorie.nom
+  );
+                        const nombreAffecteesCategorie =
+  joueusesCategorie.filter((joueuse) => {
+    const etat =
+      etatAffectations[joueuse.id];
 
-                  <strong>
-                    {nombrePE} PE
-                  </strong>
-                </div>
-
-                <div className="affectations-actions-rapides">
-                  <button
-                    type="button"
-                    onClick={
-                      affecterToutesLesJoueuses
-                    }
-                  >
-                    Tout affecter
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={
-                      retirerToutesLesJoueuses
-                    }
-                  >
-                    Tout retirer
-                  </button>
-                </div>
-
-                <div className="affectations-joueuses">
-                  <h3>
-                    Joueuses disponibles
-                  </h3>
-<input
-  type="text"
-  placeholder="🔍 Rechercher une joueuse..."
-  value={recherche}
-  onChange={(evenement) =>
-    setRecherche(
-      evenement.target.value
-    )
-  }
-  className="recherche-joueuse"
-/>
-                  {joueusesFiltrees.length === 0 ? (
-  <p>
-    Aucune joueuse ne correspond à la recherche.
-  </p>
-) : (
-  CATEGORIES.map((categorie) => {
-    const joueusesCategorie =
-      joueusesFiltrees.filter(
-        (joueuse) =>
-          joueuse.categorie === categorie.nom
-      );
-
-    if (joueusesCategorie.length === 0) {
-      return null;
-    }
-
-    return (
-      <AccordeonCategorie
-        key={categorie.id}
-        titre={categorie.nom}
-        nombre={joueusesCategorie.length}
-        ouvertParDefaut={
-          recherche.trim() !== ""
-        }
-        enfants={
-  <TableauCategorie
-    joueuses={joueusesCategorie}
-    etatAffectations={etatAffectations}
-    setEtatAffectations={
-      setEtatAffectations
-    }
-    obtenirAdmissibilite={
-      obtenirAdmissibiliteJoueuse
-    }
-  />
-}
-      />
+    return Boolean(
+      etat?.assignee ||
+        etat?.derogationHaut ||
+        etat?.derogationBas
     );
-  })
-)}
-                </div>
-              </>
+  }).length;
+
+                      if (
+                        joueusesCategorie.length ===
+                        0
+                      ) {
+                        return null;
+                      }
+
+                      return (
+                        <AccordeonCategorie
+                          key={categorie.id}
+                          titre={categorie.nom}
+                          nombre={joueusesCategorie.length}
+                          nombreAffectees={nombreAffecteesCategorie}
+                          onToutAffecter={() =>
+  affecterCategorie(categorie.nom)
+}
+
+onToutRetirer={() =>
+  retirerCategorie(categorie.nom)
+}
+                          ouvertParDefaut={
+  recherche.trim() !== "" ||
+  nombreAffecteesCategorie > 0
+}
+                          enfants={
+                            <TableauCategorie
+                             joueuses={joueusesCategorie}
+                             etatAffectations={etatAffectations}
+                             setEtatAffectations={setEtatAffectations}
+                             obtenirAdmissibilite={
+                             obtenirAdmissibiliteJoueuse
+                             }
+                             obtenirAutresEquipes={
+                             obtenirAutresEquipesPourJoueuse
+                             }
+                            />
+                          }
+                        />
+                      );
+                    }
+                  )
+                )}
+              </div>
             )}
           </div>
         )}

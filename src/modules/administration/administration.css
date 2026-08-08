@@ -577,3 +577,247 @@
 .accordeon-contenu {
   padding: 0 12px 12px;
 }
+.ligne-joueuse-identite {
+  display: inline-flex;
+  flex-direction: column;
+  vertical-align: middle;
+}
+
+.ligne-joueuse-autres-equipes {
+  margin-top: 2px;
+  font-size: 0.78rem;
+  opacity: 0.75;
+}
+.carte-ensemble-chandails {
+  width: 90px;
+  min-height: 90px;
+  padding: 12px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  border: 3px solid transparent;
+  border-radius: 12px;
+
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.carte-ensemble-chandails strong {
+  font-size: 1.8rem;
+}
+
+.carte-ensemble-chandails span {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.carte-ensemble-disponible {
+  background: #198754;
+}
+
+.carte-ensemble-attribue {
+  background: #0d6efd;
+}
+
+.carte-ensemble-attention {
+  background: #fd7e14;
+}
+
+.carte-ensemble-incomplet {
+  background: #dc3545;
+}
+
+.carte-ensemble-perdu {
+  background: #111111;
+}
+
+.carte-ensemble-selectionnee {
+  border-color: #ffffff;
+  box-shadow:
+    0 0 0 3px rgba(255, 255, 255, 0.35);
+}
+.inventaire-chandails {
+  display: grid;
+  grid-template-columns:
+    minmax(0, 1fr)
+    minmax(280px, 360px);
+  gap: 24px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.grille-chandails {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.groupe-taille {
+  padding: 18px;
+  border: 1px solid
+    rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background:
+    rgba(255, 255, 255, 0.07);
+}
+
+.groupe-taille h2 {
+  margin: 0 0 14px;
+}
+
+.groupe-cartes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.fiche-chandail {
+  position: sticky;
+  top: 24px;
+  min-height: 260px;
+  padding: 22px;
+  border: 1px solid
+    rgba(255, 255, 255, 0.16);
+  border-radius: 14px;
+  background:
+    rgba(255, 255, 255, 0.09);
+}
+
+.fiche-chandail h2 {
+  margin-top: 0;
+}
+
+.fiche-chandail button {
+  margin-right: 10px;
+  margin-top: 12px;
+}
+
+@media (max-width: 900px) {
+  .inventaire-chandails {
+    grid-template-columns: 1fr;
+  }
+
+  .fiche-chandail {
+    position: static;
+  }
+}
+.resume-inventaire {
+  display: grid;
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(140px, 1fr)
+  );
+  gap: 16px;
+  margin: 24px 0;
+}
+
+.resume-carte {
+  border-radius: 12px;
+  padding: 18px;
+  color: white;
+  text-align: center;
+  font-weight: 600;
+}
+
+.resume-carte span {
+  font-size: 2rem;
+  display: block;
+}
+
+.resume-carte strong {
+  display: block;
+  margin: 8px 0;
+  font-size: 2rem;
+}
+
+.resume-carte p {
+  margin: 0;
+}
+.resume-carte.disponible {
+  background: #198754;
+}
+
+.resume-carte.attribue {
+  background: #0d6efd;
+}
+
+.resume-carte.attention {
+  background: #fd7e14;
+}
+
+.resume-carte.incomplet {
+  background: #dc3545;
+}
+
+.resume-carte.perdu {
+  background: #212529;
+}
+.fiche-chandail-entete {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.fiche-chandail-entete h2 {
+  margin: 0 0 10px;
+}
+
+.fiche-chandail-taille {
+  font-size: 1.4rem;
+}
+
+.fiche-chandail-section {
+  padding: 16px 0;
+  border-top: 1px solid
+    rgba(255, 255, 255, 0.15);
+}
+
+.fiche-chandail-section h3 {
+  margin: 0 0 10px;
+}
+
+.fiche-chandail-section p {
+  margin: 6px 0;
+}
+
+.badge-statut {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 999px;
+  color: white;
+  font-weight: 700;
+}
+
+.badge-statut-disponible {
+  background: #198754;
+}
+
+.badge-statut-attribue {
+  background: #0d6efd;
+}
+
+.badge-statut-attention {
+  background: #fd7e14;
+}
+
+.badge-statut-incomplet {
+  background: #dc3545;
+}
+
+.badge-statut-perdu {
+  background: #212529;
+}
+
+.fiche-chandail-actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid
+    rgba(255, 255, 255, 0.15);
+}

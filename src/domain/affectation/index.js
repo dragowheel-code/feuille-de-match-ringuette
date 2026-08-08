@@ -6,3 +6,4 @@ export * from "./calculerInformationsEquipe";
 export * from "./filtrerEquipes";
 export * from "./filtrerJoueuses";
 export * from "./verifierNumeroDisponible";
+export * from "./attributionsChandails";

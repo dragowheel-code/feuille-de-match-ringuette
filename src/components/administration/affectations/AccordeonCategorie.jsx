@@ -1,7 +1,10 @@
 function AccordeonCategorie({
   titre,
   nombre,
+  nombreAffectees = 0,
   ouvertParDefaut = false,
+  onToutAffecter,
+  onToutRetirer,
   enfants,
 }) {
   return (
@@ -13,14 +16,29 @@ function AccordeonCategorie({
         <strong>{titre}</strong>
 
         <span>
-          {nombre} joueuse
-          {nombre > 1 ? "s" : ""}
-        </span>
+  {nombreAffectees} / {nombre} affectées
+</span>
       </summary>
 
       <div className="accordeon-contenu">
-        {enfants}
-      </div>
+        <div className="accordeon-actions">
+  <button
+    type="button"
+    onClick={onToutAffecter}
+  >
+    Tout affecter
+  </button>
+
+  <button
+    type="button"
+    onClick={onToutRetirer}
+  >
+    Tout retirer
+  </button>
+</div>
+
+{enfants}
+        </div>
     </details>
   );
 }

@@ -8,12 +8,18 @@ import GestionSaisons from "../../components/administration/saisons/GestionSaiso
 import GestionEquipes from "../../components/administration/equipes/GestionEquipes";
 import GestionJoueuses from "../../components/administration/joueuses/GestionJoueuses";
 import GestionAffectations from "../../components/administration/affectations/GestionAffectations";
+import GestionEquipements from "../../components/administration/equipements/GestionEquipements";
+import GestionChandails from "../../components/administration/equipements/chandails/GestionChandails";
+import GestionPantalons from "../../components/administration/equipements/pantalons/GestionPantalons";
 // Hooks //
 import { useGestionAssociations } from "../../hooks/useGestionAssociations";
 import { useGestionAffectations } from "../../hooks/useGestionAffectations";
 import { useGestionSaisons } from "../../hooks/useGestionSaisons";
 import { useGestionEquipes } from "../../hooks/useGestionEquipes";
 import { useGestionJoueuses } from "../../hooks/useGestionJoueuses";
+import { useGestionChandails } from "../../hooks/useGestionChandails";
+import { useGestionPantalons } from "../../hooks/useGestionPantalons";
+import { useGestionAttributionsChandails } from "../../hooks/useGestionAttributionsChandails";
 
 const PAGES_ADMINISTRATION = {
   ACCUEIL: "accueil",
@@ -22,6 +28,9 @@ const PAGES_ADMINISTRATION = {
   AFFECTATIONS: "affectations",
   EQUIPES: "equipes",
   JOUEUSES: "joueuses",
+  EQUIPEMENTS: "equipements",
+  CHANDAILS: "chandails",
+  PANTALONS: "pantalons",
   IMPORTATION: "importation",
 };
 
@@ -35,13 +44,14 @@ function AdministrationApp() {
   const gestionSaisons = useGestionSaisons();
   const gestionEquipes = useGestionEquipes();
   const gestionJoueuses = useGestionJoueuses();
+  const gestionChandails = useGestionChandails();
+  const gestionAttributionsChandails = useGestionAttributionsChandails();
+  const gestionPantalons = useGestionPantalons();
   const associationActive =
   gestionAssociations.obtenirAssociationActive();
 
   const saisonActive =
   gestionSaisons.obtenirSaisonActive();
-  
-  
 
   function retournerFeuilleMatch() {
     window.location.hash = "";
@@ -75,6 +85,27 @@ if (sectionId === "affectations") {
     return;
   }
 
+  if (sectionId === "equipements") {
+  setPageActive(
+    PAGES_ADMINISTRATION.EQUIPEMENTS
+  );
+  return;
+}
+
+if (sectionId === "chandails") {
+  setPageActive(
+    PAGES_ADMINISTRATION.CHANDAILS
+  );
+  return;
+}
+
+if (sectionId === "pantalons") {
+  setPageActive(
+    PAGES_ADMINISTRATION.PANTALONS
+  );
+  return;
+}
+
   if (sectionId === "donnees") {
     setPageActive(PAGES_ADMINISTRATION.IMPORTATION);
   }
@@ -83,6 +114,11 @@ if (sectionId === "affectations") {
   function retournerAccueilAdministration() {
     setPageActive(PAGES_ADMINISTRATION.ACCUEIL);
   }
+  function retournerEquipements() {
+  setPageActive(
+    PAGES_ADMINISTRATION.EQUIPEMENTS
+  );
+}
 
   return (
     <main className="administration-app">
@@ -151,7 +187,34 @@ if (sectionId === "affectations") {
   gestionJoueuses={gestionJoueuses}
 />
 )}
-      {pageActive === PAGES_ADMINISTRATION.IMPORTATION && (
+{pageActive ===
+  PAGES_ADMINISTRATION.EQUIPEMENTS && (
+  <GestionEquipements
+    retour={retournerAccueilAdministration}
+    ouvrirSection={ouvrirSection}
+  />
+)}
+{pageActive ===
+  PAGES_ADMINISTRATION.CHANDAILS && (
+  <GestionChandails
+  retour={retournerEquipements}
+  associationActive={associationActive}
+  saisonActive={saisonActive}
+  saisons={gestionSaisons.saisons}
+  gestionChandails={gestionChandails}
+  gestionAttributionsChandails={ gestionAttributionsChandails }
+  gestionJoueuses={gestionJoueuses}
+/>
+)}
+{pageActive ===
+  PAGES_ADMINISTRATION.PANTALONS && (
+  <GestionPantalons
+  retour={retournerEquipements}
+  associationActive={associationActive}
+  gestionPantalons={gestionPantalons}
+/>
+)}
+  {pageActive === PAGES_ADMINISTRATION.IMPORTATION && (
         <ImportationAdministration
   retournerAccueil={retournerAccueilAdministration}
   associationActive={associationActive}

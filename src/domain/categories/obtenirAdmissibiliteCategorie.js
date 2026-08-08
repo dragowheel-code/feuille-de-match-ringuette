@@ -1,11 +1,21 @@
 import { categorieInferieure } from "./categorieInferieure";
 import { categorieSuperieure } from "./categorieSuperieure";
+import { normaliserCategorie } from "./normaliserCategorie";
 
 export function obtenirAdmissibiliteCategorie(
   categorieEquipe,
   categorieJoueuse
 ) {
-  if (categorieEquipe === categorieJoueuse) {
+  const categorieEquipeNormalisee =
+    normaliserCategorie(categorieEquipe);
+
+  const categorieJoueuseNormalisee =
+    normaliserCategorie(categorieJoueuse);
+
+  if (
+    categorieEquipeNormalisee ===
+    categorieJoueuseNormalisee
+  ) {
     return {
       type: "normale",
       peutAssigner: true,
@@ -14,16 +24,10 @@ export function obtenirAdmissibiliteCategorie(
     };
   }
 
-  /*
-   * La joueuse provient de la catégorie inférieure
-   * et monte dans l'équipe sélectionnée.
-   *
-   * Exemple :
-   * joueuse Moustique → équipe Novice = D+
-   */
   if (
-    categorieInferieure(categorieEquipe)?.nom ===
-    categorieJoueuse
+    categorieInferieure(
+      categorieEquipeNormalisee
+    )?.nom === categorieJoueuseNormalisee
   ) {
     return {
       type: "D+",
@@ -33,16 +37,10 @@ export function obtenirAdmissibiliteCategorie(
     };
   }
 
-  /*
-   * La joueuse provient de la catégorie supérieure
-   * et descend dans l'équipe sélectionnée.
-   *
-   * Exemple :
-   * joueuse Novice → équipe Moustique = D-
-   */
   if (
-    categorieSuperieure(categorieEquipe)?.nom ===
-    categorieJoueuse
+    categorieSuperieure(
+      categorieEquipeNormalisee
+    )?.nom === categorieJoueuseNormalisee
   ) {
     return {
       type: "D-",

@@ -36,7 +36,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Affectations",
   description:
     "Attribuer les joueuses aux équipes pour chaque saison.",
-  statut: "À venir",
+  statut: "En développement",
   active: true,
 },
 {
@@ -44,8 +44,8 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Équipements",
   description:
     "Gérer les équipements physiques, leur disponibilité et leurs affectations.",
-  statut: "À venir",
-  active: false,
+  statut: "En développement",
+  active: true,
 },
   {
     id: "personnel",

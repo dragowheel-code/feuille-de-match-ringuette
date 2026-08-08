@@ -26,13 +26,13 @@ export function validerAssociation(association, associations = []) {
     erreurs.push("Le nom des équipes est obligatoire.");
   }
 
-  // Couleur primaire
-  if (!association.couleurPrimaire) {
+  // Couleur Fonce
+  if (!association.couleurFonce) {
     erreurs.push("La couleur principale est obligatoire.");
   }
 
-  // Couleur secondaire
-  if (!association.couleurSecondaire) {
+  // Couleur Clair
+  if (!association.couleurClair) {
     erreurs.push("La couleur secondaire est obligatoire.");
   }
 

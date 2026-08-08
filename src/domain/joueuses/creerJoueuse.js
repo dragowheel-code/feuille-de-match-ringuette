@@ -1,3 +1,5 @@
+import { normaliserCategorie } from "../categories/normaliserCategorie";
+
 export function creerJoueuse({
   id = crypto.randomUUID(),
 
@@ -38,7 +40,7 @@ export function creerJoueuse({
     dateNaissance: dateNaissance.trim(),
     age: age.trim(),
 
-    categorie: categorie.trim(),
+    categorie: normaliserCategorie(categorie),
     codeCategorie: codeCategorie.trim(),
     saison: saison.trim(),
   };

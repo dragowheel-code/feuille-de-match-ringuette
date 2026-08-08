@@ -13,8 +13,8 @@ export function creerAssociation({
 
   logo = null,
 
-  couleurPrimaire = "#000000",
-  couleurSecondaire = "#FFFFFF",
+  couleurFonce = "#000000",
+  couleurClair = "#FFFFFF",
 } = {}) {
   return {
     id,
@@ -29,7 +29,7 @@ export function creerAssociation({
 
     logo,
 
-    couleurPrimaire,
-    couleurSecondaire,
+    couleurFonce,
+    couleurClair,
   };
 }

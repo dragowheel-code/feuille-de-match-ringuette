@@ -6,5 +6,38 @@
   "associations": [],
   "equipes": [],
   "joueuses": [],
-  "officiels": []
+  "officiels": [],
+
+  "chandails": [
+  {
+    "id": "chandail-57-m",
+    "associationId": "92498956-eee7-481a-ae72-e54b5fbd4e0b",
+    "numero": "57",
+    "taille": "M",
+    "clair": {
+      "etat": "Bon",
+      "notes": ""
+    },
+    "fonce": {
+      "etat": "Bon",
+      "notes": ""
+    },
+    "actif": true
+  },
+  {
+    "id": "chandail-12-xs",
+    "associationId": "92498956-eee7-481a-ae72-e54b5fbd4e0b",
+    "numero": "12",
+    "taille": "XS",
+    "clair": {
+      "etat": "Bon",
+      "notes": ""
+    },
+    "fonce": {
+      "etat": "Réparation",
+      "notes": "Couture sous le bras."
+    },
+    "actif": true
+  }
+]
 }

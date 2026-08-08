@@ -2,8 +2,9 @@ function LigneJoueuse({
   joueuse,
   etat,
   admissibilite,
+  autresEquipes = [],
   setEtatAffectations,
-}) {
+  }) {
   const libelleAffectation =
     admissibilite.type === "normale"
       ? "Normale"
@@ -40,16 +41,25 @@ function LigneJoueuse({
   return (
     <tr>
       <td>
-        <span
-          className={`pastille-categorie pastille-${joueuse.categorie.toLowerCase()}`}
-        >
-          {joueuse.categorie
-            .slice(0, 3)
-            .toUpperCase()}
-        </span>
+  <span
+    className={`pastille-categorie pastille-${joueuse.categorie.toLowerCase()}`}
+  >
+    {joueuse.categorie
+      .slice(0, 3)
+      .toUpperCase()}
+  </span>
 
-        {joueuse.nomComplet}
-      </td>
+  <div className="ligne-joueuse-identite">
+    <span>{joueuse.nomComplet}</span>
+
+    {autresEquipes.length > 0 && (
+      <small className="ligne-joueuse-autres-equipes">
+        Déjà affectée à :{" "}
+        {autresEquipes.join(" • ")}
+      </small>
+    )}
+  </div>
+</td>
 
       <td>{libelleAffectation}</td>
 

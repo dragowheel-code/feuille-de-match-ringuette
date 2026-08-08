@@ -35,8 +35,8 @@ function GestionAssociations({
   ville: "",
   nomEquipes: "",
   logo: null,
-  couleurPrimaire: "#000000",
-  couleurSecondaire: "#FFFFFF",
+  couleurFonce: "#000000",
+  couleurClair: "#FFFFFF",
 };
 
 const [
@@ -71,8 +71,8 @@ function ouvrirModificationAssociation(association) {
     ville: association.ville,
     nomEquipes: association.nomEquipes,
     logo: association.logo,
-    couleurPrimaire: association.couleurPrimaire,
-    couleurSecondaire: association.couleurSecondaire,
+    couleurFonce: association.couleurFonce,
+    couleurClair: association.couleurClair,
   });
 
   setFenetreAssociationOuverte(true);

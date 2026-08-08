@@ -30,8 +30,8 @@ export const CATEGORIES = [
     ordre: 6,
   },
   {
-    id: "INT",
-    nom: "Inter",
-    ordre: 7,
-  },
+  id: "INT",
+  nom: "Inter",
+  ordre: 7,
+},
 ];

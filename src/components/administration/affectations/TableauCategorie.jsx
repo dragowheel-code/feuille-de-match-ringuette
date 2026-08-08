@@ -5,6 +5,7 @@ function TableauCategorie({
   etatAffectations,
   setEtatAffectations,
   obtenirAdmissibilite,
+  obtenirAutresEquipes,
 }) {
   return (
     <table className="table-administration table-affectations">
@@ -28,15 +29,19 @@ function TableauCategorie({
           const admissibilite =
             obtenirAdmissibilite(joueuse);
 
+          const autresEquipes =
+            obtenirAutresEquipes(joueuse);
+
           return (
             <LigneJoueuse
-              key={joueuse.id}
-              joueuse={joueuse}
-              etat={etat}
-              admissibilite={admissibilite}
-              setEtatAffectations={
-                setEtatAffectations
-              }
+             key={joueuse.id}
+             joueuse={joueuse}
+             etat={etat}
+             admissibilite={admissibilite}
+             autresEquipes={autresEquipes}
+             setEtatAffectations={
+             setEtatAffectations
+             }
             />
           );
         })}
