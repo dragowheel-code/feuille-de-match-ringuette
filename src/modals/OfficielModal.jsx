@@ -100,6 +100,22 @@ export default function OfficielModal({
                 ? "Enregistrer les modifications"
                 : "Ajouter l’officiel"}
             </button>
+            
+            <div className="config-section">
+  <h3>Statut</h3>
+
+  <label>
+    <input
+      type="checkbox"
+      name="actif"
+      checked={
+        officiel.actif !== false
+      }
+      onChange={modifierChamp}
+    />
+    Actif
+  </label>
+</div>
 
             <button
               type="button"

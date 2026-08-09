@@ -11,6 +11,9 @@ import GestionAffectations from "../../components/administration/affectations/Ge
 import GestionEquipements from "../../components/administration/equipements/GestionEquipements";
 import GestionChandails from "../../components/administration/equipements/chandails/GestionChandails";
 import GestionPantalons from "../../components/administration/equipements/pantalons/GestionPantalons";
+import GestionPersonnelEquipe from "../../components/administration/personnelEquipe/GestionPersonnelEquipe";
+import GestionAffectationsPersonnel from "../../components/administration/personnelEquipe/GestionAffectationsPersonnel";
+import GestionOfficiels from "../../components/administration/officiels/GestionOfficiels";
 // Hooks //
 import { useGestionAssociations } from "../../hooks/useGestionAssociations";
 import { useGestionAffectations } from "../../hooks/useGestionAffectations";
@@ -20,6 +23,8 @@ import { useGestionJoueuses } from "../../hooks/useGestionJoueuses";
 import { useGestionChandails } from "../../hooks/useGestionChandails";
 import { useGestionPantalons } from "../../hooks/useGestionPantalons";
 import { useGestionAttributionsChandails } from "../../hooks/useGestionAttributionsChandails";
+import { useGestionPersonnelEquipe } from "../../hooks/useGestionPersonnelEquipe";
+import { useGestionAffectationsPersonnel } from "../../hooks/useGestionAffectationsPersonnel";
 
 const PAGES_ADMINISTRATION = {
   ACCUEIL: "accueil",
@@ -31,10 +36,16 @@ const PAGES_ADMINISTRATION = {
   EQUIPEMENTS: "equipements",
   CHANDAILS: "chandails",
   PANTALONS: "pantalons",
+  PERSONNEL_EQUIPE: "personnel-equipe",
+  AFFECTATIONS_PERSONNEL: "affectations-personnel",
+  OFFICIELS: "officiels",
   IMPORTATION: "importation",
 };
 
-function AdministrationApp() {
+function AdministrationApp({
+  officiels,
+  setOfficiels,
+}) {
   
   const [pageActive, setPageActive] = useState(
     PAGES_ADMINISTRATION.ACCUEIL
@@ -47,11 +58,10 @@ function AdministrationApp() {
   const gestionChandails = useGestionChandails();
   const gestionAttributionsChandails = useGestionAttributionsChandails();
   const gestionPantalons = useGestionPantalons();
-  const associationActive =
-  gestionAssociations.obtenirAssociationActive();
-
-  const saisonActive =
-  gestionSaisons.obtenirSaisonActive();
+  const gestionPersonnelEquipe = useGestionPersonnelEquipe();
+  const gestionAffectationsPersonnel = useGestionAffectationsPersonnel();
+  const associationActive = gestionAssociations.obtenirAssociationActive();
+  const saisonActive = gestionSaisons.obtenirSaisonActive();
 
   function retournerFeuilleMatch() {
     window.location.hash = "";
@@ -102,6 +112,27 @@ if (sectionId === "chandails") {
 if (sectionId === "pantalons") {
   setPageActive(
     PAGES_ADMINISTRATION.PANTALONS
+  );
+  return;
+}
+
+if (sectionId === "personnel-equipe") {
+  setPageActive(
+    PAGES_ADMINISTRATION.PERSONNEL_EQUIPE
+  );
+  return;
+}
+
+if (sectionId === "affectations-personnel") {
+  setPageActive(
+    PAGES_ADMINISTRATION.AFFECTATIONS_PERSONNEL
+  );
+  return;
+
+}
+if (sectionId === "officiels") {
+  setPageActive(
+    PAGES_ADMINISTRATION.OFFICIELS
   );
   return;
 }
@@ -212,6 +243,41 @@ if (sectionId === "pantalons") {
   retour={retournerEquipements}
   associationActive={associationActive}
   gestionPantalons={gestionPantalons}
+/>
+)}
+{pageActive ===
+  PAGES_ADMINISTRATION.PERSONNEL_EQUIPE && (
+  <GestionPersonnelEquipe
+    retour={
+      retournerAccueilAdministration
+    }
+    associationActive={
+      associationActive
+    }
+    gestionPersonnelEquipe={
+      gestionPersonnelEquipe
+    }
+  />
+)}
+{pageActive ===
+  PAGES_ADMINISTRATION.AFFECTATIONS_PERSONNEL && (
+  <GestionAffectationsPersonnel
+    retour={retournerAccueilAdministration}
+    associationActive={associationActive}
+    saisonActive={saisonActive}
+    equipes={gestionEquipes.equipes}
+    personnel={gestionPersonnelEquipe.personnelEquipe}
+    gestionAffectationsPersonnel={gestionAffectationsPersonnel
+    }
+  />
+)}
+{pageActive ===
+  PAGES_ADMINISTRATION.OFFICIELS && (
+  <GestionOfficiels
+  retour={ retournerAccueilAdministration }
+  associationActive={ associationActive }
+  officiels={officiels}
+  setOfficiels={setOfficiels}
 />
 )}
   {pageActive === PAGES_ADMINISTRATION.IMPORTATION && (

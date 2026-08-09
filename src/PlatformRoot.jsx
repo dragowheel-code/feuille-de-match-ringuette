@@ -28,13 +28,15 @@ function PlatformRoot() {
   }, []);
 
   if (route === ROUTE_ADMINISTRATION) {
-    return (
-      <AdministrationApp
-        joueuses={donneesApplication.joueuses}
-        setJoueuses={donneesApplication.setJoueuses}
-      />
-    );
-  }
+  return (
+    <AdministrationApp
+      joueuses={donneesApplication.joueuses}
+      setJoueuses={donneesApplication.setJoueuses}
+      officiels={donneesApplication.officiels}
+      setOfficiels={donneesApplication.setOfficiels}
+    />
+  );
+}
 
   return (
     <App

@@ -48,21 +48,29 @@ const SECTIONS_ADMINISTRATION = [
   active: true,
 },
   {
-    id: "personnel",
-    titre: "Personnel d'équipe",
-    description:
-      "Gérer les entraîneurs, les assistants et les gérants d'équipe.",
-    statut: "À venir",
-    active: false,
-  },
+  id: "personnel-equipe",
+  titre: "Personnel d'équipe",
+  description:
+    "Créer et gérer le personnel d'équipe, les numéros PNCE et les certifications.",
+  statut: "En développement",
+  active: true,
+},
+{
+  id: "affectations-personnel",
+  titre: "Affectations du personnel",
+  description:
+    "Attribuer le personnel d'équipe aux équipes de l'association active pour la saison active.",
+  statut: "En développement",
+  active: true,
+},
   {
-    id: "officiels",
-    titre: "Officiels",
-    description:
-      "Gérer les officiels et leur association d'appartenance.",
-    statut: "À venir",
-    active: false,
-  },
+  id: "officiels",
+  titre: "Officiels",
+  description:
+    "Gérer les officiels et les rôles qu'ils peuvent occuper.",
+  statut: "En développement",
+  active: true,
+},
   {
     id: "donnees",
     titre: "Importation et exportation",
