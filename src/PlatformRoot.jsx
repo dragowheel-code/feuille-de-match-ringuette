@@ -14,6 +14,7 @@ function lireRoute() {
 function PlatformRoot() {
   const [route, setRoute] = useState(lireRoute);
   const donneesApplication = useDonneesApplication();
+  console.log("Route :", route);
 
   useEffect(() => {
     function gererChangementRoute() {
