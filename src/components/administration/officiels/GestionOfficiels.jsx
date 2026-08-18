@@ -13,6 +13,7 @@ import FicheOfficielModal from "./FicheOfficielModal";
 function creerFormulaireVide() {
   return {
     id: null,
+    associationId: "",
     nom: "",
     arbitre: false,
     chronometreur: false,

@@ -14,6 +14,7 @@ import GestionPantalons from "../../components/administration/equipements/pantal
 import GestionPersonnelEquipe from "../../components/administration/personnelEquipe/GestionPersonnelEquipe";
 import GestionAffectationsPersonnel from "../../components/administration/personnelEquipe/GestionAffectationsPersonnel";
 import GestionOfficiels from "../../components/administration/officiels/GestionOfficiels";
+import GestionTournois from "../../components/administration/tournois/GestionTournois";
 // Hooks //
 import { useGestionAssociations } from "../../hooks/useGestionAssociations";
 import { useGestionAffectations } from "../../hooks/useGestionAffectations";
@@ -25,6 +26,8 @@ import { useGestionPantalons } from "../../hooks/useGestionPantalons";
 import { useGestionAttributionsChandails } from "../../hooks/useGestionAttributionsChandails";
 import { useGestionPersonnelEquipe } from "../../hooks/useGestionPersonnelEquipe";
 import { useGestionAffectationsPersonnel } from "../../hooks/useGestionAffectationsPersonnel";
+import { useGestionTournois } from "../../hooks/useGestionTournois";
+import { useGestionInscriptionsTournoi } from "../../hooks/useGestionInscriptionsTournoi";
 
 const PAGES_ADMINISTRATION = {
   ACCUEIL: "accueil",
@@ -39,6 +42,7 @@ const PAGES_ADMINISTRATION = {
   PERSONNEL_EQUIPE: "personnel-equipe",
   AFFECTATIONS_PERSONNEL: "affectations-personnel",
   OFFICIELS: "officiels",
+  TOURNOIS: "tournois",
   IMPORTATION: "importation",
 };
 
@@ -62,6 +66,8 @@ function AdministrationApp({
   const gestionAffectationsPersonnel = useGestionAffectationsPersonnel();
   const associationActive = gestionAssociations.obtenirAssociationActive();
   const saisonActive = gestionSaisons.obtenirSaisonActive();
+  const gestionTournois = useGestionTournois();
+  const gestionInscriptionsTournoi = useGestionInscriptionsTournoi();
 
   function retournerFeuilleMatch() {
     window.location.hash = "";
@@ -133,6 +139,13 @@ if (sectionId === "affectations-personnel") {
 if (sectionId === "officiels") {
   setPageActive(
     PAGES_ADMINISTRATION.OFFICIELS
+  );
+  return;
+}
+
+if (sectionId === "tournois") {
+  setPageActive(
+    PAGES_ADMINISTRATION.TOURNOIS
   );
   return;
 }
@@ -278,6 +291,21 @@ if (sectionId === "officiels") {
   associationActive={ associationActive }
   officiels={officiels}
   setOfficiels={setOfficiels}
+/>
+)}
+{pageActive ===
+  PAGES_ADMINISTRATION.TOURNOIS && (
+  <GestionTournois
+  retour={retournerAccueilAdministration}
+  associationActive={associationActive}
+  saisonActive={saisonActive}
+  associations={gestionAssociations.associations}
+  equipes={gestionEquipes.equipes}
+  officiels={officiels}
+  gestionTournois={gestionTournois}
+  gestionInscriptionsTournoi={
+    gestionInscriptionsTournoi
+  }
 />
 )}
   {pageActive === PAGES_ADMINISTRATION.IMPORTATION && (

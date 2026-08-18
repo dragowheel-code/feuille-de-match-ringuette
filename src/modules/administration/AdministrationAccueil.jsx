@@ -71,6 +71,14 @@ const SECTIONS_ADMINISTRATION = [
   statut: "En développement",
   active: true,
 },
+{
+  id: "tournois",
+  titre: "Tournois",
+  description:
+    "Créer et gérer les tournois, les équipes inscrites et les officiels participants.",
+  statut: "En développement",
+  active: true,
+},
   {
     id: "donnees",
     titre: "Importation et exportation",
