@@ -99,6 +99,17 @@ function AssociationModal({
           </label>
 
           <label>
+  Courriel
+  <input
+    type="email"
+    name="courriel"
+    value={formulaire.courriel || ""}
+    onChange={changerChamp}
+    placeholder="association@exemple.ca"
+  />
+</label>
+
+          <label>
   Couleur foncée
   <input
     type="color"

@@ -6,6 +6,10 @@ export function useDonneesMatch({
   joueuses,
   joueusesAdministration,
   affectationsAdministration,
+
+  personnelEquipeAdministration,
+  affectationsPersonnelAdministration,
+
   evenements,
   matchInfo,
   buts,
@@ -40,10 +44,100 @@ export function useDonneesMatch({
         String(equipeVisiteuse?.associationId)
     );
 
+function obtenirPersonnelEquipe(equipeId) {
+  const affectations =
+  affectationsPersonnelAdministration.filter(
+    (affectation) =>
+      affectation.actif !== false &&
+      String(affectation.equipeId) ===
+        String(equipeId)
+  );
+  
+  function trouverPersonnel(role) {
+    const affectation =
+      affectations.find(
+        (element) =>
+          element.role === role
+      );
+
+    if (!affectation) {
+      return null;
+    }
+
+    return personnelEquipeAdministration.find(
+      (personne) =>
+        String(personne.id) ===
+        String(
+          affectation.personnelId
+        )
+    );
+  }
+
+  const entraineurChef =
+    trouverPersonnel(
+      "Entraîneur-chef"
+    );
+
+  const entraineursAdjoints =
+    affectations
+      .filter(
+        (affectation) =>
+          affectation.role ===
+          "Entraîneur adjoint"
+      )
+      .map((affectation) =>
+        personnelEquipeAdministration.find(
+          (personne) =>
+            String(personne.id) ===
+            String(
+              affectation.personnelId
+            )
+        )
+      )
+      .filter(Boolean);
+
+  const gerante =
+    trouverPersonnel(
+      "Gérante"
+    );
+
+  return {
+    entraineurChef:
+      entraineurChef?.nomComplet ?? "",
+
+    assistant1:
+      entraineursAdjoints[0]
+        ?.nomComplet ?? "",
+
+    assistant2:
+      entraineursAdjoints[1]
+        ?.nomComplet ?? "",
+
+    gerante:
+      gerante?.nomComplet ?? "",
+  };
+}
+
+const personnelLocale =
+  obtenirPersonnelEquipe(
+    matchInfo.equipeLocaleId
+  );
+
+const personnelVisiteur =
+  obtenirPersonnelEquipe(
+    matchInfo.equipeVisiteuseId
+  );
+
   const equipeLocaleData =
     equipeLocale
       ? {
           ...equipeLocale,
+          ...personnelLocale,
+
+          courriel:
+          associationLocale?.courriel ??
+          equipeLocale?.courriel ??
+          "",
 
           nomCouleurPrimaire: "Foncé",
           couleurPrimaire:
@@ -58,21 +152,27 @@ export function useDonneesMatch({
       : null;
 
   const equipeVisiteuseData =
-    equipeVisiteuse
-      ? {
-          ...equipeVisiteuse,
+  equipeVisiteuse
+    ? {
+        ...equipeVisiteuse,
+        ...personnelVisiteur,
 
-          nomCouleurPrimaire: "Foncé",
-          couleurPrimaire:
-            associationVisiteuse?.couleurFonce ||
-            "#000000",
+        courriel:
+          associationVisiteuse?.courriel ??
+          equipeVisiteuse?.courriel ??
+          "",
 
-          nomCouleurSecondaire: "Clair",
-          couleurSecondaire:
-            associationVisiteuse?.couleurClair ||
-            "#FFFFFF",
-        }
-      : null;
+        nomCouleurPrimaire: "Foncé",
+        couleurPrimaire:
+          associationVisiteuse?.couleurFonce ||
+          "#000000",
+
+        nomCouleurSecondaire: "Clair",
+        couleurSecondaire:
+          associationVisiteuse?.couleurClair ||
+          "#FFFFFF",
+      }
+    : null;
 
   const joueusesEquipeLocaleAdministration =
     affectationsAdministration
@@ -296,20 +396,22 @@ export function useDonneesMatch({
   ].filter(Boolean);
 
   return {
-    equipeLocaleData,
-    equipeVisiteuseData,
-    joueusesMatchLocale,
-    joueusesMatchVisiteuse,
-    joueusesEquipeLocaleAdministration,
-    joueusesEquipeVisiteuseAdministration,
+  equipeLocaleData,
+  equipeVisiteuseData,
 
-    equipeNomPourBut,
-    joueusesDisponibles,
-    joueusesPunitionDisponibles,
-    joueusesTirBarrageDisponibles,
+  joueusesEquipeLocaleAdministration,
+  joueusesEquipeVisiteuseAdministration,
 
-    scoreLocal,
-    scoreVisiteur,
-    destinataires,
-  };
+  joueusesMatchLocale,
+  joueusesMatchVisiteuse,
+
+  equipeNomPourBut,
+  joueusesDisponibles,
+  joueusesPunitionDisponibles,
+  joueusesTirBarrageDisponibles,
+
+  scoreLocal,
+  scoreVisiteur,
+  destinataires,
+};
 }

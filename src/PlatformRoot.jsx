@@ -9,6 +9,8 @@ import { useGestionInscriptionsTournoi } from "./hooks/useGestionInscriptionsTou
 import { useGestionEquipes } from "./hooks/useGestionEquipes";
 import { useGestionJoueuses } from "./hooks/useGestionJoueuses";
 import { useGestionAffectations } from "./hooks/useGestionAffectations";
+import { useGestionPersonnelEquipe } from "./hooks/useGestionPersonnelEquipe";
+import { useGestionAffectationsPersonnel } from "./hooks/useGestionAffectationsPersonnel";
 
 const ROUTE_ADMINISTRATION = "/administration";
 
@@ -40,6 +42,12 @@ function PlatformRoot() {
   const gestionAffectations =
   useGestionAffectations();
 
+  const gestionPersonnelEquipe =
+  useGestionPersonnelEquipe();
+
+  const gestionAffectationsPersonnel =
+  useGestionAffectationsPersonnel();
+
   useEffect(() => {
     function gererChangementRoute() {
       setRoute(lireRoute());
@@ -67,6 +75,15 @@ function PlatformRoot() {
     gestionJoueuses
   }
 
+
+  gestionPersonnelEquipe={
+    gestionPersonnelEquipe
+  }
+
+  gestionAffectationsPersonnel={
+    gestionAffectationsPersonnel
+  }
+  
   gestionAffectations={
     gestionAffectations
   }
@@ -108,6 +125,14 @@ function PlatformRoot() {
 
   joueusesAdministration={
     gestionJoueuses.joueuses
+  }
+
+  personnelEquipeAdministration={
+    gestionPersonnelEquipe.personnelEquipe
+  }
+
+  affectationsPersonnelAdministration={
+    gestionAffectationsPersonnel.affectationsPersonnel
   }
 
   affectationsAdministration={

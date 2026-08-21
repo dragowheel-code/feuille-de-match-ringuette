@@ -1,9 +1,9 @@
 import { useMemo, useState } from "react";
 
 const ROLES = {
-  ENTRAINEUR_CHEF: "entraineur-chef",
-  ENTRAINEUR_ADJOINT: "entraineur-adjoint",
-  GERANTE: "gerante",
+  ENTRAINEUR_CHEF: "Entraîneur-chef",
+  ENTRAINEUR_ADJOINT: "Entraîneur adjoint",
+  GERANTE: "Gérante",
 };
 
 function GestionAffectationsPersonnel({

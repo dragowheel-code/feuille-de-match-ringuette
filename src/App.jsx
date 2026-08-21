@@ -36,6 +36,10 @@ function App({
   equipesAdministration,
   joueusesAdministration,
   affectationsAdministration,
+
+  personnelEquipeAdministration,
+  affectationsPersonnelAdministration,
+
   inscriptionsEquipesTournoi,
   inscriptionsOfficielsTournoi,
 }) {
@@ -124,6 +128,10 @@ const donneesMatch = useDonneesMatch({
   joueuses,
   joueusesAdministration,
   affectationsAdministration,
+
+  personnelEquipeAdministration,
+  affectationsPersonnelAdministration,
+
   evenements,
   matchInfo,
   buts,
