@@ -9,6 +9,10 @@ import TempsMortModal from "../modals/TempsMortModal";
 function PartieModals({
   matchInfo,
   periode,
+  associations,
+  equipesAdministration,
+  joueusesAdministration,
+  affectationsAdministration,
   equipes,
   joueuses,
   buts,
@@ -140,6 +144,10 @@ function PartieModals({
       <RemplacanteModal
        ouverte={modales.fenetreRemplacanteOuverte}
        equipes={equipes}
+       associations={associations}
+       equipesAdministration={equipesAdministration}
+       joueusesAdministration={joueusesAdministration}
+       affectationsAdministration={affectationsAdministration}
        equipeProvenance={remplacante.equipeProvenance}
        setEquipeProvenance={remplacante.setEquipeProvenance}
        equipeRemplacante={remplacante.equipeRemplacante}

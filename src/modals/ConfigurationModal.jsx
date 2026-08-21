@@ -1,27 +1,138 @@
 import { DUREES_PERIODE } from "../constants/dureesPeriode";
 import { mettreAJourMatch } from "../domain/match";
+import {
+  obtenirEquipesDisponibles,
+  obtenirOfficielsDisponibles,
+  creerAlignementDepuisAdministration,
+} from "../domain/configurationMatch";
+
 
 export default function ConfigurationModal({
   ouverte,
   fermer,
   matchInfo,
   setMatchInfo,
+
+  associations,
+  tournois,
+
+  joueusesAdministration,
+  affectationsAdministration,
+  setJoueuses,
+
+  equipesAdministration,
+  inscriptionsEquipesTournoi,
+
+  officiels,
+  inscriptionsOfficielsTournoi,
+
   dureePeriode,
   setDureePeriode,
-  equipes,
+
   equipeLocaleData,
   equipeVisiteuseData,
   destinataires,
-  arbitresDisponibles,
-  chronometreursDisponibles,
-  marqueursDisponibles,
-  operateurs30sDisponibles,
 }) {
-  if (!ouverte) return null;
-  function modifierMatch(modifications) {
-  setMatchInfo(
-    mettreAJourMatch(matchInfo, modifications)
+  const equipesDisponibles =
+  obtenirEquipesDisponibles({
+    typeConfiguration:
+      matchInfo.typeConfiguration,
+
+    associationLocaleId:
+      matchInfo.associationLocaleId,
+
+    associationVisiteuseId:
+      matchInfo.associationVisiteuseId,
+
+    tournoiId:
+      matchInfo.tournoiId,
+
+    equipes:
+      equipesAdministration,
+
+    inscriptionsEquipesTournoi,
+  });
+
+  const officielsDisponiblesConfiguration =
+  obtenirOfficielsDisponibles({
+    typeConfiguration:
+      matchInfo.typeConfiguration,
+
+    associationLocaleId:
+      matchInfo.associationLocaleId,
+
+    associationVisiteuseId:
+      matchInfo.associationVisiteuseId,
+
+    tournoiId:
+      matchInfo.tournoiId,
+
+    officiels,
+
+    inscriptionsOfficielsTournoi,
+  });
+
+  const arbitresConfiguration =
+  officielsDisponiblesConfiguration.filter(
+    (officiel) =>
+      officiel.arbitre
   );
+
+const chronometreursConfiguration =
+  officielsDisponiblesConfiguration.filter(
+    (officiel) =>
+      officiel.chronometreur
+  );
+
+const marqueursConfiguration =
+  officielsDisponiblesConfiguration.filter(
+    (officiel) =>
+      officiel.marqueur
+  );
+
+const operateurs30sConfiguration =
+  officielsDisponiblesConfiguration.filter(
+    (officiel) =>
+      officiel.operateur30s
+  );
+
+  if (!ouverte) return null;
+
+  function modifierMatch(modifications) {
+    setMatchInfo(
+      mettreAJourMatch(
+        matchInfo,
+        modifications
+      )
+    );
+  }
+
+  function obtenirNomEquipe(
+  equipe,
+  associations
+) {
+  const association =
+    associations.find(
+      (element) =>
+        String(element.id) ===
+        String(equipe.associationId)
+    );
+
+  const nomAssociation =
+    association?.nomEquipes ||
+    association?.abreviation ||
+    association?.nom ||
+    "Association";
+
+  const nomEquipe = [
+    equipe.categorie,
+    equipe.niveau,
+    equipe.numeroEquipe,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return `${nomAssociation} — ${nomEquipe}`;
 }
 
   return (
@@ -63,6 +174,246 @@ export default function ConfigurationModal({
               })            }
             placeholder="Exemple : Aréna Guy Carbonneau"
           />
+          <div className="config-section">
+  <h3>Type de match</h3>
+
+  <label>
+    <input
+      type="radio"
+      name="typeConfiguration"
+      value="local"
+      checked={
+        matchInfo.typeConfiguration === "local"
+      }
+      onChange={(event) =>
+  setMatchInfo((ancien) => ({
+    ...ancien,
+
+    typeConfiguration:
+      event.target.value,
+
+    associationLocaleId: "",
+    associationVisiteuseId: "",
+    tournoiId: "",
+
+    equipeLocaleId: "",
+    equipeVisiteuseId: "",
+
+    equipeLocale: "",
+    equipeVisiteuse: "",
+  }))
+}
+    />
+    Match local
+  </label>
+
+  <label>
+  <input
+    type="radio"
+    name="typeConfiguration"
+    value="inter-association"
+    checked={
+      matchInfo.typeConfiguration ===
+      "inter-association"
+    }
+    onChange={(event) =>
+      setMatchInfo((ancien) => ({
+        ...ancien,
+
+        typeConfiguration:
+          event.target.value,
+
+        associationLocaleId: "",
+        associationVisiteuseId: "",
+        tournoiId: "",
+
+        equipeLocaleId: "",
+        equipeVisiteuseId: "",
+
+        equipeLocale: "",
+        equipeVisiteuse: "",
+      }))
+    }
+  />
+  Match inter-association
+</label>
+
+  <label>
+    <input
+      type="radio"
+      name="typeConfiguration"
+      value="tournoi"
+      checked={
+        matchInfo.typeConfiguration ===
+        "tournoi"
+      }
+      onChange={(event) =>
+  setMatchInfo((ancien) => ({
+    ...ancien,
+
+    typeConfiguration:
+      event.target.value,
+
+    associationLocaleId: "",
+    associationVisiteuseId: "",
+    tournoiId: "",
+
+    equipeLocaleId: "",
+    equipeVisiteuseId: "",
+
+    equipeLocale: "",
+    equipeVisiteuse: "",
+  }))
+}
+    />
+    Tournoi
+  </label>
+</div>
+
+{matchInfo.typeConfiguration === "local" && (
+  <div className="config-section">
+    <label>
+      Association locale
+
+      <select
+  value={matchInfo.associationLocaleId}
+  onChange={(event) =>
+    setMatchInfo((ancien) => ({
+      ...ancien,
+
+      associationLocaleId:
+        event.target.value,
+
+      equipeLocaleId: "",
+      equipeVisiteuseId: "",
+
+      equipeLocale: "",
+      equipeVisiteuse: "",
+    }))
+  }
+>
+  <option value="">
+    Sélectionner une association
+  </option>
+
+  {associations.map((association) => (
+    <option
+      key={association.id}
+      value={association.id}
+    >
+      {association.nom}
+    </option>
+  ))}
+</select>
+    </label>
+  </div>
+)}
+
+{matchInfo.typeConfiguration ===
+  "inter-association" && (
+  <div className="config-section">
+    <label>
+      Association locale
+
+      <select
+        value={matchInfo.associationLocaleId}
+        onChange={(event) =>
+          setMatchInfo((ancien) => ({
+            ...ancien,
+            associationLocaleId:
+              event.target.value,
+          }))
+        }
+      >
+        <option value="">
+          Sélectionner une association
+        </option>
+
+        {associations.map((association) => (
+          <option
+            key={association.id}
+            value={association.id}
+          >
+            {association.nom}
+          </option>
+        ))}
+      </select>
+    </label>
+
+    <label>
+      Association visiteuse
+
+      <select
+        value={matchInfo.associationVisiteuseId}
+        onChange={(event) =>
+          setMatchInfo((ancien) => ({
+            ...ancien,
+            associationVisiteuseId:
+              event.target.value,
+          }))
+        }
+      >
+        <option value="">
+          Sélectionner une association
+        </option>
+
+        {associations
+          .filter(
+            (association) =>
+              String(association.id) !==
+              String(
+                matchInfo.associationLocaleId
+              )
+          )
+          .map((association) => (
+            <option
+              key={association.id}
+              value={association.id}
+            >
+              {association.nom}
+            </option>
+          ))}
+      </select>
+    </label>
+  </div>
+)}
+
+{matchInfo.typeConfiguration === "tournoi" && (
+  <div className="config-section">
+    <label>
+      Tournoi
+
+      <select
+        value={matchInfo.tournoiId}
+        onChange={(event) =>
+          setMatchInfo((ancien) => ({
+            ...ancien,
+            tournoiId:
+              event.target.value,
+          }))
+        }
+      >
+        <option value="">
+          Sélectionner un tournoi
+        </option>
+
+        {tournois
+          .filter(
+            (tournoi) =>
+              tournoi.actif !== false
+          )
+          .map((tournoi) => (
+            <option
+              key={tournoi.id}
+              value={tournoi.id}
+            >
+              {tournoi.nom}
+            </option>
+          ))}
+      </select>
+    </label>
+  </div>
+)}
 
           <label>Calibre</label>
           <select
@@ -105,21 +456,69 @@ export default function ConfigurationModal({
 
               <label>Équipe</label>
               <select
-                value={matchInfo.equipeLocale || ""}
-                onChange={(e) =>
-  modifierMatch({
-    equipeLocale: e.target.value,
-  })
-}
-              >
-                <option value="">Choisir</option>
+  value={matchInfo.equipeLocaleId || ""}
+  onChange={(e) => {
+    const equipeSelectionnee =
+      equipesDisponibles.find(
+        (equipe) =>
+          String(equipe.id) ===
+          String(e.target.value)
+      );
 
-                {equipes.map((equipe) => (
-                  <option key={equipe.id} value={equipe.nom}>
-                    {equipe.nom}
-                  </option>
-                ))}
-              </select>
+      const nomEquipeLocale =
+  equipeSelectionnee
+    ? obtenirNomEquipe(
+        equipeSelectionnee,
+        associations
+      )
+    : "";
+
+const alignementLocal =
+  creerAlignementDepuisAdministration({
+    equipe: equipeSelectionnee,
+    nomEquipeMatch: nomEquipeLocale,
+    joueuses: joueusesAdministration,
+    affectations: affectationsAdministration,
+  });
+
+    modifierMatch({
+  equipeLocaleId: e.target.value,
+  equipeLocale: nomEquipeLocale,
+});
+
+    setJoueuses((anciennesJoueuses) => {
+  const autresJoueuses =
+    anciennesJoueuses.filter(
+      (joueuse) =>
+        joueuse.equipe !==
+        matchInfo.equipeLocale
+    );
+
+  return [
+    ...autresJoueuses,
+    ...alignementLocal,
+  ];
+});
+  }}
+>
+  <option value="">
+    Choisir
+  </option>
+
+  {equipesDisponibles.map(
+    (equipe) => (
+      <option
+        key={equipe.id}
+        value={equipe.id}
+      >
+        {obtenirNomEquipe(
+  equipe,
+  associations
+)}
+      </option>
+    )
+  )}
+</select>
             </div>
 
             <div className="team-config-card">
@@ -127,21 +526,72 @@ export default function ConfigurationModal({
 
               <label>Équipe</label>
               <select
-                value={matchInfo.equipeVisiteuse || ""}
-                onChange={(e) =>
-  modifierMatch({
-    equipeVisiteuse: e.target.value,
-  })
-}
-              >
-                <option value="">Choisir</option>
+  value={
+    matchInfo.equipeVisiteuseId ||
+    ""
+  }
+  onChange={(e) => {
+    const equipeSelectionnee =
+      equipesDisponibles.find(
+        (equipe) =>
+          String(equipe.id) ===
+          String(e.target.value)
+      );
 
-                {equipes.map((equipe) => (
-                  <option key={equipe.id} value={equipe.nom}>
-                    {equipe.nom}
-                  </option>
-                ))}
-              </select>
+      const nomEquipeVisiteuse =
+  equipeSelectionnee
+    ? obtenirNomEquipe(
+        equipeSelectionnee,
+        associations
+      )
+    : "";
+
+const alignementVisiteur =
+  creerAlignementDepuisAdministration({
+    equipe: equipeSelectionnee,
+    nomEquipeMatch: nomEquipeVisiteuse,
+    joueuses: joueusesAdministration,
+    affectations: affectationsAdministration,
+  });
+
+    modifierMatch({
+  equipeVisiteuseId: e.target.value,
+  equipeVisiteuse: nomEquipeVisiteuse,
+});
+
+    setJoueuses((anciennesJoueuses) => {
+  const autresJoueuses =
+    anciennesJoueuses.filter(
+      (joueuse) =>
+        joueuse.equipe !==
+        matchInfo.equipeVisiteuse
+    );
+
+  return [
+    ...autresJoueuses,
+    ...alignementVisiteur,
+  ];
+});
+  }}
+>
+  <option value="">
+    Choisir
+  </option>
+
+  {equipesDisponibles.map(
+    (equipe) => (
+      <option
+        key={equipe.id}
+        value={equipe.id}
+      >
+        {obtenirNomEquipe(
+  equipe,
+  associations
+)}
+      </option>
+    )
+  )}
+</select>
             </div>
           </div>
         </div>
@@ -222,7 +672,7 @@ export default function ConfigurationModal({
           >
             <option value="">Choisir un arbitre</option>
 
-            {arbitresDisponibles.map((officiel) => (
+            {arbitresConfiguration.map((officiel) => (
               <option key={officiel.id} value={officiel.nom}>
                 {officiel.nom}
               </option>
@@ -240,7 +690,7 @@ export default function ConfigurationModal({
           >
             <option value="">Choisir un arbitre</option>
 
-            {arbitresDisponibles.map((officiel) => (
+            {arbitresConfiguration.map((officiel) => (
               <option key={officiel.id} value={officiel.nom}>
                 {officiel.nom}
               </option>
@@ -258,7 +708,7 @@ export default function ConfigurationModal({
           >
             <option value="">Choisir un chronométreur</option>
 
-            {chronometreursDisponibles.map((officiel) => (
+            {chronometreursConfiguration.map((officiel) => (
               <option key={officiel.id} value={officiel.nom}>
                 {officiel.nom}
               </option>
@@ -276,7 +726,7 @@ export default function ConfigurationModal({
           >
             <option value="">Choisir un marqueur</option>
 
-            {marqueursDisponibles.map((officiel) => (
+            {marqueursConfiguration.map((officiel) => (
               <option key={officiel.id} value={officiel.nom}>
                 {officiel.nom}
               </option>
@@ -294,7 +744,7 @@ export default function ConfigurationModal({
           >
             <option value="">Choisir un opérateur</option>
 
-            {operateurs30sDisponibles.map((officiel) => (
+            {operateurs30sConfiguration.map((officiel) => (
               <option key={officiel.id} value={officiel.nom}>
                 {officiel.nom}
               </option>

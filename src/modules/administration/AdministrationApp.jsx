@@ -16,18 +16,12 @@ import GestionAffectationsPersonnel from "../../components/administration/person
 import GestionOfficiels from "../../components/administration/officiels/GestionOfficiels";
 import GestionTournois from "../../components/administration/tournois/GestionTournois";
 // Hooks //
-import { useGestionAssociations } from "../../hooks/useGestionAssociations";
-import { useGestionAffectations } from "../../hooks/useGestionAffectations";
 import { useGestionSaisons } from "../../hooks/useGestionSaisons";
-import { useGestionEquipes } from "../../hooks/useGestionEquipes";
-import { useGestionJoueuses } from "../../hooks/useGestionJoueuses";
 import { useGestionChandails } from "../../hooks/useGestionChandails";
 import { useGestionPantalons } from "../../hooks/useGestionPantalons";
 import { useGestionAttributionsChandails } from "../../hooks/useGestionAttributionsChandails";
 import { useGestionPersonnelEquipe } from "../../hooks/useGestionPersonnelEquipe";
 import { useGestionAffectationsPersonnel } from "../../hooks/useGestionAffectationsPersonnel";
-import { useGestionTournois } from "../../hooks/useGestionTournois";
-import { useGestionInscriptionsTournoi } from "../../hooks/useGestionInscriptionsTournoi";
 
 const PAGES_ADMINISTRATION = {
   ACCUEIL: "accueil",
@@ -47,6 +41,12 @@ const PAGES_ADMINISTRATION = {
 };
 
 function AdministrationApp({
+  gestionAssociations,
+  gestionEquipes,
+  gestionJoueuses,
+  gestionAffectations,
+  gestionTournois,
+  gestionInscriptionsTournoi,
   officiels,
   setOfficiels,
 }) {
@@ -54,11 +54,8 @@ function AdministrationApp({
   const [pageActive, setPageActive] = useState(
     PAGES_ADMINISTRATION.ACCUEIL
   );
-  const gestionAssociations = useGestionAssociations();
-  const gestionAffectations = useGestionAffectations();
+ 
   const gestionSaisons = useGestionSaisons();
-  const gestionEquipes = useGestionEquipes();
-  const gestionJoueuses = useGestionJoueuses();
   const gestionChandails = useGestionChandails();
   const gestionAttributionsChandails = useGestionAttributionsChandails();
   const gestionPantalons = useGestionPantalons();
@@ -66,9 +63,7 @@ function AdministrationApp({
   const gestionAffectationsPersonnel = useGestionAffectationsPersonnel();
   const associationActive = gestionAssociations.obtenirAssociationActive();
   const saisonActive = gestionSaisons.obtenirSaisonActive();
-  const gestionTournois = useGestionTournois();
-  const gestionInscriptionsTournoi = useGestionInscriptionsTournoi();
-
+  
   function retournerFeuilleMatch() {
     window.location.hash = "";
   }

@@ -5,27 +5,81 @@ import {
 export default function RemplacanteModal({
   ouverte,
   equipeRemplacante,
-
-  equipes = [],
+  associations = [],
+  equipesAdministration = [],
+  joueusesAdministration = [],
+  affectationsAdministration = [],
   equipeProvenance,
   setEquipeProvenance,
-
   modeRemplacante,
   setModeRemplacante,
-
   joueuseSelectionnee,
   setJoueuseSelectionnee,
-
   numeroRemplacante,
   setNumeroRemplacante,
   nomRemplacante,
   setNomRemplacante,
-
   confirmerRemplacante,
   fermer,
   joueuses = [],
 }) {
   if (!ouverte) return null;
+
+  function obtenirNomEquipe(equipe) {
+  const association =
+    associations.find(
+      (element) =>
+        String(element.id) ===
+        String(equipe.associationId)
+    );
+
+  const nomAssociation =
+    association?.nomEquipes ||
+    association?.abreviation ||
+    association?.nom ||
+    "Association";
+
+  const nomEquipe = [
+    equipe.categorie,
+    equipe.niveau,
+    equipe.numeroEquipe,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  return `${nomAssociation} — ${nomEquipe}`;
+}
+
+const joueusesEquipeProvenance =
+  affectationsAdministration
+    .filter(
+      (affectation) =>
+        affectation.active !== false &&
+        String(affectation.equipeId) ===
+          String(equipeProvenance)
+    )
+    .map((affectation) => {
+      const joueuse =
+        joueusesAdministration.find(
+          (element) =>
+            String(element.id) ===
+            String(affectation.joueuseId)
+        );
+
+      if (!joueuse) {
+        return null;
+      }
+
+      return {
+        ...joueuse,
+        numero: affectation.numero,
+      };
+    })
+    .filter(Boolean)
+    .sort(
+      (a, b) =>
+        Number(a.numero) - Number(b.numero)
+    );
   
   const chandailsDisponibles =
   obtenirChandailsDisponibles(
@@ -71,14 +125,14 @@ export default function RemplacanteModal({
     >
       <option value="">-- Sélectionner --</option>
 
-      {equipes.map((equipe) => (
-        <option
-          key={equipe.id}
-          value={equipe.nom}
-        >
-          {equipe.nom}
-        </option>
-      ))}
+      {equipesAdministration.map((equipe) => (
+  <option
+    key={equipe.id}
+    value={equipe.id}
+  >
+    {obtenirNomEquipe(equipe)}
+  </option>
+))}
     </select>
 
     <label>Joueuse</label>
@@ -90,13 +144,15 @@ export default function RemplacanteModal({
 
         setJoueuseSelectionnee(id);
 
-        const joueuse = joueuses.find(
-         (j) => String(j.id) === id
-       );
+        const joueuse =
+  joueusesEquipeProvenance.find(
+    (j) =>
+      String(j.id) === id
+  );
 
         if (joueuse) {
           setNumeroRemplacante(joueuse.numero);
-          setNomRemplacante(joueuse.nom);
+          setNomRemplacante(joueuse.nomComplet);
        } else {
          setNumeroRemplacante("");
          setNomRemplacante("");
@@ -105,23 +161,17 @@ export default function RemplacanteModal({
     >
       <option value="">-- Sélectionner --</option>
 
-      {joueuses
-        .filter(
-          (joueuse) =>
-            joueuse.equipe === equipeProvenance
-        )
-        .sort(
-          (a, b) =>
-            Number(a.numero) - Number(b.numero)
-        )
-        .map((joueuse) => (
-          <option
-  key={joueuse.id}
-  value={String(joueuse.id)}
->
-  #{joueuse.numero} {joueuse.nom}
-</option>
-        ))}
+      {joueusesEquipeProvenance.map(
+  (joueuse) => (
+    <option
+      key={joueuse.id}
+      value={String(joueuse.id)}
+    >
+      #{joueuse.numero}{" "}
+      {joueuse.nomComplet}
+    </option>
+  )
+)}
     </select>
   </>
 )}

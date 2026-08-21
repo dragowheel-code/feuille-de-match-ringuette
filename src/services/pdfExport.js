@@ -7,7 +7,10 @@ export function creerPDF({
   matchInfo,
   dureePeriode,
   evenements,
-  joueuses,
+ 
+  joueusesMatchLocale = [],
+  joueusesMatchVisiteuse = [],
+
   equipeLocaleData,
   equipeVisiteuseData,
   scoreLocal,
@@ -33,10 +36,10 @@ export function creerPDF({
   const butsVisiteur = buts.filter((event) => event.equipe === "Visiteur").reverse();
   const punitionsLocal = punitions.filter((event) => event.equipe === "Local").reverse();
   const punitionsVisiteur = punitions.filter((event) => event.equipe === "Visiteur").reverse();
-  const joueusesLocales = joueuses.filter((joueuse) => joueuse.equipe === matchInfo.equipeLocale && !joueuse.absente);
-  const joueusesVisiteuses = joueuses.filter((joueuse) => joueuse.equipe === matchInfo.equipeVisiteuse && !joueuse.absente);
-  const absentesLocales = joueuses.filter((joueuse) => joueuse.equipe === matchInfo.equipeLocale && joueuse.absente);
-  const absentesVisiteuses = joueuses.filter((joueuse) => joueuse.equipe === matchInfo.equipeVisiteuse && joueuse.absente);
+  const joueusesLocales = joueusesMatchLocale.filter((joueuse) => !joueuse.absente);
+  const joueusesVisiteuses = joueusesMatchVisiteuse.filter((joueuse) => !joueuse.absente);
+  const absentesLocales = joueusesMatchLocale.filter((joueuse) => joueuse.absente);
+  const absentesVisiteuses = joueusesMatchVisiteuse.filter((joueuse) => joueuse.absente);
   const changementsGardienne = evenements.filter((event) => event.type === TYPES_EVENEMENT.CHANGEMENT_GARDIENNE);
   const changementGardienneLocal = changementsGardienne.find((event) => event.equipe === "Local");
   const changementGardienneVisiteur = changementsGardienne.find((event) => event.equipe === "Visiteur");

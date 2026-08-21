@@ -99,24 +99,24 @@ function AssociationModal({
           </label>
 
           <label>
-            Couleur Fonce
-            <input
-              type="color"
-              name="couleur Fonce"
-              value={formulaire.couleurFonce}
-              onChange={changerChamp}
-            />
-          </label>
+  Couleur foncée
+  <input
+    type="color"
+    name="couleurFonce"
+    value={formulaire.couleurFonce}
+    onChange={changerChamp}
+  />
+</label>
 
           <label>
-            Couleur Clair
-            <input
-              type="color"
-              name="couleur Clair"
-              value={formulaire.couleurClair}
-              onChange={changerChamp}
-            />
-          </label>
+  Couleur claire
+  <input
+    type="color"
+    name="couleurClair"
+    value={formulaire.couleurClair}
+    onChange={changerChamp}
+  />
+</label>
           
 <label>
   <input

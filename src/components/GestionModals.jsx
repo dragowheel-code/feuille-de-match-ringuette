@@ -29,6 +29,16 @@ function GestionModals({
   matchInfo,
   setMatchInfo,
 
+  associations,
+  tournois,
+
+  equipesAdministration,
+  joueusesAdministration,
+  affectationsAdministration,
+
+  inscriptionsEquipesTournoi,
+  inscriptionsOfficielsTournoi,
+
   dureePeriode,
   setDureePeriode,
 
@@ -44,11 +54,6 @@ function GestionModals({
   equipeLocaleData,
   equipeVisiteuseData,
   destinataires,
-
-  arbitresDisponibles,
-  chronometreursDisponibles,
-  marqueursDisponibles,
-  operateurs30sDisponibles,
 
   setPageActive,
   effacerSauvegarde,
@@ -151,21 +156,42 @@ const [officielFormulaire, setOfficielFormulaire] =
   return (
     <>
       <ConfigurationModal
-        ouverte={modales.fenetreConfigOuverte}
-        fermer={modales.fermerConfiguration}
-        matchInfo={matchInfo}
-        setMatchInfo={setMatchInfo}
-        dureePeriode={dureePeriode}
-        setDureePeriode={setDureePeriode}
-        equipes={equipes}
-        equipeLocaleData={equipeLocaleData}
-        equipeVisiteuseData={equipeVisiteuseData}
-        destinataires={destinataires}
-        arbitresDisponibles={arbitresDisponibles}
-        chronometreursDisponibles={chronometreursDisponibles}
-        marqueursDisponibles={marqueursDisponibles}
-        operateurs30sDisponibles={operateurs30sDisponibles}
-      />
+  ouverte={modales.fenetreConfigOuverte}
+  fermer={() => modales.fermerConfiguration()}
+
+  matchInfo={matchInfo}
+  setMatchInfo={setMatchInfo}
+
+  associations={associations}
+  tournois={tournois}
+
+  equipesAdministration={
+    equipesAdministration
+  }
+
+  joueusesAdministration={joueusesAdministration}
+  affectationsAdministration={affectationsAdministration}
+
+  inscriptionsEquipesTournoi={
+    inscriptionsEquipesTournoi
+  }
+
+  officiels={officiels}
+
+  inscriptionsOfficielsTournoi={
+    inscriptionsOfficielsTournoi
+  }
+
+  dureePeriode={dureePeriode}
+  setDureePeriode={setDureePeriode}
+
+  equipes={equipes}
+
+  equipeLocaleData={equipeLocaleData}
+  equipeVisiteuseData={equipeVisiteuseData}
+
+  destinataires={destinataires}
+/>
 
       <ImportExcelModal
         ouverte={modales.fenetreImportOuverte}

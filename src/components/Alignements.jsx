@@ -4,6 +4,10 @@ import { ROLES_JOUEUSE } from "../domain/joueuses";
 
 export default function Alignements({
   joueuses,
+
+  joueusesEquipeLocaleAdministration,
+  joueusesEquipeVisiteuseAdministration,
+
   matchInfo,
   setMatchInfo,
   equipeLocaleData,
@@ -24,22 +28,50 @@ export default function Alignements({
   );
 }
 
-  function afficherJoueuses(equipeNom) {
-    return joueuses
-      .filter((joueuse) => joueuse.equipe === equipeNom)
-      .map((joueuse) => (
-        <div className="roster-row" key={joueuse.id}>
+  function afficherJoueuses(
+  joueusesEquipeAdministration
+) {
+  return joueusesEquipeAdministration.map(
+    (joueuseAdministration) => {
+      const joueuseMatch =
+        joueuses.find(
+          (joueuse) =>
+            String(joueuse.id) ===
+            String(
+              joueuseAdministration.id
+            )
+        );
+
+      const joueuse =
+        joueuseMatch ??
+        joueuseAdministration;
+
+      return (
+        <div
+          className="roster-row"
+          key={joueuse.id}
+        >
           <div className="roster-player">
-            #{joueuse.numero} {joueuse.nom}
-            {joueuse.remplacante && " — Remplaçante"}
+            #{joueuse.numero}{" "}
+            {joueuse.nom ??
+              joueuse.nomComplet}
+
+            {joueuse.remplacante &&
+              " — Remplaçante"}
           </div>
 
           <div className="roster-options">
             <label>
               <input
                 type="checkbox"
-                checked={joueuse.absente || false}
-                onChange={() => changerPresence(joueuse.id)}
+                checked={
+                  Boolean(
+                    joueuse.absente
+                  )
+                }
+                onChange={() =>
+  changerPresence(joueuse)
+}
               />
               Abs.
             </label>
@@ -47,67 +79,92 @@ export default function Alignements({
             <label>
               <input
                 type="checkbox"
-                checked={joueuse.suspendue || false}
-                onChange={() => changerSuspension(joueuse.id)}
+                checked={
+                  Boolean(
+                    joueuse.suspendue
+                  )
+                }
+                onChange={() =>
+  changerSuspension(joueuse)
+}
               />
               Susp.
             </label>
 
             <label>
-  <input
-    type="checkbox"
-    checked={joueuse.gardienne || false}
-    onChange={() =>
-      changerRoleJoueuse(
-        joueuse.id,
-        ROLES_JOUEUSE.GARDIENNE
-      )
-    }
-  />
-  Gard.
-</label>
+              <input
+                type="checkbox"
+                checked={
+                  Boolean(
+                    joueuse.gardienne
+                  )
+                }
+                onChange={() =>
+  changerRoleJoueuse(
+    joueuse,
+    ROLES_JOUEUSE.GARDIENNE
+  )
+}
+              />
+              Gard.
+            </label>
 
-<label>
-  <input
-    type="checkbox"
-    checked={joueuse.capitaine || false}
-    onChange={() =>
-      changerRoleJoueuse(
-        joueuse.id,
-        ROLES_JOUEUSE.CAPITAINE
-      )
-    }
-  />
-  Cap.
-</label>
+            <label>
+              <input
+                type="checkbox"
+                checked={
+                  Boolean(
+                    joueuse.capitaine
+                  )
+                }
+                onChange={() =>
+  changerRoleJoueuse(
+    joueuse,
+    ROLES_JOUEUSE.CAPITAINE
+  )
+}
+              />
+              Cap.
+            </label>
 
-<label>
-  <input
-    type="checkbox"
-    checked={
-      joueuse.assistanteCapitaine || false
-    }
-    onChange={() =>
-      changerRoleJoueuse(
-        joueuse.id,
-        ROLES_JOUEUSE.ASSISTANTE_CAPITAINE
-      )
-    }
-  />
-  Ass.
-</label>
+            <label>
+              <input
+                type="checkbox"
+                checked={
+                  Boolean(
+                    joueuse.assistanteCapitaine
+                  )
+                }
+                onChange={() =>
+  changerRoleJoueuse(
+    joueuse,
+    ROLES_JOUEUSE.ASSISTANTE_CAPITAINE
+  )
+}
+              />
+              Ass.
+            </label>
           </div>
         </div>
-      ));
-  }
+      );
+    }
+  );
+}
 
   return (
     <section className="events">
       <h2>Alignements</h2>
 
-      {joueuses.length === 0 ? (
-        <p>Importe un fichier Excel pour afficher les alignements.</p>
-      ) : (
+      {joueusesEquipeLocaleAdministration.length ===
+  0 &&
+joueusesEquipeVisiteuseAdministration.length ===
+  0 ? (
+  <p>
+    Sélectionne les équipes dans la
+    configuration du match pour afficher
+    les alignements.
+  </p>
+) : (
         <div className="rosters">
           <div>
             <button
@@ -165,7 +222,9 @@ export default function Alignements({
                   </div>
                 )}
 
-                {afficherJoueuses(matchInfo.equipeLocale)}
+                {afficherJoueuses(
+  joueusesEquipeLocaleAdministration
+)}
               </>
             )}
           </div>
@@ -226,7 +285,9 @@ export default function Alignements({
   </div>
 )}
 
-                {afficherJoueuses(matchInfo.equipeVisiteuse)}
+                {afficherJoueuses(
+  joueusesEquipeVisiteuseAdministration
+)}
               </>
             )}
           </div>

@@ -29,7 +29,16 @@ import { useDonneesMatch } from "./hooks/useDonneesMatch";
 import {calculerTempsCorrige as calculerTempsCorrigeUtil,} from "./utils/temps";
 import { COULEURS } from "./constants/couleurs";
 
-function App({ donneesApplication }) {
+function App({
+  donneesApplication,
+  associations,
+  tournois,
+  equipesAdministration,
+  joueusesAdministration,
+  affectationsAdministration,
+  inscriptionsEquipesTournoi,
+  inscriptionsOfficielsTournoi,
+}) {
     const {
     matchInfo,
     setMatchInfo,
@@ -72,10 +81,11 @@ function App({ donneesApplication }) {
   setEquipes,
   joueuses,
   setJoueuses,
-
   officiels,
   setOfficiels,
-
+  joueusesAdministration,
+  equipesAdministration,
+  affectationsAdministration,
   modales,
   remplacante,
   suppressionEquipe,
@@ -109,9 +119,11 @@ const gestionTirBarrage = useGestionTirBarrage({
 });
 
 const donneesMatch = useDonneesMatch({
-  equipes,
+  associations,
+  equipesAdministration,
   joueuses,
-  officiels,
+  joueusesAdministration,
+  affectationsAdministration,
   evenements,
   matchInfo,
   buts,
@@ -148,12 +160,30 @@ const exportMatch = useExportMatch({
   dureePeriode,
   evenements,
   joueuses,
-  equipeLocaleData: donneesMatch.equipeLocaleData,
-  equipeVisiteuseData: donneesMatch.equipeVisiteuseData,
-  scoreLocal: donneesMatch.scoreLocal,
-  scoreVisiteur: donneesMatch.scoreVisiteur,
-  destinataires: donneesMatch.destinataires,
-  validerFeuilleMatch: gestionPartie.validerFeuilleMatch,
+
+  joueusesMatchLocale:
+    donneesMatch.joueusesMatchLocale,
+
+  joueusesMatchVisiteuse:
+    donneesMatch.joueusesMatchVisiteuse,
+
+  equipeLocaleData:
+    donneesMatch.equipeLocaleData,
+
+  equipeVisiteuseData:
+    donneesMatch.equipeVisiteuseData,
+
+  scoreLocal:
+    donneesMatch.scoreLocal,
+
+  scoreVisiteur:
+    donneesMatch.scoreVisiteur,
+
+  destinataires:
+    donneesMatch.destinataires,
+
+  validerFeuilleMatch:
+    gestionPartie.validerFeuilleMatch,
 });
 
   return (
@@ -200,48 +230,108 @@ const exportMatch = useExportMatch({
 
  {pageActive === "alignements" && (
   <AlignementsPage
-    joueuses={joueuses}
-    matchInfo={matchInfo}
-    setMatchInfo={setMatchInfo}
-    equipeLocaleData={donneesMatch.equipeLocaleData}
-    equipeVisiteuseData={donneesMatch.equipeVisiteuseData}
-    localOuvert={localOuvert}
-    setLocalOuvert={setLocalOuvert}
-    visiteurOuvert={visiteurOuvert}
-    setVisiteurOuvert={setVisiteurOuvert}
-    gestionEffectifs={gestionEffectifs}
-  />
+  joueuses={joueuses}
+  joueusesEquipeLocaleAdministration={
+    donneesMatch.joueusesEquipeLocaleAdministration
+  }
+  joueusesEquipeVisiteuseAdministration={
+    donneesMatch.joueusesEquipeVisiteuseAdministration
+  }
+  matchInfo={matchInfo}
+  setMatchInfo={setMatchInfo}
+  equipeLocaleData={donneesMatch.equipeLocaleData}
+  equipeVisiteuseData={donneesMatch.equipeVisiteuseData}
+  localOuvert={localOuvert}
+  setLocalOuvert={setLocalOuvert}
+  visiteurOuvert={visiteurOuvert}
+  setVisiteurOuvert={setVisiteurOuvert}
+  gestionEffectifs={gestionEffectifs}
+/>
 )}
 <GestionModals
   modales={modales}
   couleurs={COULEURS}
+
   matchInfo={matchInfo}
   setMatchInfo={setMatchInfo}
+
+  associations={associations}
+  tournois={tournois}
+
+  equipesAdministration={
+  equipesAdministration
+}
+
+joueusesAdministration={
+  joueusesAdministration
+}
+
+affectationsAdministration={
+  affectationsAdministration
+}
+
+  inscriptionsEquipesTournoi={
+    inscriptionsEquipesTournoi
+  }
+
+  inscriptionsOfficielsTournoi={
+    inscriptionsOfficielsTournoi
+  }
+
   dureePeriode={dureePeriode}
   setDureePeriode={setDureePeriode}
+
   equipes={equipes}
   setEquipes={setEquipes}
+
   joueuses={joueuses}
   setJoueuses={setJoueuses}
+
   officiels={officiels}
   setOfficiels={setOfficiels}
+
   equipeLocaleData={donneesMatch.equipeLocaleData}
   equipeVisiteuseData={donneesMatch.equipeVisiteuseData}
+
   destinataires={donneesMatch.destinataires}
-  arbitresDisponibles={donneesMatch.arbitresDisponibles}
-  chronometreursDisponibles={donneesMatch.chronometreursDisponibles}
-  marqueursDisponibles={donneesMatch.marqueursDisponibles}
-  operateurs30sDisponibles={donneesMatch.operateurs30sDisponibles}
+
   setPageActive={setPageActive}
-  effacerSauvegarde={gestionPartie.effacerSauvegarde}
-  ajouterOfficiel={gestionEffectifs.ajouterOfficiel}
-  modifierOfficiel={gestionEffectifs.modifierOfficiel}
-  suppressionOfficiel={suppressionOfficiel}
-  supprimerOfficiel={gestionEffectifs.supprimerOfficiel}
-  suppressionEquipe={suppressionEquipe}
-  supprimerEquipe={gestionEffectifs.supprimerEquipe}
-  suppressionJoueuse={suppressionJoueuse}
-  supprimerJoueuse={gestionEffectifs.supprimerJoueuse}
+
+  effacerSauvegarde={
+    gestionPartie.effacerSauvegarde
+  }
+
+  ajouterOfficiel={
+    gestionEffectifs.ajouterOfficiel
+  }
+
+  modifierOfficiel={
+    gestionEffectifs.modifierOfficiel
+  }
+
+  suppressionOfficiel={
+    suppressionOfficiel
+  }
+
+  supprimerOfficiel={
+    gestionEffectifs.supprimerOfficiel
+  }
+
+  suppressionEquipe={
+    suppressionEquipe
+  }
+
+  supprimerEquipe={
+    gestionEffectifs.supprimerEquipe
+  }
+
+  suppressionJoueuse={
+    suppressionJoueuse
+  }
+
+  supprimerJoueuse={
+    gestionEffectifs.supprimerJoueuse
+  }
 />
 <PartieModals
   matchInfo={matchInfo}
@@ -250,6 +340,10 @@ const exportMatch = useExportMatch({
   joueuses={joueuses}
   buts={buts}
   equipeNomPourBut={donneesMatch.equipeNomPourBut}
+  associations={associations}
+  equipesAdministration={equipesAdministration}
+  joueusesAdministration={joueusesAdministration}
+  affectationsAdministration={affectationsAdministration}
   calculerTempsCorrige={calculerTempsCorrige}
   joueusesDisponibles={donneesMatch.joueusesDisponibles}
   confirmerBut={gestionButs.confirmerBut}

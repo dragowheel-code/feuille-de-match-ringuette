@@ -21,13 +21,13 @@ import {
 export function useGestionEffectifs({
   setMatchInfo,
   setEquipes,
-
   joueuses,
   setJoueuses,
-
+  joueusesAdministration,
+  equipesAdministration,
+  affectationsAdministration,
   officiels,
   setOfficiels,
-
   modales,
   remplacante,
   suppressionEquipe,
@@ -81,27 +81,125 @@ export function useGestionEffectifs({
   let nouvelleJoueuse;
 
   if (remplacante.modeRemplacante === "existante") {
-    const joueuseOriginale = joueuses.find(
+  const joueuseOriginale =
+    joueusesAdministration.find(
       (joueuse) =>
         String(joueuse.id) ===
-        String(remplacante.joueuseSelectionnee)
+        String(
+          remplacante.joueuseSelectionnee
+        )
     );
 
-    if (!joueuseOriginale) {
-      alert("Sélectionne une joueuse existante.");
-      return;
-    }
+  if (!joueuseOriginale) {
+    alert(
+      "Sélectionne une joueuse existante."
+    );
+    return;
+  }
 
-    nouvelleJoueuse = {
-      ...joueuseOriginale,
-      id: creerId(),
-      equipe: remplacante.equipeRemplacante,
-      numero,
+  const equipeProvenance =
+    equipesAdministration.find(
+      (equipe) =>
+        String(equipe.id) ===
+        String(
+          remplacante.equipeProvenance
+        )
+    );
+
+  const affectationProvenance =
+    affectationsAdministration.find(
+      (affectation) =>
+        String(affectation.equipeId) ===
+          String(
+            remplacante.equipeProvenance
+          ) &&
+        String(affectation.joueuseId) ===
+          String(
+            joueuseOriginale.id
+          ) &&
+        affectation.active !== false
+    );
+
+  nouvelleJoueuse = {
+    id: creerId(),
+
+    joueuseOriginaleId:
+      joueuseOriginale.id,
+
+    equipe:
+      remplacante.equipeRemplacante,
+
+    numero,
+    nom:
+      joueuseOriginale.nomComplet ??
       nom,
-      remplacante: true,
-      equipeProvenance: remplacante.equipeProvenance,
-    };
-  } else {
+
+    numeroInscription:
+      joueuseOriginale.numeroInscription ??
+      "",
+
+    dateNaissance:
+      joueuseOriginale.dateNaissance ??
+      "",
+
+    adresse:
+      joueuseOriginale.adresse ??
+      "",
+
+    ville:
+      joueuseOriginale.ville ??
+      "",
+
+    codePostal:
+      joueuseOriginale.codePostal ??
+      "",
+
+    telephone:
+      joueuseOriginale.telephone ??
+      "",
+
+    sexe:
+      joueuseOriginale.sexe ??
+      "",
+
+    categorie:
+      joueuseOriginale.categorie ??
+      "",
+
+    codeCategorie:
+      joueuseOriginale.codeCategorie ??
+      "",
+
+    saison:
+      joueuseOriginale.saison ??
+      "",
+
+    gardienne: false,
+    capitaine: false,
+    assistanteCapitaine: false,
+
+    absente: false,
+    suspendue: false,
+    remplacante: true,
+
+    equipeProvenanceId:
+      equipeProvenance?.id ?? "",
+
+    equipeProvenance:
+      equipeProvenance
+        ? [
+            equipeProvenance.categorie,
+            equipeProvenance.niveau,
+            equipeProvenance.numeroEquipe,
+          ]
+            .filter(Boolean)
+            .join(" ")
+        : "",
+
+    affectationProvenanceId:
+      affectationProvenance?.id ?? "",
+  };
+} else {
     nouvelleJoueuse = {
   id: creerId(),
   equipe: remplacante.equipeRemplacante,
@@ -339,52 +437,137 @@ console.log(officiels, Array.isArray(officiels));
     modales.fermerSuppressionOfficiel();
   }
 
-  function changerPresence(id) {
-  setJoueuses((anciennesJoueuses) =>
-    anciennesJoueuses.map((joueuse) =>
-      joueuse.id === id
-        ? basculerPresence(joueuse)
-        : joueuse
-    )
+  function changerPresence(
+  joueuseReference
+) {
+  setJoueuses(
+    (anciennesJoueuses) => {
+      const index =
+        anciennesJoueuses.findIndex(
+          (joueuse) =>
+            String(joueuse.id) ===
+            String(
+              joueuseReference.id
+            )
+        );
+
+      if (index === -1) {
+        return [
+          ...anciennesJoueuses,
+          basculerPresence({
+            ...joueuseReference,
+          }),
+        ];
+      }
+
+      return anciennesJoueuses.map(
+        (joueuse) =>
+          String(joueuse.id) ===
+          String(
+            joueuseReference.id
+          )
+            ? basculerPresence(
+                joueuse
+              )
+            : joueuse
+      );
+    }
   );
 }
 
-  function changerSuspension(id) {
-  setJoueuses((anciennesJoueuses) =>
-    anciennesJoueuses.map((joueuse) =>
-      joueuse.id === id
-        ? basculerSuspension(joueuse)
-        : joueuse
-    )
+  function changerSuspension(
+  joueuseReference
+) {
+  setJoueuses(
+    (anciennesJoueuses) => {
+      const index =
+        anciennesJoueuses.findIndex(
+          (joueuse) =>
+            String(joueuse.id) ===
+            String(
+              joueuseReference.id
+            )
+        );
+
+      if (index === -1) {
+        return [
+          ...anciennesJoueuses,
+          basculerSuspension({
+            ...joueuseReference,
+          }),
+        ];
+      }
+
+      return anciennesJoueuses.map(
+        (joueuse) =>
+          String(joueuse.id) ===
+          String(
+            joueuseReference.id
+          )
+            ? basculerSuspension(
+                joueuse
+              )
+            : joueuse
+      );
+    }
   );
 }
 
-  function changerRoleJoueuse(id, role) {
+  function changerRoleJoueuse(
+  joueuseReference,
+  role
+) {
   setJoueuses((anciennesJoueuses) => {
-    const resultat = appliquerChangementRole(
-      anciennesJoueuses,
-      id,
-      role
-    );
+    const existeDeja =
+      anciennesJoueuses.some(
+        (joueuse) =>
+          String(joueuse.id) ===
+          String(joueuseReference.id)
+      );
+
+    const joueusesPourModification =
+      existeDeja
+        ? anciennesJoueuses
+        : [
+            ...anciennesJoueuses,
+            {
+              ...joueuseReference,
+            },
+          ];
+
+    const resultat =
+      appliquerChangementRole(
+        joueusesPourModification,
+        joueuseReference.id,
+        role
+      );
 
     if (!resultat.succes) {
       switch (resultat.raison) {
         case "MAX_GARDIENNES":
-          alert("Maximum 2 gardiennes par équipe.");
+          alert(
+            "Maximum 2 gardiennes par équipe."
+          );
           break;
 
         case "MAX_LETTRES":
-          alert("Maximum de 3 lettres (C et A) par équipe.");
+          alert(
+            "Maximum de 3 lettres (C et A) par équipe."
+          );
           break;
 
         default:
           break;
       }
+
+      return anciennesJoueuses;
     }
 
-    return Array.isArray(resultat.joueuses)
-  ? resultat.joueuses
-  : anciennesJoueuses;
+    return Array.isArray(
+      resultat.joueuses
+    )
+      ? resultat.joueuses
+      : anciennesJoueuses;
   });
 }
 
