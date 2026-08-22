@@ -1,5 +1,5 @@
 export function creerTournoi({
-  id = crypto.randomUUID(),
+  id = null,
 
   saisonId = "",
   associationOrganisatriceId = "",
@@ -12,7 +12,8 @@ export function creerTournoi({
   actif = true,
 } = {}) {
   return {
-    id,
+    id:
+      id || crypto.randomUUID(),
 
     saisonId:
       String(saisonId).trim(),

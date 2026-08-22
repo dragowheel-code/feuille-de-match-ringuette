@@ -1,10 +1,7 @@
-import { normaliserCategorie } from "../categories/normaliserCategorie";
-
 export function creerJoueuse({
   id = crypto.randomUUID(),
 
   associationId = "",
-  equipeId = "",
 
   nomComplet = "",
   numeroInscription = "",
@@ -16,32 +13,58 @@ export function creerJoueuse({
 
   sexe = "",
   dateNaissance = "",
-  age = "",
 
-  categorie = "",
-  codeCategorie = "",
-  saison = "",
+  active = true,
 } = {}) {
   return {
     id,
 
-    associationId,
-    equipeId,
+    associationId:
+      String(
+        associationId ?? ""
+      ).trim(),
 
-    nomComplet: nomComplet.trim(),
-    numeroInscription: numeroInscription.trim(),
+    nomComplet:
+      String(
+        nomComplet ?? ""
+      ).trim(),
 
-    adresse: adresse.trim(),
-    ville: ville.trim(),
-    codePostal: codePostal.trim(),
-    telephone: telephone.trim(),
+    numeroInscription:
+      String(
+        numeroInscription ?? ""
+      ).trim(),
 
-    sexe: sexe.trim(),
-    dateNaissance: dateNaissance.trim(),
-    age: age.trim(),
+    adresse:
+      String(
+        adresse ?? ""
+      ).trim(),
 
-    categorie: normaliserCategorie(categorie),
-    codeCategorie: codeCategorie.trim(),
-    saison: saison.trim(),
+    ville:
+      String(
+        ville ?? ""
+      ).trim(),
+
+    codePostal:
+      String(
+        codePostal ?? ""
+      ).trim(),
+
+    telephone:
+      String(
+        telephone ?? ""
+      ).trim(),
+
+    sexe:
+      String(
+        sexe ?? ""
+      ).trim(),
+
+    dateNaissance:
+      String(
+        dateNaissance ?? ""
+      ).trim(),
+
+    active:
+      Boolean(active),
   };
 }

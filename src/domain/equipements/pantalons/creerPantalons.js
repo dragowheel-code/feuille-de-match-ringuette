@@ -1,23 +1,19 @@
 export function creerPantalons({
   id = crypto.randomUUID(),
+
   associationId = "",
-  numero = "",
+
   taille = "",
-  etat = "Bon",
-  notes = "",
-  } = {},
+
+  quantiteStock = 0,
 
   actif = true,
-) {
+} = {}) {
   return {
     id,
 
     associationId: String(
       associationId ?? ""
-    ).trim(),
-
-    numero: String(
-      numero ?? ""
     ).trim(),
 
     taille: String(
@@ -26,16 +22,12 @@ export function creerPantalons({
       .trim()
       .toUpperCase(),
 
-    etat: {
-      etat: String(
-        etat ?? "Bon"
-      ).trim(),
+    quantiteStock:
+      Number(
+        quantiteStock ?? 0
+      ),
 
-      notes: String(
-        notes ?? ""
-      ).trim(),
-    },
-
-    actif: Boolean(actif),
+    actif:
+      Boolean(actif),
   };
 }

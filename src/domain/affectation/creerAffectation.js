@@ -7,9 +7,7 @@ export function creerAffectation({
 
   numero = "",
 
-  gardienne = false,
-  capitaine = false,
-  assistante = false,
+  typeAffectation = "NORMALE",
 
   dateDebut = "",
   dateFin = "",
@@ -21,21 +19,35 @@ export function creerAffectation({
   return {
     id,
 
-    saisonId,
-    equipeId,
-    joueuseId,
+    saisonId:
+      String(saisonId ?? "").trim(),
 
-    numero,
+    equipeId:
+      String(equipeId ?? "").trim(),
 
-    gardienne,
-    capitaine,
-    assistante,
+    joueuseId:
+      String(joueuseId ?? "").trim(),
 
-    dateDebut,
-    dateFin,
+    numero:
+      String(numero ?? "").trim(),
 
-    active,
+    typeAffectation:
+      String(
+        typeAffectation ?? "NORMALE"
+      )
+        .trim()
+        .toUpperCase(),
 
-    notes: notes.trim(),
+    dateDebut:
+      String(dateDebut ?? "").trim(),
+
+    dateFin:
+      String(dateFin ?? "").trim(),
+
+    active:
+      Boolean(active),
+
+    notes:
+      String(notes ?? "").trim(),
   };
 }

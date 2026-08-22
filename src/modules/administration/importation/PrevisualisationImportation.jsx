@@ -29,8 +29,8 @@ function creerIdentifiantLigne(ligne, type, index) {
 function PrevisualisationImportation({
   previsualisation,
   joueuses,
-  setJoueuses,
-  }) {
+  importerJoueuses,
+}) {
   const [nouvellesOuvertes, setNouvellesOuvertes] =
     useState(true);
 
@@ -97,7 +97,7 @@ const totalParticipantes =
 const toutesSelectionnees =
   lignesDeselectionnees.length === 0;
 
-  function confirmerImportation() {
+  async function confirmerImportation() {
   const participantesSelectionnees = [
     ...nouvelles,
     ...misesAJour,
@@ -142,9 +142,25 @@ const toutesSelectionnees =
   ]
 );
 
-setJoueuses(resultat.joueuses);
+const sauvegarde =
+  await importerJoueuses(
+    resultat.joueuses
+  );
+
+if (!sauvegarde.succes) {
+  console.error(
+    "Erreur import Supabase :",
+    sauvegarde.erreurs
+  );
+
+  return;
+}
+
 setConfirmationOuverte(false);
-setRapportImportation(resultat.rapport);
+
+setRapportImportation(
+  resultat.rapport
+);
 }
 
   return (

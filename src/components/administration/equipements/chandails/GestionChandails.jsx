@@ -16,7 +16,6 @@ import {
 import {
   obtenirResumeAttribution,
   obtenirHistoriqueEnsemble,
-  obtenirEnsemblesARetourner,
 } from "../../../../domain/equipements/attributionsChandails";
 
 import {
@@ -32,6 +31,8 @@ function GestionChandails({
   gestionChandails,
   gestionAttributionsChandails,
   gestionJoueuses,
+
+  affectations = [],
 }) {
   const {
     ensemblesChandails,
@@ -41,11 +42,11 @@ function GestionChandails({
   } = gestionChandails;
 
   const {
-  attributionsChandails,
-  distribuerEnsemble,
-  libererEnsemble,
-  retournerEnsemble,
-} = gestionAttributionsChandails;
+    attributionsChandails,
+    distribuerEnsemble,
+    libererEnsemble,
+    retournerEnsemble,
+  } = gestionAttributionsChandails;
 
   const [
     recherche,
@@ -58,9 +59,9 @@ function GestionChandails({
   ] = useState("tous");
 
   const [
-  modeRetourChandails,
-  setModeRetourChandails,
-] = useState(false);
+    modeRetourChandails,
+    setModeRetourChandails,
+  ] = useState(false);
 
   const [
     fenetreEnsembleOuverte,
@@ -83,31 +84,31 @@ function GestionChandails({
   ] = useState(false);
 
   const [
-  fenetreRetourOuverte,
-  setFenetreRetourOuverte,
-] = useState(false);
+    fenetreRetourOuverte,
+    setFenetreRetourOuverte,
+  ] = useState(false);
 
-const [
-  erreursRetour,
-  setErreursRetour,
-] = useState([]);
+  const [
+    erreursRetour,
+    setErreursRetour,
+  ] = useState([]);
 
-const [
-  formulaireRetour,
-  setFormulaireRetour,
-] = useState({
-  clair: {
-    etat: "Bon",
-    notes: "",
-  },
+  const [
+    formulaireRetour,
+    setFormulaireRetour,
+  ] = useState({
+    clair: {
+      etat: "Bon",
+      notes: "",
+    },
 
-  fonce: {
-    etat: "Bon",
-    notes: "",
-  },
+    fonce: {
+      etat: "Bon",
+      notes: "",
+    },
 
-  commentaire: "",
-});
+    commentaire: "",
+  });
 
   const [
     erreursEnsemble,
@@ -179,46 +180,166 @@ const [
         )
       : [];
 
-      const ensemblesARetourner =
-  obtenirEnsemblesARetourner(
-    ensemblesAssociation,
-    attributionsChandails,
-    saisonActive?.id
-  );
+  /*
+   * En mode retour, on se base directement
+   * sur la saison enregistrée dans
+   * l'attribution de chandail.
+   *
+   * Une joueuse peut avoir reçu ses
+   * chandails avant d'être affectée à
+   * une équipe.
+   */
+  const idsEnsemblesARetourner =
+    new Set(
+      attributionsChandails
+        .filter(
+          (attribution) =>
+            attribution.active ===
+              true &&
+            String(
+              attribution.saisonId
+            ) ===
+              String(
+                saisonActive?.id
+              )
+        )
+        .map(
+          (attribution) =>
+            String(
+              attribution.ensembleId
+            )
+        )
+    );
+
+  const ensemblesARetourner =
+    ensemblesAssociation.filter(
+      (ensemble) =>
+        idsEnsemblesARetourner.has(
+          String(ensemble.id)
+        )
+    );
 
   const texteRecherche =
     recherche.trim().toLowerCase();
 
- const ensemblesSource =
-  modeRetourChandails
-    ? ensemblesARetourner
-    : ensemblesAssociation;
+  const ensemblesSource =
+    modeRetourChandails
+      ? ensemblesARetourner
+      : ensemblesAssociation;
 
-const ensemblesRecherche =
+  const ensemblesRecherche =
   ensemblesSource.filter(
-      (ensemble) => {
-        if (!texteRecherche) {
-          return true;
-        }
-
-        return (
-          String(
-            ensemble.numero
-          )
-            .toLowerCase()
-            .includes(
-              texteRecherche
-            ) ||
-          String(
-            ensemble.taille
-          )
-            .toLowerCase()
-            .includes(
-              texteRecherche
-            )
-        );
+    (ensemble) => {
+      if (!texteRecherche) {
+        return true;
       }
-    );
+
+      const correspondNumero =
+        String(
+          ensemble.numero
+        )
+          .toLowerCase()
+          .includes(
+            texteRecherche
+          );
+
+      const correspondTaille =
+        String(
+          ensemble.taille
+        )
+          .toLowerCase()
+          .includes(
+            texteRecherche
+          );
+
+      const correspondHistorique =
+        attributionsChandails.some(
+          (attribution) => {
+            if (
+              String(
+                attribution.ensembleId
+              ) !==
+              String(
+                ensemble.id
+              )
+            ) {
+              return false;
+            }
+
+            /*
+             * Nouveau modèle :
+             * l'attribution possède
+             * directement joueuseId.
+             */
+            let joueuseId =
+              attribution.joueuseId;
+
+            /*
+             * Compatibilité avec les
+             * anciennes attributions
+             * qui pouvaient seulement
+             * avoir affectationId.
+             */
+            if (
+              !joueuseId &&
+              attribution.affectationId
+            ) {
+              const affectation =
+                affectations.find(
+                  (element) =>
+                    String(
+                      element.id
+                    ) ===
+                    String(
+                      attribution.affectationId
+                    )
+                );
+
+              joueuseId =
+                affectation?.joueuseId;
+            }
+
+            if (!joueuseId) {
+              return false;
+            }
+
+            const joueuse =
+              gestionJoueuses
+                ?.joueuses
+                ?.find(
+                  (element) =>
+                    String(
+                      element.id
+                    ) ===
+                    String(
+                      joueuseId
+                    )
+                );
+
+            if (!joueuse) {
+              return false;
+            }
+
+            const nom =
+              String(
+                joueuse.nomComplet ??
+                joueuse.nom ??
+                ""
+              ).toLowerCase();
+
+            return nom.includes(
+              texteRecherche
+            );
+          }
+        );
+
+      return (
+        correspondNumero ||
+        correspondTaille ||
+        correspondHistorique
+      );
+    }
+  );
 
   function obtenirStatutInventaire(
     ensemble
@@ -229,7 +350,9 @@ const ensemblesRecherche =
           String(
             attribution.ensembleId
           ) ===
-            String(ensemble.id) &&
+            String(
+              ensemble.id
+            ) &&
           attribution.active === true
       );
 
@@ -285,18 +408,19 @@ const ensemblesRecherche =
   Object.values(
     ensemblesParTaille
   ).forEach((ensembles) => {
-    ensembles.sort((a, b) =>
-      String(
-        a.numero
-      ).localeCompare(
+    ensembles.sort(
+      (a, b) =>
         String(
-          b.numero
-        ),
-        "fr-CA",
-        {
-          numeric: true,
-        }
-      )
+          a.numero
+        ).localeCompare(
+          String(
+            b.numero
+          ),
+          "fr-CA",
+          {
+            numeric: true,
+          }
+        )
     );
   });
 
@@ -307,12 +431,55 @@ const ensemblesRecherche =
       associationActive?.id
     );
 
+  /*
+   * Toutes les joueuses de
+   * l'association peuvent recevoir
+   * des chandails, même si elles
+   * n'ont pas encore d'équipe.
+   */
   const optionsJoueuses =
     obtenirOptionsDistributionChandails(
       joueusesAssociation
     );
 
-  const resumeAttribution =
+  function obtenirJoueuseAttribution(
+    attribution
+  ) {
+    if (!attribution) {
+      return null;
+    }
+
+    return (
+      gestionJoueuses?.joueuses?.find(
+        (joueuse) =>
+          String(joueuse.id) ===
+          String(
+            attribution.joueuseId
+          )
+      ) ?? null
+    );
+  }
+
+  const attributionActiveEnsemble =
+    ensembleAffiche
+      ? attributionsChandails.find(
+          (attribution) =>
+            String(
+              attribution.ensembleId
+            ) ===
+              String(
+                ensembleAffiche.id
+              ) &&
+            attribution.active ===
+              true
+        ) ?? null
+      : null;
+
+  /*
+   * On conserve la fonction domaine
+   * existante pour compatibilité.
+   */
+  const resumeAttributionDomaine =
     ensembleAffiche
       ? obtenirResumeAttribution({
           ensemble:
@@ -331,6 +498,28 @@ const ensemblesRecherche =
           attribution: null,
           joueuse: null,
         };
+
+  /*
+   * Le nouveau modèle utilise
+   * directement joueuseId.
+   * On donne priorité à cette relation.
+   */
+  const resumeAttribution =
+    attributionActiveEnsemble
+      ? {
+          attribue: true,
+
+          attribution:
+            attributionActiveEnsemble,
+
+          joueuse:
+            obtenirJoueuseAttribution(
+              attributionActiveEnsemble
+            ) ??
+            resumeAttributionDomaine
+              .joueuse,
+        }
+      : resumeAttributionDomaine;
 
   const historiqueEnsemble =
     ensembleAffiche
@@ -383,25 +572,21 @@ const ensemblesRecherche =
 
       clair: {
         etat:
-          ensemble.clair
-            ?.etat ??
+          ensemble.clair?.etat ??
           "Bon",
 
         notes:
-          ensemble.clair
-            ?.notes ??
+          ensemble.clair?.notes ??
           "",
       },
 
       fonce: {
         etat:
-          ensemble.fonce
-            ?.etat ??
+          ensemble.fonce?.etat ??
           "Bon",
 
         notes:
-          ensemble.fonce
-            ?.notes ??
+          ensemble.fonce?.notes ??
           "",
       },
 
@@ -427,25 +612,24 @@ const ensemblesRecherche =
     );
   }
 
-  function enregistrerEnsemble(
+  async function enregistrerEnsemble(
     donneesEnsemble
   ) {
     const resultat =
       ensembleSelectionne
-        ? modifierEnsemble({
+        ? await modifierEnsemble({
             ...donneesEnsemble,
 
             id:
               ensembleSelectionne.id,
           })
-        : ajouterEnsemble(
+        : await ajouterEnsemble(
             donneesEnsemble
           );
 
     if (!resultat.succes) {
       setErreursEnsemble(
-        resultat.erreurs ??
-          []
+        resultat.erreurs ?? []
       );
 
       return;
@@ -454,7 +638,7 @@ const ensemblesRecherche =
     fermerEnsemble();
   }
 
-  function demanderSuppression(
+  async function demanderSuppression(
     ensemble
   ) {
     const confirmation =
@@ -467,7 +651,7 @@ const ensemblesRecherche =
     }
 
     const resultat =
-      supprimerEnsemble(
+      await supprimerEnsemble(
         ensemble.id
       );
 
@@ -488,9 +672,7 @@ const ensemblesRecherche =
   function ouvrirDistribution(
     ensemble
   ) {
-    setErreursDistribution(
-      []
-    );
+    setErreursDistribution([]);
 
     setEnsembleAffiche(
       ensemble
@@ -515,13 +697,60 @@ const ensemblesRecherche =
   }
 
   function fermerDistribution() {
-    setErreursDistribution(
-      []
-    );
+    setErreursDistribution([]);
 
     setFenetreDistributionOuverte(
       false
     );
+  }
+
+  async function enregistrerDistribution(
+    formulaire
+  ) {
+    /*
+     * L'affectation d'équipe est
+     * facultative.
+     *
+     * Si elle existe déjà pour cette
+     * joueuse et cette saison, on la
+     * rattache automatiquement.
+     */
+    const affectation =
+      affectations.find(
+        (element) =>
+          element.active !== false &&
+          String(
+            element.joueuseId
+          ) ===
+            String(
+              formulaire.joueuseId
+            ) &&
+          String(
+            element.saisonId
+          ) ===
+            String(
+              formulaire.saisonId
+            )
+      );
+
+    const resultat =
+      await distribuerEnsemble({
+        ...formulaire,
+
+        affectationId:
+          affectation?.id ??
+          null,
+      });
+
+    if (!resultat.succes) {
+      setErreursDistribution(
+        resultat.erreurs ?? []
+      );
+
+      return;
+    }
+
+    fermerDistribution();
   }
 
   function ouvrirHistorique() {
@@ -552,7 +781,7 @@ const ensemblesRecherche =
     );
   }
 
-  function confirmerLiberation(
+  async function confirmerLiberation(
     donnees
   ) {
     const attribution =
@@ -563,7 +792,7 @@ const ensemblesRecherche =
     }
 
     const resultat =
-      libererEnsemble(
+      await libererEnsemble(
         attribution.id,
         donnees
       );
@@ -583,122 +812,157 @@ const ensemblesRecherche =
   }
 
   function ouvrirRetour() {
-  if (
-    !ensembleAffiche ||
-    !resumeAttribution.attribution
-  ) {
-    return;
-  }
+    if (
+      !ensembleAffiche ||
+      !resumeAttribution.attribution
+    ) {
+      return;
+    }
 
-  setErreursRetour([]);
+    setErreursRetour([]);
 
-  setFormulaireRetour({
-    clair: {
-      etat:
-        ensembleAffiche.clair?.etat ??
-        "Bon",
-
-      notes:
-        ensembleAffiche.clair?.notes ??
-        "",
-    },
-
-    fonce: {
-      etat:
-        ensembleAffiche.fonce?.etat ??
-        "Bon",
-
-      notes:
-        ensembleAffiche.fonce?.notes ??
-        "",
-    },
-
-    commentaire: "",
-  });
-
-  setFenetreRetourOuverte(true);
-}
-
-function fermerRetour() {
-  setErreursRetour([]);
-  setFenetreRetourOuverte(false);
-}
-
-function confirmerRetour(
-  donneesRetour
-) {
-  const attribution =
-    resumeAttribution.attribution;
-
-  if (!attribution) {
-    return;
-  }
-
-  const resultatEnsemble =
-    modifierEnsemble({
-      ...ensembleAffiche,
-
+    setFormulaireRetour({
       clair: {
-        ...ensembleAffiche.clair,
         etat:
-          donneesRetour.clair.etat,
+          ensembleAffiche
+            .clair?.etat ??
+          "Bon",
+
         notes:
-          donneesRetour.clair.notes,
+          ensembleAffiche
+            .clair?.notes ??
+          "",
       },
 
       fonce: {
-        ...ensembleAffiche.fonce,
         etat:
-          donneesRetour.fonce.etat,
+          ensembleAffiche
+            .fonce?.etat ??
+          "Bon",
+
         notes:
-          donneesRetour.fonce.notes,
+          ensembleAffiche
+            .fonce?.notes ??
+          "",
       },
+
+      commentaire: "",
     });
 
-  if (!resultatEnsemble.succes) {
-    setErreursRetour(
-      resultatEnsemble.erreurs ?? []
+    setFenetreRetourOuverte(
+      true
     );
-    return;
   }
 
-  const resultatAttribution =
-    retournerEnsemble(
-      attribution.id,
-      {
-        commentaire:
-          donneesRetour.commentaire,
-      }
-    );
+  function fermerRetour() {
+    setErreursRetour([]);
 
-  if (!resultatAttribution.succes) {
-    setErreursRetour(
-      resultatAttribution.erreurs ?? []
+    setFenetreRetourOuverte(
+      false
     );
-    return;
   }
 
-  setEnsembleAffiche(null);
+  async function confirmerRetour(
+    donneesRetour
+  ) {
+    const attribution =
+      resumeAttribution.attribution;
 
-  fermerRetour();
-}
-    return (
+    if (!attribution) {
+      return;
+    }
+
+    const resultatEnsemble =
+      await modifierEnsemble({
+        ...ensembleAffiche,
+
+        clair: {
+          ...ensembleAffiche.clair,
+
+          etat:
+            donneesRetour
+              .clair.etat,
+
+          notes:
+            donneesRetour
+              .clair.notes,
+        },
+
+        fonce: {
+          ...ensembleAffiche.fonce,
+
+          etat:
+            donneesRetour
+              .fonce.etat,
+
+          notes:
+            donneesRetour
+              .fonce.notes,
+        },
+      });
+
+    if (
+      !resultatEnsemble.succes
+    ) {
+      setErreursRetour(
+        resultatEnsemble.erreurs ??
+          []
+      );
+
+      return;
+    }
+
+    const resultatAttribution =
+      await retournerEnsemble(
+        attribution.id,
+        {
+          commentaire:
+            donneesRetour
+              .commentaire,
+        }
+      );
+
+    if (
+      !resultatAttribution.succes
+    ) {
+      setErreursRetour(
+        resultatAttribution.erreurs ??
+          []
+      );
+
+      return;
+    }
+
+    setEnsembleAffiche(null);
+
+    fermerRetour();
+  }
+
+  return (
     <section className="gestion-chandails">
       <header className="gestion-chandails-entete">
         <div>
           <h1>
-  {modeRetourChandails
-    ? "Retour des chandails"
-    : "Équipements — Chandails"}
-</h1>
+            {modeRetourChandails
+              ? "Retour des chandails"
+              : "Équipements — Chandails"}
+          </h1>
 
           <p>
-  {modeRetourChandails
-    ? `Saison ${saisonActive?.nom ?? ""} — ${ensemblesARetourner.length} ensemble${
-        ensemblesARetourner.length > 1 ? "s" : ""
-      } à retourner.`
-    : "Gérez l'inventaire des ensembles de chandails de l'association active."}
-</p>
+            {modeRetourChandails
+              ? `Saison ${
+                  saisonActive?.nom ??
+                  ""
+                } — ${
+                  ensemblesARetourner.length
+                } ensemble${
+                  ensemblesARetourner.length >
+                  1
+                    ? "s"
+                    : ""
+                } à retourner.`
+              : "Gérez l'inventaire des ensembles de chandails de l'association active."}
+          </p>
         </div>
 
         <div className="gestion-chandails-actions">
@@ -710,36 +974,44 @@ function confirmerRetour(
           </button>
 
           {!modeRetourChandails && (
-  <button
-    type="button"
-    onClick={
-      ouvrirAjoutEnsemble
-    }
-    disabled={
-      !associationActive
-    }
-  >
-    Nouvel ensemble
-  </button>
-)}
+            <button
+              type="button"
+              onClick={
+                ouvrirAjoutEnsemble
+              }
+              disabled={
+                !associationActive
+              }
+            >
+              Nouvel ensemble
+            </button>
+          )}
         </div>
-        <button
-  type="button"
-  onClick={() => {
-    setModeRetourChandails(
-      (precedent) => !precedent
-    );
 
-    setFiltreActif("tous");
-    setRecherche("");
-    setEnsembleAffiche(null);
-  }}
-  disabled={!saisonActive}
->
-  {modeRetourChandails
-    ? "Retour à l'inventaire"
-    : "Retour chandails"}
-</button>
+        <button
+          type="button"
+          onClick={() => {
+            setModeRetourChandails(
+              (precedent) =>
+                !precedent
+            );
+
+            setFiltreActif(
+              "tous"
+            );
+
+            setRecherche("");
+
+            setEnsembleAffiche(
+              null
+            );
+          }}
+          disabled={!saisonActive}
+        >
+          {modeRetourChandails
+            ? "Retour à l'inventaire"
+            : "Retour chandails"}
+        </button>
       </header>
 
       {!associationActive ? (
@@ -892,103 +1164,103 @@ function confirmerRetour(
                   </p>
 
                   {modeRetourChandails ? (
-  <>
-    {resumeAttribution.attribue && (
-      <>
-        <button
-          type="button"
-          onClick={
-            ouvrirRetour
-          }
-        >
-          Retourner
-        </button>
+                    <>
+                      {resumeAttribution.attribue && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={
+                              ouvrirRetour
+                            }
+                          >
+                            Retourner
+                          </button>
 
-        <button
-          type="button"
-          onClick={
-            ouvrirHistorique
-          }
-        >
-          Historique
-        </button>
-      </>
-    )}
-  </>
-) : (
-  <>
-    {resumeAttribution.attribue ? (
-      <>
-        <button
-          type="button"
-          onClick={
-            ouvrirLiberation
-          }
-        >
-          Libérer
-        </button>
+                          <button
+                            type="button"
+                            onClick={
+                              ouvrirHistorique
+                            }
+                          >
+                            Historique
+                          </button>
+                        </>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      {resumeAttribution.attribue ? (
+                        <>
+                          <button
+                            type="button"
+                            onClick={
+                              ouvrirLiberation
+                            }
+                          >
+                            Libérer
+                          </button>
 
-        <button
-          type="button"
-          onClick={
-            ouvrirHistorique
-          }
-        >
-          Historique
-        </button>
-      </>
-    ) : (
-      <>
-        <button
-          type="button"
-          onClick={() =>
-            ouvrirDistribution(
-              ensembleAffiche
-            )
-          }
-        >
-          Distribuer
-        </button>
+                          <button
+                            type="button"
+                            onClick={
+                              ouvrirHistorique
+                            }
+                          >
+                            Historique
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              ouvrirDistribution(
+                                ensembleAffiche
+                              )
+                            }
+                          >
+                            Distribuer
+                          </button>
 
-        {historiqueEnsemble.length >
-          0 && (
-          <button
-            type="button"
-            onClick={
-              ouvrirHistorique
-            }
-          >
-            Historique
-          </button>
-        )}
-      </>
-    )}
+                          {historiqueEnsemble.length >
+                            0 && (
+                            <button
+                              type="button"
+                              onClick={
+                                ouvrirHistorique
+                              }
+                            >
+                              Historique
+                            </button>
+                          )}
+                        </>
+                      )}
 
-    <button
-      type="button"
-      onClick={() =>
-        ouvrirModificationEnsemble(
-          ensembleAffiche
-        )
-      }
-    >
-      Modifier
-    </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          ouvrirModificationEnsemble(
+                            ensembleAffiche
+                          )
+                        }
+                      >
+                        Modifier
+                      </button>
 
-    {!resumeAttribution.attribue && (
-      <button
-        type="button"
-        onClick={() =>
-          demanderSuppression(
-            ensembleAffiche
-          )
-        }
-      >
-        Supprimer
-      </button>
-    )}
-  </>
-)}
+                      {!resumeAttribution.attribue && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            demanderSuppression(
+                              ensembleAffiche
+                            )
+                          }
+                        >
+                          Supprimer
+                        </button>
+                      )}
+                    </>
+                  )}
                 </>
               ) : (
                 <>
@@ -1039,27 +1311,9 @@ function confirmerRetour(
             fermer={
               fermerDistribution
             }
-            enregistrer={(
-              formulaire
-            ) => {
-              const resultat =
-                distribuerEnsemble(
-                  formulaire
-                );
-
-              if (
-                !resultat.succes
-              ) {
-                setErreursDistribution(
-                  resultat.erreurs ??
-                    []
-                );
-
-                return;
-              }
-
-              fermerDistribution();
-            }}
+            enregistrer={
+              enregistrerDistribution
+            }
             ensemble={
               ensembleAffiche
             }
@@ -1085,31 +1339,31 @@ function confirmerRetour(
           />
 
           <RetourChandailModal
-  ouverte={
-    fenetreRetourOuverte
-  }
-  fermer={
-    fermerRetour
-  }
-  confirmer={
-    confirmerRetour
-  }
-  ensemble={
-    ensembleAffiche
-  }
-  joueuse={
-    resumeAttribution.joueuse
-  }
-  formulaire={
-    formulaireRetour
-  }
-  setFormulaire={
-    setFormulaireRetour
-  }
-  erreurs={
-    erreursRetour
-  }
-/>
+            ouverte={
+              fenetreRetourOuverte
+            }
+            fermer={
+              fermerRetour
+            }
+            confirmer={
+              confirmerRetour
+            }
+            ensemble={
+              ensembleAffiche
+            }
+            joueuse={
+              resumeAttribution.joueuse
+            }
+            formulaire={
+              formulaireRetour
+            }
+            setFormulaire={
+              setFormulaireRetour
+            }
+            erreurs={
+              erreursRetour
+            }
+          />
 
           <LiberationChandailModal
             ouverte={

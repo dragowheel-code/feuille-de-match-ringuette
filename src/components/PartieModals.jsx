@@ -13,7 +13,6 @@ function PartieModals({
   equipesAdministration,
   joueusesAdministration,
   affectationsAdministration,
-  equipes,
   joueuses,
   buts,
   equipeNomPourBut,
@@ -143,7 +142,6 @@ function PartieModals({
 
       <RemplacanteModal
        ouverte={modales.fenetreRemplacanteOuverte}
-       equipes={equipes}
        associations={associations}
        equipesAdministration={equipesAdministration}
        joueusesAdministration={joueusesAdministration}

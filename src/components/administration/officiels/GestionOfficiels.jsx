@@ -1,11 +1,5 @@
 import { useState } from "react";
 
-import {
-  creerOfficiel,
-  modifierOfficiel,
-  supprimerOfficiel,
-} from "../../../domain/officiels";
-
 import OfficielModal from "../../../modals/OfficielModal";
 import ListeOfficiels from "./ListeOfficiels";
 import FicheOfficielModal from "./FicheOfficielModal";
@@ -27,9 +21,15 @@ function creerFormulaireVide() {
 function GestionOfficiels({
   retour,
   associationActive,
-  officiels,
-  setOfficiels,
+  gestionOfficiels,
 }) {
+
+  const {
+  officiels = [],
+  ajouterOfficiel,
+  modifierOfficiel,
+  supprimerOfficiel,
+} = gestionOfficiels ?? {};
 
     const officielsAssociation = officiels.filter(
   (officiel) =>
@@ -152,95 +152,104 @@ function GestionOfficiels({
     return true;
   }
 
-  function confirmerEdition() {
-    if (!validerFormulaire()) {
-      return;
-    }
-
-    const nom =
-      officielFormulaire.nom.trim();
-
-    if (
-      officielFormulaire.mode ===
-      "modification"
-    ) {
-      setOfficiels(
-        (anciensOfficiels) =>
-          modifierOfficiel(
-  anciensOfficiels,
-  officielFormulaire.id,
-  {
-    associationId:
-      officielFormulaire.associationId ||
-      associationActive?.id ||
-      "",
-    nom,
-    arbitre:
-      officielFormulaire.arbitre,
-    chronometreur:
-      officielFormulaire.chronometreur,
-    marqueur:
-      officielFormulaire.marqueur,
-    operateur30s:
-      officielFormulaire.operateur30s,
-    actif:
-      officielFormulaire.actif !== false,
+  async function confirmerEdition() {
+  if (!validerFormulaire()) {
+    return;
   }
-)
+
+  const nom =
+    officielFormulaire.nom.trim();
+
+  if (
+    officielFormulaire.mode ===
+    "modification"
+  ) {
+    const resultat =
+      await modifierOfficiel({
+        ...officielFormulaire,
+
+        associationId:
+          officielFormulaire.associationId ||
+          associationActive?.id ||
+          "",
+
+        nom,
+      });
+
+    if (!resultat.succes) {
+      alert(
+        resultat.erreurs?.join("\n") ||
+          "Impossible de modifier l'officiel."
       );
 
-      fermerEdition();
       return;
     }
-
-    const nouvelOfficiel =
-  creerOfficiel({
-    id: crypto.randomUUID(),
-    associationId:
-      associationActive?.id ?? "",
-    nom,
-    arbitre:
-      officielFormulaire.arbitre,
-    chronometreur:
-      officielFormulaire.chronometreur,
-    marqueur:
-      officielFormulaire.marqueur,
-    operateur30s:
-      officielFormulaire.operateur30s,
-    actif: true,
-  });
-
-    setOfficiels(
-      (anciensOfficiels) => [
-        ...anciensOfficiels,
-        nouvelOfficiel,
-      ]
-    );
 
     fermerEdition();
+    return;
   }
 
-  function demanderSuppression(
-    officiel
-  ) {
-    if (
-      !confirm(
-        `Supprimer ${officiel.nom} ?`
-      )
-    ) {
-      return;
-    }
+  const resultat =
+    await ajouterOfficiel({
+      associationId:
+        associationActive?.id ?? "",
 
-    setOfficiels(
-      (anciensOfficiels) =>
-        supprimerOfficiel(
-          anciensOfficiels,
-          officiel.id
-        )
+      nom,
+
+      arbitre:
+        officielFormulaire.arbitre,
+
+      chronometreur:
+        officielFormulaire.chronometreur,
+
+      marqueur:
+        officielFormulaire.marqueur,
+
+      operateur30s:
+        officielFormulaire.operateur30s,
+
+      actif: true,
+    });
+
+  if (!resultat.succes) {
+    alert(
+      resultat.erreurs?.join("\n") ||
+        "Impossible d'ajouter l'officiel."
     );
 
-    setOfficielConsulte(null);
+    return;
   }
+
+  fermerEdition();
+}
+
+  async function demanderSuppression(
+  officiel
+) {
+  if (
+    !confirm(
+      `Supprimer ${officiel.nom} ?`
+    )
+  ) {
+    return;
+  }
+
+  const resultat =
+    await supprimerOfficiel(
+      officiel.id
+    );
+
+  if (!resultat.succes) {
+    alert(
+      resultat.erreurs?.join("\n") ||
+        "Impossible de supprimer l'officiel."
+    );
+
+    return;
+  }
+
+  setOfficielConsulte(null);
+}
 
   return (
     <section className="administration-contenu">

@@ -554,5 +554,54 @@ button {
     width: 100%;
   }
 }
+.grille-numeros-joueuses {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(64px, 1fr));
+  gap: 10px;
+  margin: 12px 0 18px;
+}
 
+.numero-joueuse {
+  min-height: 58px;
+  padding: 8px;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
 
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 1rem;
+}
+
+.numero-joueuse strong {
+  font-size: 1.25rem;
+}
+
+.numero-joueuse small {
+  margin-top: 3px;
+  font-weight: 700;
+}
+
+.numero-joueuse.selectionne {
+  border-color: currentColor;
+  background: #e9ecef;
+}
+
+.selection-but-resume {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0;
+}
+.selection-punition-resume {
+  display: grid;
+  gap: 6px;
+  margin: 14px 0;
+}
+.selection-tir-barrage-resume {
+  margin: 14px 0;
+}

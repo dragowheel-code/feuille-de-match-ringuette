@@ -13,11 +13,13 @@ export function obtenirStatutEnsembleChandails(
     ensemble.fonce?.etat ?? "";
 
   const clairManquant =
-    etatClair === "Manquant";
+    etatClair === "Perdu" ||
+    etatClair === "Retiré";
 
   const fonceManquant =
-    etatFonce === "Manquant";
-
+    etatFonce === "Perdu" ||
+    etatFonce === "Retiré";
+    
   if (clairManquant && fonceManquant) {
     return "perdu";
   }

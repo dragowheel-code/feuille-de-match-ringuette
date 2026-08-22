@@ -1,34 +1,137 @@
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import { supabase } from "../services/supabase";
+
+import {
   creerPantalons,
-  remplacerPantalons,
-  supprimerPantalons as retirerPantalons,
   validerPantalons,
 } from "../domain/equipements";
 
-import { useEtatPersistant } from "./useEtatPersistant";
-import { obtenirBaseDeDonnees } from "../services/baseDeDonneesV2";
+function convertirPantalonDepuisSupabase(
+  pantalon
+) {
+  return {
+    id:
+      pantalon.id,
+
+    associationId:
+      pantalon.association_id,
+
+    taille:
+      pantalon.taille ?? "",
+
+    quantiteStock:
+      Number(
+        pantalon.quantite_stock ?? 0
+      ),
+
+    actif:
+      pantalon.actif !== false,
+  };
+}
+
+function convertirPantalonVersSupabase(
+  pantalon
+) {
+  return {
+    id:
+      pantalon.id,
+
+    association_id:
+      pantalon.associationId,
+
+    taille:
+      pantalon.taille,
+
+    quantite_stock:
+      Number(
+        pantalon.quantiteStock ?? 0
+      ),
+
+    actif:
+      pantalon.actif !== false,
+  };
+}
 
 export function useGestionPantalons() {
   const [
     pantalons,
     setPantalons,
-  ] = useEtatPersistant(
-    "ringuette-v2-pantalons",
-    () => {
-      const baseDeDonnees =
-        obtenirBaseDeDonnees();
+  ] = useState([]);
 
-      return Array.isArray(
-        baseDeDonnees.pantalons
-      )
-        ? baseDeDonnees.pantalons
-        : [];
+  const [
+    chargement,
+    setChargement,
+  ] = useState(true);
+
+  const [
+    erreurChargement,
+    setErreurChargement,
+  ] = useState(null);
+
+  useEffect(() => {
+    async function chargerPantalons() {
+      setChargement(true);
+      setErreurChargement(null);
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from("pantalons")
+        .select("*")
+        .order("taille");
+
+      if (error) {
+        console.error(
+          "Erreur chargement pantalons :",
+          error
+        );
+
+        setErreurChargement(
+          error.message
+        );
+
+        setChargement(false);
+        return;
+      }
+
+      setPantalons(
+        (data ?? []).map(
+          convertirPantalonDepuisSupabase
+        )
+      );
+
+      setChargement(false);
     }
-  );
 
-  function ajouterPantalons(formulaire) {
+    chargerPantalons();
+  }, []);
+
+  function obtenirPantalonParId(
+    idPantalon
+  ) {
+    return (
+      pantalons.find(
+        (pantalon) =>
+          String(
+            pantalon.id
+          ) ===
+          String(idPantalon)
+      ) ?? null
+    );
+  }
+
+  async function ajouterPantalons(
+    formulaire
+  ) {
     const nouveauPantalon =
-      creerPantalons(formulaire);
+      creerPantalons(
+        formulaire
+      );
 
     const validation =
       validerPantalons(
@@ -40,30 +143,60 @@ export function useGestionPantalons() {
       return {
         succes: false,
         pantalon: null,
-        erreurs: validation.erreurs,
+        erreurs:
+          validation.erreurs,
       };
     }
 
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("pantalons")
+      .insert(
+        convertirPantalonVersSupabase(
+          nouveauPantalon
+        )
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        pantalon: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const pantalonCree =
+      convertirPantalonDepuisSupabase(
+        data
+      );
+
     setPantalons(
-      (pantalonsActuels) => [
-        ...pantalonsActuels,
-        nouveauPantalon,
+      (actuels) => [
+        ...actuels,
+        pantalonCree,
       ]
     );
 
     return {
       succes: true,
-      pantalon: nouveauPantalon,
+      pantalon:
+        pantalonCree,
       erreurs: [],
     };
   }
 
-  function modifierPantalons(formulaire) {
+  async function modifierPantalons(
+    formulaire
+  ) {
     const pantalonExistant =
-      pantalons.find(
-        (pantalon) =>
-          String(pantalon.id) ===
-          String(formulaire.id)
+      obtenirPantalonParId(
+        formulaire.id
       );
 
     if (!pantalonExistant) {
@@ -80,7 +213,8 @@ export function useGestionPantalons() {
       creerPantalons({
         ...pantalonExistant,
         ...formulaire,
-        id: pantalonExistant.id,
+        id:
+          pantalonExistant.id,
       });
 
     const validation =
@@ -93,34 +227,72 @@ export function useGestionPantalons() {
       return {
         succes: false,
         pantalon: null,
-        erreurs: validation.erreurs,
+        erreurs:
+          validation.erreurs,
       };
     }
 
-    setPantalons(
-      (pantalonsActuels) =>
-        remplacerPantalons(
-          pantalonsActuels,
-          pantalonExistant.id,
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("pantalons")
+      .update(
+        convertirPantalonVersSupabase(
           pantalonModifie
+        )
+      )
+      .eq(
+        "id",
+        pantalonModifie.id
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        pantalon: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const pantalonSauvegarde =
+      convertirPantalonDepuisSupabase(
+        data
+      );
+
+    setPantalons(
+      (actuels) =>
+        actuels.map(
+          (pantalon) =>
+            String(
+              pantalon.id
+            ) ===
+            String(
+              pantalonSauvegarde.id
+            )
+              ? pantalonSauvegarde
+              : pantalon
         )
     );
 
     return {
       succes: true,
-      pantalon: pantalonModifie,
+      pantalon:
+        pantalonSauvegarde,
       erreurs: [],
     };
   }
 
-  function supprimerPantalons(
+  async function supprimerPantalons(
     idPantalon
   ) {
     const pantalonExistant =
-      pantalons.find(
-        (pantalon) =>
-          String(pantalon.id) ===
-          String(idPantalon)
+      obtenirPantalonParId(
+        idPantalon
       );
 
     if (!pantalonExistant) {
@@ -133,25 +305,56 @@ export function useGestionPantalons() {
       };
     }
 
+    const {
+      error,
+    } = await supabase
+      .from("pantalons")
+      .delete()
+      .eq(
+        "id",
+        idPantalon
+      );
+
+    if (error) {
+      return {
+        succes: false,
+        pantalon: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
     setPantalons(
-      (pantalonsActuels) =>
-        retirerPantalons(
-          pantalonsActuels,
-          idPantalon
+      (actuels) =>
+        actuels.filter(
+          (pantalon) =>
+            String(
+              pantalon.id
+            ) !==
+            String(idPantalon)
         )
     );
 
     return {
       succes: true,
-      pantalon: pantalonExistant,
+      pantalon:
+        pantalonExistant,
       erreurs: [],
     };
   }
 
   return {
     pantalons,
+    setPantalons,
+
+    chargement,
+    erreurChargement,
+
     ajouterPantalons,
     modifierPantalons,
     supprimerPantalons,
+
+    obtenirPantalonParId,
   };
 }

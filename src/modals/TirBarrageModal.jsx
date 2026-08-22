@@ -11,57 +11,144 @@ export default function TirBarrageModal({
   confirmerTirBarrage,
   fermer,
 }) {
-  if (!ouverte) return null;
+  if (!ouverte) {
+    return null;
+  }
+
+  function cliquerJoueuse(joueuse) {
+    const numero =
+      String(joueuse.numero);
+
+    if (
+      String(joueuseTirBarrage) ===
+      numero
+    ) {
+      setJoueuseTirBarrage("");
+      return;
+    }
+
+    setJoueuseTirBarrage(
+      numero
+    );
+  }
+
+  function changerEquipe(
+    nouvelleEquipe
+  ) {
+    setEquipeTirBarrage(
+      nouvelleEquipe
+    );
+
+    setJoueuseTirBarrage("");
+  }
+
+  const joueuseSelectionnee =
+    joueusesTirBarrageDisponibles.find(
+      (joueuse) =>
+        String(joueuse.numero) ===
+        String(joueuseTirBarrage)
+    ) ?? null;
+
+  const joueusesTriees =
+    [...joueusesTirBarrageDisponibles].sort(
+      (a, b) =>
+        Number(a.numero) -
+        Number(b.numero)
+    );
 
   return (
     <div className="modal-backdrop">
       <div className="modal">
-        <h2>Ajouter un tir de barrage</h2>
+        <h2>
+          Ajouter un tir de barrage
+        </h2>
 
         <label>Équipe</label>
 
         <select
           value={equipeTirBarrage}
-          onChange={(e) => {
-            setEquipeTirBarrage(e.target.value);
-            setJoueuseTirBarrage("");
-          }}
+          onChange={(e) =>
+            changerEquipe(
+              e.target.value
+            )
+          }
         >
           <option value="Local">
-            {matchInfo.equipeLocale || "Local"}
+            {matchInfo.equipeLocale ||
+              "Local"}
           </option>
 
           <option value="Visiteur">
-            {matchInfo.equipeVisiteuse || "Visiteur"}
+            {matchInfo.equipeVisiteuse ||
+              "Visiteur"}
           </option>
         </select>
 
-        <label>Joueuse</label>
+        <div className="selection-tir-barrage-resume">
+          <strong>
+            Joueuse :
+          </strong>{" "}
+          {joueuseSelectionnee
+            ? `#${joueuseSelectionnee.numero} — ${joueuseSelectionnee.nom}`
+            : "—"}
+        </div>
 
-        <select
-          value={joueuseTirBarrage}
-          onChange={(e) =>
-            setJoueuseTirBarrage(e.target.value)
-          }
-        >
-          <option value="">Choisir une joueuse</option>
+        <p>
+          Cliquez sur le numéro de la
+          joueuse qui effectue le tir.
+        </p>
 
-          {joueusesTirBarrageDisponibles.map((joueuse) => (
-            <option
-              key={joueuse.id}
-              value={joueuse.numero}
-            >
-              #{joueuse.numero} — {joueuse.nom}
-            </option>
-          ))}
-        </select>
+        <div className="grille-numeros-joueuses">
+          {joueusesTriees.map(
+            (joueuse) => {
+              const selectionnee =
+                String(
+                  joueuse.numero
+                ) ===
+                String(
+                  joueuseTirBarrage
+                );
+
+              return (
+                <button
+                  key={joueuse.id}
+                  type="button"
+                  className={
+                    selectionnee
+                      ? "numero-joueuse selectionne"
+                      : "numero-joueuse"
+                  }
+                  onClick={() =>
+                    cliquerJoueuse(
+                      joueuse
+                    )
+                  }
+                >
+                  <strong>
+                    #{joueuse.numero}
+                  </strong>
+
+                  {selectionnee && (
+                    <small>
+                      Tir
+                    </small>
+                  )}
+                </button>
+              );
+            }
+          )}
+        </div>
 
         <label>
           <input
             type="checkbox"
-            checked={tirBarrageReussi}
+            checked={
+              tirBarrageReussi
+            }
             onChange={(e) =>
-              setTirBarrageReussi(e.target.checked)
+              setTirBarrageReussi(
+                e.target.checked
+              )
             }
           />
 
@@ -69,7 +156,11 @@ export default function TirBarrageModal({
         </label>
 
         <div className="modal-actions">
-          <button onClick={confirmerTirBarrage}>
+          <button
+            onClick={
+              confirmerTirBarrage
+            }
+          >
             Confirmer
           </button>
 

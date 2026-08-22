@@ -1,5 +1,6 @@
-import { ETATS_PANTALON } from "./etatsPantalons";
-import { TAILLES_PANTALON } from "./taillesPantalons";
+import {
+  TAILLES_PANTALON,
+} from "./taillesPantalons";
 
 export function validerPantalons(
   pantalon,
@@ -7,15 +8,11 @@ export function validerPantalons(
 ) {
   const erreurs = [];
 
-  if (!pantalon.associationId?.trim()) {
+  if (
+    !pantalon.associationId?.trim()
+  ) {
     erreurs.push(
       "L'association est obligatoire."
-    );
-  }
-
-  if (!pantalon.numero?.trim()) {
-    erreurs.push(
-      "Le numéro de pantalon est obligatoire."
     );
   }
 
@@ -34,36 +31,45 @@ export function validerPantalons(
   }
 
   if (
-    !ETATS_PANTALON.includes(
-      pantalon.etat
-    )
+    !Number.isInteger(
+      pantalon.quantiteStock
+    ) ||
+    pantalon.quantiteStock < 0
   ) {
     erreurs.push(
-      "L'état du pantalon est invalide."
+      "La quantité en stock doit être un nombre entier positif ou égal à zéro."
     );
   }
 
-  
   const doublonExiste =
     pantalonsExistants.some(
       (pantalonExistant) =>
-        pantalonExistant.id !== pantalon.id &&
-        pantalonExistant.associationId ===
-          pantalon.associationId &&
-        pantalonExistant.numero ===
-          pantalon.numero &&
+        String(
+          pantalonExistant.id
+        ) !==
+          String(pantalon.id) &&
+        String(
+          pantalonExistant.associationId
+        ) ===
+          String(
+            pantalon.associationId
+          ) &&
         pantalonExistant.taille ===
-          pantalon.taille
+          pantalon.taille &&
+        pantalonExistant.actif !==
+          false
     );
 
   if (doublonExiste) {
     erreurs.push(
-      "Un ensemble de pantalons avec ce numéro et cette taille existe déjà pour cette association."
+      "Cette taille existe déjà dans l'inventaire de cette association."
     );
   }
 
   return {
-    valide: erreurs.length === 0,
+    valide:
+      erreurs.length === 0,
+
     erreurs,
   };
 }

@@ -80,13 +80,16 @@ function ouvrirModificationAssociation(association) {
   setFenetreAssociationOuverte(true);
 }
 
-  function enregistrerAssociation(donneesAssociation) {
+  async function enregistrerAssociation(donneesAssociation) 
+  {
   const resultat = associationSelectionnee
-    ? modifierAssociation({
-        ...donneesAssociation,
-        id: associationSelectionnee.id,
-      })
-    : ajouterAssociation(donneesAssociation);
+  ? await modifierAssociation({
+      ...donneesAssociation,
+      id: associationSelectionnee.id,
+    })
+  : await ajouterAssociation(
+      donneesAssociation
+    );
 
   if (!resultat?.succes) {
     setErreursAssociation(
@@ -102,7 +105,8 @@ function ouvrirModificationAssociation(association) {
   setFenetreAssociationOuverte(false);
 }
 
-function demanderSuppression(association) {
+async function demanderSuppression(association) 
+{
   const confirmation = window.confirm(
     `Supprimer l'association « ${association.nom} » ?`
   );
@@ -111,7 +115,10 @@ function demanderSuppression(association) {
     return;
   }
 
-  const resultat = supprimerAssociation(association.id);
+  const resultat =
+  await supprimerAssociation(
+    association.id
+  );
 
   if (!resultat.succes) {
     window.alert(

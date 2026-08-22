@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import CarteEnsembleChandails from "./CarteEnsembleChandails";
 
 import {
@@ -14,52 +16,140 @@ function GrilleChandails({
     ensemblesParTaille
   ).sort(comparerTailles);
 
+  const [
+  taillesFermees,
+  setTaillesFermees,
+] = useState(
+  () => new Set(taillesTriees)
+);
+
+  function basculerTaille(taille) {
+    setTaillesFermees(
+      (precedentes) => {
+        const nouvelles =
+          new Set(precedentes);
+
+        if (
+          nouvelles.has(taille)
+        ) {
+          nouvelles.delete(taille);
+        } else {
+          nouvelles.add(taille);
+        }
+
+        return nouvelles;
+      }
+    );
+  }
+
+  function tailleEstOuverte(
+    taille
+  ) {
+    return !taillesFermees.has(
+      taille
+    );
+  }
+
   return (
     <section className="grille-chandails">
-      {taillesTriees.map((taille) => {
-        const ensembles =
-          ensemblesParTaille[taille];
+      {taillesTriees.map(
+        (taille) => {
+          const ensembles =
+            ensemblesParTaille[
+              taille
+            ];
 
-        return (
-          <section
-            key={taille}
-            className="groupe-taille"
-          >
-            <h2>{taille}</h2>
+          const ouverte =
+            tailleEstOuverte(
+              taille
+            );
 
-            <div className="groupe-cartes">
-              {ensembles.map((ensemble) => {
-                const attributionActive =
-                  attributionsChandails.find(
-                    (attribution) =>
-                      String(
-                        attribution.ensembleId
-                      ) ===
-                        String(ensemble.id) &&
-                      attribution.active === true
-                  ) ?? null;
+          return (
+            <section
+              key={taille}
+              className="groupe-taille"
+            >
+              <button
+                type="button"
+                className="groupe-taille-entete"
+                onClick={() =>
+                  basculerTaille(
+                    taille
+                  )
+                }
+              >
+                <span>
+                  {ouverte
+                    ? "▼"
+                    : "▶"}
+                </span>
 
-                return (
-                  <CarteEnsembleChandails
-                    key={ensemble.id}
-                    ensemble={ensemble}
-                    attributionActive={
-                      attributionActive
+                <strong>
+                  {taille}
+                </strong>
+
+                <span>
+                  {ensembles.length}{" "}
+                  ensemble
+                  {ensembles.length >
+                  1
+                    ? "s"
+                    : ""}
+                </span>
+              </button>
+
+              {ouverte && (
+                <div className="groupe-cartes">
+                  {ensembles.map(
+                    (ensemble) => {
+                      const attributionActive =
+                        attributionsChandails.find(
+                          (
+                            attribution
+                          ) =>
+                            String(
+                              attribution.ensembleId
+                            ) ===
+                              String(
+                                ensemble.id
+                              ) &&
+                            attribution.active ===
+                              true
+                        ) ?? null;
+
+                      return (
+                        <CarteEnsembleChandails
+                          key={
+                            ensemble.id
+                          }
+                          ensemble={
+                            ensemble
+                          }
+                          attributionActive={
+                            attributionActive
+                          }
+                          selectionne={
+                            String(
+                              ensembleSelectionne
+                                ?.id
+                            ) ===
+                            String(
+                              ensemble.id
+                            )
+                          }
+                          selectionner={
+                            selectionnerEnsemble
+                          }
+                        />
+                      );
                     }
-                    selectionne={
-                      ensembleSelectionne?.id ===
-                      ensemble.id
-                    }
-                    selectionner={
-                      selectionnerEnsemble
-                    }
-                  />
-                );
-              })}
-            </div>
-          </section>
-        );
-      })}
+                  )}
+                </div>
+              )}
+            </section>
+          );
+        }
+      )}
     </section>
   );
 }

@@ -85,47 +85,49 @@ function fermerFiche() {
     setFormulaire(null);
   }
 
-  function confirmer() {
-    if (!formulaire) {
-      return;
-    }
-
-    let resultat;
-
-    if (
-      formulaire.mode ===
-      "modification"
-    ) {
-      resultat =
-        modifierTournoi(
-          formulaire
-        );
-    } else {
-      resultat =
-        ajouterTournoi({
-          ...formulaire,
-          saisonId:
-            saisonActive?.id ?? "",
-          associationOrganisatriceId:
-            associationActive?.id ?? "",
-        });
-    }
-
-    if (!resultat.succes) {
-      alert(
-        resultat.erreurs?.join(
-          "\n"
-        ) ||
-          "Impossible d'enregistrer le tournoi."
-      );
-
-      return;
-    }
-
-    fermerModal();
+  async function confirmer() {
+  if (!formulaire) {
+    return;
   }
 
-  function supprimer(
+  let resultat;
+
+  if (
+    formulaire.mode ===
+    "modification"
+  ) {
+    resultat =
+      await modifierTournoi(
+        formulaire
+      );
+  } else {
+    resultat =
+      await ajouterTournoi({
+        ...formulaire,
+
+        saisonId:
+          saisonActive?.id ?? "",
+
+        associationOrganisatriceId:
+          associationActive?.id ?? "",
+      });
+  }
+
+  if (!resultat.succes) {
+    alert(
+      resultat.erreurs?.join(
+        "\n"
+      ) ||
+        "Impossible d'enregistrer le tournoi."
+    );
+
+    return;
+  }
+
+  fermerModal();
+}
+
+  async function supprimer(
   tournoi
 ) {
   if (
@@ -136,14 +138,32 @@ function fermerFiche() {
     return;
   }
 
-  const resultat =
-    supprimerTournoi(
+  const resultatInscriptions =
+    await supprimerInscriptionsTournoi(
       tournoi.id
     );
 
-  if (!resultat.succes) {
+  if (
+    !resultatInscriptions.succes
+  ) {
     alert(
-      resultat.erreurs?.join(
+      resultatInscriptions.erreurs?.join(
+        "\n"
+      ) ||
+        "Impossible de supprimer les inscriptions du tournoi."
+    );
+
+    return;
+  }
+
+  const resultatTournoi =
+    await supprimerTournoi(
+      tournoi.id
+    );
+
+  if (!resultatTournoi.succes) {
+    alert(
+      resultatTournoi.erreurs?.join(
         "\n"
       ) ||
         "Impossible de supprimer le tournoi."
@@ -151,10 +171,6 @@ function fermerFiche() {
 
     return;
   }
-
-  supprimerInscriptionsTournoi(
-    tournoi.id
-  );
 
   setTournoiConsulte(null);
 }

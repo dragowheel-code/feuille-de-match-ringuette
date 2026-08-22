@@ -1,4 +1,11 @@
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import { supabase } from "../services/supabase";
+
+import {
   creerInscriptionEquipeTournoi,
   creerInscriptionOfficielTournoi,
   supprimerInscriptionTournoi,
@@ -6,45 +13,122 @@ import {
   validerInscriptionOfficielTournoi,
 } from "../domain/tournois/inscriptions";
 
-import { useEtatPersistant } from "./useEtatPersistant";
-import { obtenirBaseDeDonnees } from "../services/baseDeDonneesV2";
+function convertirInscriptionEquipeDepuisSupabase(
+  inscription
+) {
+  return {
+    id: inscription.id,
+    tournoiId: inscription.tournoi_id,
+    equipeId: inscription.equipe_id,
+    actif: inscription.actif !== false,
+  };
+}
+
+function convertirInscriptionOfficielDepuisSupabase(
+  inscription
+) {
+  return {
+    id: inscription.id,
+    tournoiId: inscription.tournoi_id,
+    officielId: inscription.officiel_id,
+    actif: inscription.actif !== false,
+  };
+}
 
 export function useGestionInscriptionsTournoi() {
   const [
     inscriptionsEquipesTournoi,
     setInscriptionsEquipesTournoi,
-  ] = useEtatPersistant(
-    "ringuette-v2-inscriptions-equipes-tournoi",
-    () => {
-      const base =
-        obtenirBaseDeDonnees();
-
-      return Array.isArray(
-        base.inscriptionsEquipesTournoi
-      )
-        ? base.inscriptionsEquipesTournoi
-        : [];
-    }
-  );
+  ] = useState([]);
 
   const [
     inscriptionsOfficielsTournoi,
     setInscriptionsOfficielsTournoi,
-  ] = useEtatPersistant(
-    "ringuette-v2-inscriptions-officiels-tournoi",
-    () => {
-      const base =
-        obtenirBaseDeDonnees();
+  ] = useState([]);
 
-      return Array.isArray(
-        base.inscriptionsOfficielsTournoi
-      )
-        ? base.inscriptionsOfficielsTournoi
-        : [];
+  const [
+    chargement,
+    setChargement,
+  ] = useState(true);
+
+  const [
+    erreurChargement,
+    setErreurChargement,
+  ] = useState(null);
+
+  useEffect(() => {
+    async function chargerInscriptions() {
+      setChargement(true);
+      setErreurChargement(null);
+
+      const [
+        resultatEquipes,
+        resultatOfficiels,
+      ] = await Promise.all([
+        supabase
+          .from(
+            "inscriptions_equipes_tournoi"
+          )
+          .select("*"),
+
+        supabase
+          .from(
+            "inscriptions_officiels_tournoi"
+          )
+          .select("*"),
+      ]);
+
+      if (resultatEquipes.error) {
+        console.error(
+          "Erreur chargement inscriptions équipes :",
+          resultatEquipes.error
+        );
+
+        setErreurChargement(
+          resultatEquipes.error.message
+        );
+
+        setChargement(false);
+        return;
+      }
+
+      if (resultatOfficiels.error) {
+        console.error(
+          "Erreur chargement inscriptions officiels :",
+          resultatOfficiels.error
+        );
+
+        setErreurChargement(
+          resultatOfficiels.error.message
+        );
+
+        setChargement(false);
+        return;
+      }
+
+      setInscriptionsEquipesTournoi(
+        (
+          resultatEquipes.data ?? []
+        ).map(
+          convertirInscriptionEquipeDepuisSupabase
+        )
+      );
+
+      setInscriptionsOfficielsTournoi(
+        (
+          resultatOfficiels.data ?? []
+        ).map(
+          convertirInscriptionOfficielDepuisSupabase
+        )
+      );
+
+      setChargement(false);
     }
-  );
 
-  function inscrireEquipe({
+    chargerInscriptions();
+  }, []);
+
+  async function inscrireEquipe({
     tournoiId,
     equipeId,
   }) {
@@ -69,21 +153,57 @@ export function useGestionInscriptionsTournoi() {
       };
     }
 
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "inscriptions_equipes_tournoi"
+      )
+      .insert({
+        tournoi_id:
+          inscription.tournoiId,
+
+        equipe_id:
+          inscription.equipeId,
+
+        actif:
+          inscription.actif !== false,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        inscription: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const inscriptionCreee =
+      convertirInscriptionEquipeDepuisSupabase(
+        data
+      );
+
     setInscriptionsEquipesTournoi(
       (actuelles) => [
         ...actuelles,
-        inscription,
+        inscriptionCreee,
       ]
     );
 
     return {
       succes: true,
-      inscription,
+      inscription:
+        inscriptionCreee,
       erreurs: [],
     };
   }
 
-  function inscrireOfficiel({
+  async function inscrireOfficiel({
     tournoiId,
     officielId,
   }) {
@@ -108,21 +228,57 @@ export function useGestionInscriptionsTournoi() {
       };
     }
 
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "inscriptions_officiels_tournoi"
+      )
+      .insert({
+        tournoi_id:
+          inscription.tournoiId,
+
+        officiel_id:
+          inscription.officielId,
+
+        actif:
+          inscription.actif !== false,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        inscription: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const inscriptionCreee =
+      convertirInscriptionOfficielDepuisSupabase(
+        data
+      );
+
     setInscriptionsOfficielsTournoi(
       (actuelles) => [
         ...actuelles,
-        inscription,
+        inscriptionCreee,
       ]
     );
 
     return {
       succes: true,
-      inscription,
+      inscription:
+        inscriptionCreee,
       erreurs: [],
     };
   }
 
-  function retirerEquipe(
+  async function retirerEquipe(
     inscriptionId
   ) {
     const resultat =
@@ -135,6 +291,27 @@ export function useGestionInscriptionsTournoi() {
       return resultat;
     }
 
+    const {
+      error,
+    } = await supabase
+      .from(
+        "inscriptions_equipes_tournoi"
+      )
+      .delete()
+      .eq(
+        "id",
+        inscriptionId
+      );
+
+    if (error) {
+      return {
+        succes: false,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
     setInscriptionsEquipesTournoi(
       resultat.inscriptions
     );
@@ -142,7 +319,7 @@ export function useGestionInscriptionsTournoi() {
     return resultat;
   }
 
-  function retirerOfficiel(
+  async function retirerOfficiel(
     inscriptionId
   ) {
     const resultat =
@@ -155,11 +332,106 @@ export function useGestionInscriptionsTournoi() {
       return resultat;
     }
 
+    const {
+      error,
+    } = await supabase
+      .from(
+        "inscriptions_officiels_tournoi"
+      )
+      .delete()
+      .eq(
+        "id",
+        inscriptionId
+      );
+
+    if (error) {
+      return {
+        succes: false,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
     setInscriptionsOfficielsTournoi(
       resultat.inscriptions
     );
 
     return resultat;
+  }
+
+  async function supprimerInscriptionsTournoi(
+    tournoiId
+  ) {
+    const [
+      resultatEquipes,
+      resultatOfficiels,
+    ] = await Promise.all([
+      supabase
+        .from(
+          "inscriptions_equipes_tournoi"
+        )
+        .delete()
+        .eq(
+          "tournoi_id",
+          tournoiId
+        ),
+
+      supabase
+        .from(
+          "inscriptions_officiels_tournoi"
+        )
+        .delete()
+        .eq(
+          "tournoi_id",
+          tournoiId
+        ),
+    ]);
+
+    if (resultatEquipes.error) {
+      return {
+        succes: false,
+        erreurs: [
+          resultatEquipes.error.message,
+        ],
+      };
+    }
+
+    if (resultatOfficiels.error) {
+      return {
+        succes: false,
+        erreurs: [
+          resultatOfficiels.error.message,
+        ],
+      };
+    }
+
+    setInscriptionsEquipesTournoi(
+      (actuelles) =>
+        actuelles.filter(
+          (inscription) =>
+            String(
+              inscription.tournoiId
+            ) !==
+            String(tournoiId)
+        )
+    );
+
+    setInscriptionsOfficielsTournoi(
+      (actuelles) =>
+        actuelles.filter(
+          (inscription) =>
+            String(
+              inscription.tournoiId
+            ) !==
+            String(tournoiId)
+        )
+    );
+
+    return {
+      succes: true,
+      erreurs: [],
+    };
   }
 
   function obtenirEquipesTournoi(
@@ -227,53 +499,29 @@ export function useGestionInscriptionsTournoi() {
           String(officielId)
     );
   }
-function supprimerInscriptionsTournoi(
-  tournoiId
-) {
-  setInscriptionsEquipesTournoi(
-    (actuelles) =>
-      actuelles.filter(
-        (inscription) =>
-          String(
-            inscription.tournoiId
-          ) !== String(tournoiId)
-      )
-  );
-
-  setInscriptionsOfficielsTournoi(
-    (actuelles) =>
-      actuelles.filter(
-        (inscription) =>
-          String(
-            inscription.tournoiId
-          ) !== String(tournoiId)
-      )
-  );
 
   return {
-    succes: true,
-    erreurs: [],
+    inscriptionsEquipesTournoi,
+    setInscriptionsEquipesTournoi,
+
+    inscriptionsOfficielsTournoi,
+    setInscriptionsOfficielsTournoi,
+
+    chargement,
+    erreurChargement,
+
+    inscrireEquipe,
+    inscrireOfficiel,
+
+    retirerEquipe,
+    retirerOfficiel,
+
+    supprimerInscriptionsTournoi,
+
+    obtenirEquipesTournoi,
+    obtenirOfficielsTournoi,
+
+    equipeEstInscrite,
+    officielEstInscrit,
   };
-}
-  return {
-  inscriptionsEquipesTournoi,
-  setInscriptionsEquipesTournoi,
-
-  inscriptionsOfficielsTournoi,
-  setInscriptionsOfficielsTournoi,
-
-  inscrireEquipe,
-  inscrireOfficiel,
-
-  retirerEquipe,
-  retirerOfficiel,
-
-  supprimerInscriptionsTournoi,
-
-  obtenirEquipesTournoi,
-  obtenirOfficielsTournoi,
-
-  equipeEstInscrite,
-  officielEstInscrit,
-};
 }

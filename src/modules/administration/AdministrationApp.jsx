@@ -17,9 +17,8 @@ import GestionOfficiels from "../../components/administration/officiels/GestionO
 import GestionTournois from "../../components/administration/tournois/GestionTournois";
 // Hooks //
 import { useGestionSaisons } from "../../hooks/useGestionSaisons";
-import { useGestionChandails } from "../../hooks/useGestionChandails";
 import { useGestionPantalons } from "../../hooks/useGestionPantalons";
-import { useGestionAttributionsChandails } from "../../hooks/useGestionAttributionsChandails";
+import { useGestionPantalonsJoueuses } from "../../hooks/useGestionPantalonsJoueuses";
 
 const PAGES_ADMINISTRATION = {
   ACCUEIL: "accueil",
@@ -45,22 +44,28 @@ function AdministrationApp({
   gestionAffectations,
   gestionTournois,
   gestionInscriptionsTournoi,
-
+  gestionOfficiels,
   gestionPersonnelEquipe,
   gestionAffectationsPersonnel,
-
-  officiels,
-  setOfficiels,
-}) {
+  gestionChandails,
+  gestionAttributionsChandails,
+  }) {
   
   const [pageActive, setPageActive] = useState(
     PAGES_ADMINISTRATION.ACCUEIL
   );
  
   const gestionSaisons = useGestionSaisons();
-  const gestionChandails = useGestionChandails();
-  const gestionAttributionsChandails = useGestionAttributionsChandails();
   const gestionPantalons = useGestionPantalons();
+  const gestionPantalonsJoueuses =
+  useGestionPantalonsJoueuses({
+    pantalons:
+      gestionPantalons.pantalons,
+
+    setPantalons:
+      gestionPantalons.setPantalons,
+  });
+  
   const associationActive = gestionAssociations.obtenirAssociationActive();
   const saisonActive = gestionSaisons.obtenirSaisonActive();
   
@@ -196,9 +201,10 @@ if (sectionId === "tournois") {
 )}
 {pageActive === PAGES_ADMINISTRATION.SAISONS && (
   <GestionSaisons
-    retour={retournerAccueilAdministration}
-    gestionSaisons={gestionSaisons}
-  />
+  retour={retournerAccueilAdministration}
+  associationActive={associationActive}
+  gestionSaisons={gestionSaisons}
+/>
 )}
 {pageActive === PAGES_ADMINISTRATION.AFFECTATIONS && (
   <GestionAffectations
@@ -222,7 +228,6 @@ if (sectionId === "tournois") {
   <GestionJoueuses
   retour={retournerAccueilAdministration}
   associations={gestionAssociations.associations}
-  equipes={gestionEquipes.equipes}
   gestionJoueuses={gestionJoueuses}
 />
 )}
@@ -241,8 +246,13 @@ if (sectionId === "tournois") {
   saisonActive={saisonActive}
   saisons={gestionSaisons.saisons}
   gestionChandails={gestionChandails}
-  gestionAttributionsChandails={ gestionAttributionsChandails }
+  gestionAttributionsChandails={
+    gestionAttributionsChandails
+  }
   gestionJoueuses={gestionJoueuses}
+  affectations={
+    gestionAffectations.affectations
+  }
 />
 )}
 {pageActive ===
@@ -250,7 +260,9 @@ if (sectionId === "tournois") {
   <GestionPantalons
   retour={retournerEquipements}
   associationActive={associationActive}
+  joueuses={gestionJoueuses.joueuses}
   gestionPantalons={gestionPantalons}
+  gestionPantalonsJoueuses={gestionPantalonsJoueuses}
 />
 )}
 {pageActive ===
@@ -282,10 +294,15 @@ if (sectionId === "tournois") {
 {pageActive ===
   PAGES_ADMINISTRATION.OFFICIELS && (
   <GestionOfficiels
-  retour={ retournerAccueilAdministration }
-  associationActive={ associationActive }
-  officiels={officiels}
-  setOfficiels={setOfficiels}
+  retour={
+    retournerAccueilAdministration
+  }
+  associationActive={
+    associationActive
+  }
+  gestionOfficiels={
+    gestionOfficiels
+  }
 />
 )}
 {pageActive ===
@@ -296,11 +313,9 @@ if (sectionId === "tournois") {
   saisonActive={saisonActive}
   associations={gestionAssociations.associations}
   equipes={gestionEquipes.equipes}
-  officiels={officiels}
+  officiels={gestionOfficiels.officiels}
   gestionTournois={gestionTournois}
-  gestionInscriptionsTournoi={
-    gestionInscriptionsTournoi
-  }
+  gestionInscriptionsTournoi={gestionInscriptionsTournoi}
 />
 )}
   {pageActive === PAGES_ADMINISTRATION.IMPORTATION && (
@@ -308,7 +323,7 @@ if (sectionId === "tournois") {
   retournerAccueil={retournerAccueilAdministration}
   associationActive={associationActive}
   joueuses={gestionJoueuses.joueuses}
-  setJoueuses={gestionJoueuses.setJoueuses}
+  importerJoueuses={gestionJoueuses.importerJoueuses}
 />
       )}
     </main>

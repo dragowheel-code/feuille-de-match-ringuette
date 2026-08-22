@@ -1,31 +1,162 @@
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import { supabase } from "../services/supabase";
+
+import {
   attribuerEnsembleChandail,
   terminerAttributionChandail,
   libererAttributionChandail,
 } from "../domain/equipements/attributionsChandails";
 
-import { useEtatPersistant } from "./useEtatPersistant";
-import { obtenirBaseDeDonnees } from "../services/baseDeDonneesV2";
+function convertirAttributionDepuisSupabase(
+  attribution
+) {
+  return {
+    id:
+      attribution.id,
+
+    ensembleId:
+      attribution.ensemble_id,
+
+    joueuseId:
+      attribution.joueuse_id ?? "",
+
+    saisonId:
+      attribution.saison_id ?? "",
+
+    affectationId:
+      attribution.affectation_id ??
+      null,
+
+    dateAttribution:
+      attribution.date_attribution ??
+      "",
+
+    dateRetour:
+      attribution.date_retour ??
+      null,
+
+    active:
+      attribution.active === true,
+
+    commentaire:
+      attribution.commentaire ?? "",
+
+    typeFin:
+      attribution.type_fin ?? null,
+  };
+}
+
+function convertirAttributionVersSupabase(
+  attribution
+) {
+  return {
+    id:
+      attribution.id,
+
+    ensemble_id:
+      attribution.ensembleId,
+
+    joueuse_id:
+      attribution.joueuseId ||
+      null,
+
+    saison_id:
+      attribution.saisonId ||
+      null,
+
+    affectation_id:
+      attribution.affectationId ||
+      null,
+
+    date_attribution:
+      attribution.dateAttribution,
+
+    date_retour:
+      attribution.dateRetour ||
+      null,
+
+    active:
+      attribution.active === true,
+
+    commentaire:
+      attribution.commentaire ||
+      null,
+
+    type_fin:
+      attribution.typeFin ||
+      null,
+  };
+}
 
 export function useGestionAttributionsChandails() {
   const [
     attributionsChandails,
     setAttributionsChandails,
-  ] = useEtatPersistant(
-    "ringuette-v2-attributions-chandails",
-    () => {
-      const baseDeDonnees =
-        obtenirBaseDeDonnees();
+  ] = useState([]);
 
-      return Array.isArray(
-        baseDeDonnees.attributionsChandails
-      )
-        ? baseDeDonnees.attributionsChandails
-        : [];
+  const [
+    chargement,
+    setChargement,
+  ] = useState(true);
+
+  const [
+    erreurChargement,
+    setErreurChargement,
+  ] = useState(null);
+
+  useEffect(() => {
+    async function chargerAttributions() {
+      setChargement(true);
+      setErreurChargement(null);
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from(
+          "attributions_chandails"
+        )
+        .select("*")
+        .order(
+          "date_attribution",
+          {
+            ascending: false,
+          }
+        );
+
+      if (error) {
+        console.error(
+          "Erreur chargement attributions chandails :",
+          error
+        );
+
+        setErreurChargement(
+          error.message
+        );
+
+        setChargement(false);
+        return;
+      }
+
+      setAttributionsChandails(
+        (data ?? []).map(
+          convertirAttributionDepuisSupabase
+        )
+      );
+
+      setChargement(false);
     }
-  );
 
-  function distribuerEnsemble(formulaire) {
+    chargerAttributions();
+  }, []);
+
+  async function distribuerEnsemble(
+    formulaire
+  ) {
     const resultat =
       attribuerEnsembleChandail(
         formulaire,
@@ -36,25 +167,67 @@ export function useGestionAttributionsChandails() {
       return resultat;
     }
 
+    const attribution =
+      resultat.attribution;
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "attributions_chandails"
+      )
+      .insert(
+        convertirAttributionVersSupabase(
+          attribution
+        )
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        attribution: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const attributionCreee =
+      convertirAttributionDepuisSupabase(
+        data
+      );
+
     setAttributionsChandails(
-      (attributionsActuelles) => [
-        ...attributionsActuelles,
-        resultat.attribution,
+      (actuelles) => [
+        ...actuelles,
+        attributionCreee,
       ]
     );
 
-    return resultat;
+    return {
+      succes: true,
+      attribution:
+        attributionCreee,
+      erreurs: [],
+    };
   }
 
-  function libererEnsemble(
+  async function libererEnsemble(
     attributionId,
     donneesLiberation = {}
   ) {
     const attributionExistante =
       attributionsChandails.find(
         (attribution) =>
-          String(attribution.id) ===
-          String(attributionId)
+          String(
+            attribution.id
+          ) ===
+          String(
+            attributionId
+          )
       );
 
     if (!attributionExistante) {
@@ -77,29 +250,79 @@ export function useGestionAttributionsChandails() {
       return resultat;
     }
 
+    const attributionLiberee =
+      resultat.attribution;
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "attributions_chandails"
+      )
+      .update(
+        convertirAttributionVersSupabase(
+          attributionLiberee
+        )
+      )
+      .eq(
+        "id",
+        attributionId
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        attribution: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const attributionSauvegardee =
+      convertirAttributionDepuisSupabase(
+        data
+      );
+
     setAttributionsChandails(
-      (attributionsActuelles) =>
-        attributionsActuelles.map(
+      (actuelles) =>
+        actuelles.map(
           (attribution) =>
-            String(attribution.id) ===
-            String(attributionId)
-              ? resultat.attribution
+            String(
+              attribution.id
+            ) ===
+            String(
+              attributionId
+            )
+              ? attributionSauvegardee
               : attribution
         )
     );
 
-    return resultat;
+    return {
+      succes: true,
+      attribution:
+        attributionSauvegardee,
+      erreurs: [],
+    };
   }
 
-  function retournerEnsemble(
+  async function retournerEnsemble(
     attributionId,
     donneesRetour = {}
   ) {
     const attributionExistante =
       attributionsChandails.find(
         (attribution) =>
-          String(attribution.id) ===
-          String(attributionId)
+          String(
+            attribution.id
+          ) ===
+          String(
+            attributionId
+          )
       );
 
     if (!attributionExistante) {
@@ -118,13 +341,58 @@ export function useGestionAttributionsChandails() {
         donneesRetour
       );
 
+    const attributionRetournee = {
+      ...attributionTerminee,
+
+      typeFin:
+        "RETOUR",
+    };
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "attributions_chandails"
+      )
+      .update(
+        convertirAttributionVersSupabase(
+          attributionRetournee
+        )
+      )
+      .eq(
+        "id",
+        attributionId
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        attribution: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const attributionSauvegardee =
+      convertirAttributionDepuisSupabase(
+        data
+      );
+
     setAttributionsChandails(
-      (attributionsActuelles) =>
-        attributionsActuelles.map(
+      (actuelles) =>
+        actuelles.map(
           (attribution) =>
-            String(attribution.id) ===
-            String(attributionId)
-              ? attributionTerminee
+            String(
+              attribution.id
+            ) ===
+            String(
+              attributionId
+            )
+              ? attributionSauvegardee
               : attribution
         )
     );
@@ -132,20 +400,24 @@ export function useGestionAttributionsChandails() {
     return {
       succes: true,
       attribution:
-        attributionTerminee,
+        attributionSauvegardee,
       erreurs: [],
     };
   }
 
-  function rattacherAffectation(
+  async function rattacherAffectation(
     attributionId,
     affectationId
   ) {
     const attributionExistante =
       attributionsChandails.find(
         (attribution) =>
-          String(attribution.id) ===
-          String(attributionId)
+          String(
+            attribution.id
+          ) ===
+          String(
+            attributionId
+          )
       );
 
     if (!attributionExistante) {
@@ -158,20 +430,50 @@ export function useGestionAttributionsChandails() {
       };
     }
 
-    const attributionModifiee = {
-      ...attributionExistante,
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "attributions_chandails"
+      )
+      .update({
+        affectation_id:
+          affectationId || null,
+      })
+      .eq(
+        "id",
+        attributionId
+      )
+      .select()
+      .single();
 
-      affectationId:
-        affectationId || null,
-    };
+    if (error) {
+      return {
+        succes: false,
+        attribution: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const attributionSauvegardee =
+      convertirAttributionDepuisSupabase(
+        data
+      );
 
     setAttributionsChandails(
-      (attributionsActuelles) =>
-        attributionsActuelles.map(
+      (actuelles) =>
+        actuelles.map(
           (attribution) =>
-            String(attribution.id) ===
-            String(attributionId)
-              ? attributionModifiee
+            String(
+              attribution.id
+            ) ===
+            String(
+              attributionId
+            )
+              ? attributionSauvegardee
               : attribution
         )
     );
@@ -179,7 +481,7 @@ export function useGestionAttributionsChandails() {
     return {
       succes: true,
       attribution:
-        attributionModifiee,
+        attributionSauvegardee,
       erreurs: [],
     };
   }
@@ -187,6 +489,9 @@ export function useGestionAttributionsChandails() {
   return {
     attributionsChandails,
     setAttributionsChandails,
+
+    chargement,
+    erreurChargement,
 
     distribuerEnsemble,
     libererEnsemble,

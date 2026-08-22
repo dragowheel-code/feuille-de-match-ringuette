@@ -225,127 +225,144 @@ const nomB = [
     );
   }
 
-  function enregistrer() {
-    setMessage("");
+  async function enregistrer() {
+  setMessage("");
 
-    if (
-      !associationActive ||
-      !saisonActive ||
-      !equipeId
-    ) {
-      setMessage(
-        "Veuillez sélectionner une équipe."
-      );
-      return;
-    }
+  if (
+    !associationActive ||
+    !saisonActive ||
+    !equipeId
+  ) {
+    setMessage(
+      "Veuillez sélectionner une équipe."
+    );
 
-    const nouvellesAffectations = [
-      {
-        personnelId:
-          entraineurChefId,
-        role:
-          ROLES.ENTRAINEUR_CHEF,
-      },
-      {
-        personnelId:
-          entraineurAdjoint1Id,
-        role:
-          ROLES.ENTRAINEUR_ADJOINT,
-      },
-      {
-        personnelId:
-          entraineurAdjoint2Id,
-        role:
-          ROLES.ENTRAINEUR_ADJOINT,
-      },
-      {
-        personnelId: geranteId,
-        role: ROLES.GERANTE,
-      },
-    ].filter(
+    return;
+  }
+
+  const nouvellesAffectations = [
+    {
+      personnelId:
+        entraineurChefId,
+      role:
+        ROLES.ENTRAINEUR_CHEF,
+    },
+    {
+      personnelId:
+        entraineurAdjoint1Id,
+      role:
+        ROLES.ENTRAINEUR_ADJOINT,
+    },
+    {
+      personnelId:
+        entraineurAdjoint2Id,
+      role:
+        ROLES.ENTRAINEUR_ADJOINT,
+    },
+    {
+      personnelId:
+        geranteId,
+      role:
+        ROLES.GERANTE,
+    },
+  ].filter(
+    (affectation) =>
+      affectation.personnelId
+  );
+
+  const idsSelectionnes =
+    nouvellesAffectations.map(
       (affectation) =>
         affectation.personnelId
     );
 
-    const idsSelectionnes =
-      nouvellesAffectations.map(
-        (affectation) =>
-          affectation.personnelId
-      );
+  const idsUniques =
+    new Set(idsSelectionnes);
 
-    const idsUniques =
-      new Set(idsSelectionnes);
+  if (
+    idsUniques.size !==
+    idsSelectionnes.length
+  ) {
+    setMessage(
+      "Une même personne ne peut pas être sélectionnée deux fois dans cette équipe."
+    );
+
+    return;
+  }
+
+  const affectationsActuelles =
+    affectationsPersonnel.filter(
+      (affectation) =>
+        String(
+          affectation.equipeId
+        ) ===
+          String(equipeId) &&
+        String(
+          affectation.saisonId
+        ) ===
+          String(saisonActive.id)
+    );
+
+  for (
+    const affectation
+    of affectationsActuelles
+  ) {
+    const resultatSuppression =
+      await supprimerAffectation(
+        affectation.id
+      );
 
     if (
-      idsUniques.size !==
-      idsSelectionnes.length
+      resultatSuppression?.succes ===
+      false
     ) {
       setMessage(
-        "Une même personne ne peut pas être sélectionnée deux fois dans cette équipe."
+        resultatSuppression.erreurs?.join(
+          " "
+        ) ||
+          "Impossible de modifier les affectations existantes."
       );
+
       return;
     }
+  }
 
-    const affectationsActuelles =
-      affectationsPersonnel.filter(
-        (affectation) =>
-          affectation.equipeId ===
-            equipeId &&
-          affectation.saisonId ===
-            saisonActive.id
+  for (
+    const affectation
+    of nouvellesAffectations
+  ) {
+    const resultat =
+      await ajouterAffectation({
+        saisonId:
+          saisonActive.id,
+
+        equipeId,
+
+        personnelId:
+          affectation.personnelId,
+
+        role:
+          affectation.role,
+
+        actif: true,
+      });
+
+    if (!resultat.succes) {
+      setMessage(
+        resultat.erreurs?.join(
+          " "
+        ) ||
+          "Impossible d'enregistrer les affectations."
       );
 
-    for (const affectation of affectationsActuelles) {
-      const resultatSuppression =
-        supprimerAffectation(
-          affectation.id
-        );
-
-      if (
-        resultatSuppression?.succes ===
-        false
-      ) {
-        setMessage(
-          resultatSuppression.erreurs?.join(
-            " "
-          ) ||
-            "Impossible de modifier les affectations existantes."
-        );
-
-        return;
-      }
+      return;
     }
-
-    for (const affectation of nouvellesAffectations) {
-      const resultat =
-        ajouterAffectation({
-          associationId:
-            associationActive.id,
-          saisonId:
-            saisonActive.id,
-          equipeId,
-          personnelId:
-            affectation.personnelId,
-          role:
-            affectation.role,
-        });
-
-      if (!resultat.succes) {
-        setMessage(
-          resultat.erreurs?.join(
-            " "
-          ) ||
-            "Impossible d'enregistrer les affectations."
-        );
-
-        return;
-      }
-    }
-
-    setMessage(
-      "Les affectations ont été enregistrées."
-    );
   }
+
+  setMessage(
+    "Les affectations ont été enregistrées."
+  );
+}
 
   if (!associationActive) {
     return (

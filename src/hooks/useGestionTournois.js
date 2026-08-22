@@ -1,32 +1,132 @@
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import { supabase } from "../services/supabase";
+
+import {
   creerTournoi,
   modifierTournoi,
   supprimerTournoi,
   validerTournoi,
 } from "../domain/tournois";
 
-import { useEtatPersistant } from "./useEtatPersistant";
-import { obtenirBaseDeDonnees } from "../services/baseDeDonneesV2";
+function convertirTournoiDepuisSupabase(
+  tournoi
+) {
+  return {
+    id:
+      tournoi.id,
+
+    saisonId:
+      tournoi.saison_id,
+
+    associationOrganisatriceId:
+      tournoi.association_id,
+
+    nom:
+      tournoi.nom ?? "",
+
+    dateDebut:
+      tournoi.date_debut ?? "",
+
+    dateFin:
+      tournoi.date_fin ?? "",
+
+    actif:
+      tournoi.actif !== false,
+  };
+}
+
+function convertirTournoiVersSupabase(
+  tournoi
+) {
+  return {
+    id:
+      tournoi.id,
+
+    saison_id:
+      tournoi.saisonId,
+
+    association_id:
+      tournoi.associationOrganisatriceId,
+
+    nom:
+      tournoi.nom,
+
+    date_debut:
+      tournoi.dateDebut || null,
+
+    date_fin:
+      tournoi.dateFin || null,
+
+    actif:
+      tournoi.actif !== false,
+  };
+}
 
 export function useGestionTournois() {
   const [
     tournois,
     setTournois,
-  ] = useEtatPersistant(
-    "ringuette-v2-tournois",
-    () => {
-      const base =
-        obtenirBaseDeDonnees();
+  ] = useState([]);
 
-      return Array.isArray(
-        base.tournois
-      )
-        ? base.tournois
-        : [];
+  const [
+    chargement,
+    setChargement,
+  ] = useState(true);
+
+  const [
+    erreurChargement,
+    setErreurChargement,
+  ] = useState(null);
+
+  useEffect(() => {
+    async function chargerTournois() {
+      setChargement(true);
+      setErreurChargement(null);
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from("tournois")
+        .select("*")
+        .order(
+          "date_debut",
+          {
+            ascending: false,
+          }
+        );
+
+      if (error) {
+        console.error(
+          "Erreur chargement tournois :",
+          error
+        );
+
+        setErreurChargement(
+          error.message
+        );
+
+        setChargement(false);
+        return;
+      }
+
+      setTournois(
+        (data ?? []).map(
+          convertirTournoiDepuisSupabase
+        )
+      );
+
+      setChargement(false);
     }
-  );
 
-  function ajouterTournoi(
+    chargerTournois();
+  }, []);
+
+  async function ajouterTournoi(
     formulaire
   ) {
     const tournoi =
@@ -49,23 +149,82 @@ export function useGestionTournois() {
       };
     }
 
+    const donneesSupabase =
+      convertirTournoiVersSupabase(
+        tournoi
+      );
+
+    /*
+     * Pour un ajout, on laisse
+     * Supabase générer l'UUID.
+     */
+    delete donneesSupabase.id;
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("tournois")
+      .insert(
+        donneesSupabase
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        tournoi: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const tournoiCree =
+      convertirTournoiDepuisSupabase(
+        data
+      );
+
     setTournois(
       (actuels) => [
         ...actuels,
-        tournoi,
+        tournoiCree,
       ]
     );
 
     return {
       succes: true,
-      tournoi,
+      tournoi:
+        tournoiCree,
       erreurs: [],
     };
   }
 
-  function modifierTournoiExistant(
+  async function modifierTournoiExistant(
     formulaire
   ) {
+    const tournoiExistant =
+      tournois.find(
+        (tournoi) =>
+          String(
+            tournoi.id
+          ) ===
+          String(
+            formulaire.id
+          )
+      );
+
+    if (!tournoiExistant) {
+      return {
+        succes: false,
+        tournoi: null,
+        erreurs: [
+          "Le tournoi est introuvable.",
+        ],
+      };
+    }
+
     const resultat =
       modifierTournoi(
         tournois,
@@ -76,16 +235,88 @@ export function useGestionTournois() {
       return resultat;
     }
 
+    const tournoiModifie =
+      resultat.tournoi;
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("tournois")
+      .update(
+        convertirTournoiVersSupabase(
+          tournoiModifie
+        )
+      )
+      .eq(
+        "id",
+        tournoiModifie.id
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        tournoi: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const tournoiSauvegarde =
+      convertirTournoiDepuisSupabase(
+        data
+      );
+
     setTournois(
-      resultat.tournois
+      (actuels) =>
+        actuels.map(
+          (tournoi) =>
+            String(
+              tournoi.id
+            ) ===
+            String(
+              tournoiSauvegarde.id
+            )
+              ? tournoiSauvegarde
+              : tournoi
+        )
     );
 
-    return resultat;
+    return {
+      succes: true,
+      tournoi:
+        tournoiSauvegarde,
+      erreurs: [],
+    };
   }
 
-  function supprimerTournoiExistant(
+  async function supprimerTournoiExistant(
     tournoiId
   ) {
+    const tournoiExistant =
+      tournois.find(
+        (tournoi) =>
+          String(
+            tournoi.id
+          ) ===
+          String(
+            tournoiId
+          )
+      );
+
+    if (!tournoiExistant) {
+      return {
+        succes: false,
+        tournoi: null,
+        erreurs: [
+          "Le tournoi est introuvable.",
+        ],
+      };
+    }
+
     const resultat =
       supprimerTournoi(
         tournois,
@@ -96,11 +327,45 @@ export function useGestionTournois() {
       return resultat;
     }
 
+    const {
+      error,
+    } = await supabase
+      .from("tournois")
+      .delete()
+      .eq(
+        "id",
+        tournoiId
+      );
+
+    if (error) {
+      return {
+        succes: false,
+        tournoi: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
     setTournois(
-      resultat.tournois
+      (actuels) =>
+        actuels.filter(
+          (tournoi) =>
+            String(
+              tournoi.id
+            ) !==
+            String(
+              tournoiId
+            )
+        )
     );
 
-    return resultat;
+    return {
+      succes: true,
+      tournoi:
+        tournoiExistant,
+      erreurs: [],
+    };
   }
 
   function obtenirTournoiParId(
@@ -109,8 +374,12 @@ export function useGestionTournois() {
     return (
       tournois.find(
         (tournoi) =>
-          String(tournoi.id) ===
-          String(tournoiId)
+          String(
+            tournoi.id
+          ) ===
+          String(
+            tournoiId
+          )
       ) ?? null
     );
   }
@@ -127,7 +396,9 @@ export function useGestionTournois() {
         String(
           tournoi.associationOrganisatriceId
         ) ===
-        String(associationId)
+        String(
+          associationId
+        )
     );
   }
 
@@ -143,7 +414,9 @@ export function useGestionTournois() {
         String(
           tournoi.saisonId
         ) ===
-        String(saisonId)
+        String(
+          saisonId
+        )
     );
   }
 
@@ -176,7 +449,9 @@ export function useGestionTournois() {
           String(
             tournoi.saisonId
           ) !==
-            String(saisonId)
+            String(
+              saisonId
+            )
         ) {
           return false;
         }
@@ -190,9 +465,14 @@ export function useGestionTournois() {
     tournois,
     setTournois,
 
+    chargement,
+    erreurChargement,
+
     ajouterTournoi,
+
     modifierTournoi:
       modifierTournoiExistant,
+
     supprimerTournoi:
       supprimerTournoiExistant,
 

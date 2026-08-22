@@ -1,7 +1,6 @@
 function ListeJoueuses({
   joueuses = [],
   associations = [],
-  equipes = [],
   modifierJoueuse,
   demanderSuppression,
 }) {
@@ -16,14 +15,8 @@ function ListeJoueuses({
   function obtenirAssociation(joueuse) {
     return associations.find(
       (association) =>
-        association.id === joueuse.associationId
-    );
-  }
-
-  function obtenirEquipe(joueuse) {
-    return equipes.find(
-      (equipe) =>
-        equipe.id === joueuse.equipeId
+        String(association.id) ===
+        String(joueuse.associationId)
     );
   }
 
@@ -33,24 +26,22 @@ function ListeJoueuses({
         const association =
           obtenirAssociation(joueuse);
 
-        const equipe = obtenirEquipe(joueuse);
-
         return (
           <article
             key={joueuse.id}
             className="joueuse-carte"
           >
             <div className="joueuse-carte-informations">
-              <h3>{joueuse.nomComplet}</h3>
+              <h3>
+                {joueuse.nomComplet}
+              </h3>
 
               <p>
-                <strong>Association :</strong>{" "}
-                {association?.nom || "Non définie"}
-              </p>
-
-              <p>
-                <strong>Équipe :</strong>{" "}
-                {equipe?.nom || "Non définie"}
+                <strong>
+                  Association :
+                </strong>{" "}
+                {association?.nom ||
+                  "Non définie"}
               </p>
 
               <p>
@@ -62,14 +53,20 @@ function ListeJoueuses({
               </p>
 
               <p>
-                <strong>Catégorie :</strong>{" "}
-                {joueuse.categorie ||
+                <strong>
+                  Date de naissance :
+                </strong>{" "}
+                {joueuse.dateNaissance ||
                   "Non définie"}
               </p>
 
               <p>
-                <strong>Saison :</strong>{" "}
-                {joueuse.saison || "Non définie"}
+                <strong>
+                  Statut :
+                </strong>{" "}
+                {joueuse.active !== false
+                  ? "Active"
+                  : "Inactive"}
               </p>
             </div>
 
@@ -86,7 +83,9 @@ function ListeJoueuses({
               <button
                 type="button"
                 onClick={() =>
-                  demanderSuppression(joueuse)
+                  demanderSuppression(
+                    joueuse
+                  )
                 }
               >
                 Supprimer

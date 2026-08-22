@@ -2,11 +2,17 @@ import { useState } from "react";
 
 import ListePantalons from "./ListePantalons";
 import PantalonsModal from "./PantalonsModal";
+import RemisePantalonModal from "./RemisePantalonModal";
+import ListeRemisesPantalons from "./ListeRemisesPantalons";
 
 function GestionPantalons({
   retour,
   associationActive,
+
+  joueuses = [],
+
   gestionPantalons,
+  gestionPantalonsJoueuses,
 }) {
   const {
     pantalons = [],
@@ -30,17 +36,47 @@ function GestionPantalons({
     setPantalonSelectionne,
   ] = useState(null);
 
+  const [
+  fenetreRemiseOuverte,
+  setFenetreRemiseOuverte,
+] = useState(false);
+
+const [
+  erreursRemise,
+  setErreursRemise,
+] = useState([]);
+
+const formulaireRemiseInitial = {
+  equipeId: "",
+  affectationId: "",
+  pantalonId: "",
+  quantite: 1,
+
+  dateRemise:
+    new Date()
+      .toISOString()
+      .slice(0, 10),
+
+  remplacement: false,
+  commentaire: "",
+};
+
+const [
+  formulaireRemise,
+  setFormulaireRemise,
+] = useState(
+  formulaireRemiseInitial
+);
+
   const formulairePantalonsInitial = {
-    associationId:
-      associationActive?.id || "",
+  associationId:
+    associationActive?.id || "",
 
-    numero: "",
-    taille: "",
-    etat: "Bon",
-    notes: "",
+  taille: "",
+  quantiteStock: 0,
 
-    actif: true,
-  };
+  actif: true,
+};
 
   const [
     formulairePantalons,
@@ -55,6 +91,15 @@ function GestionPantalons({
             String(associationActive.id)
         )
       : [];
+
+      const joueusesAssociation =
+  associationActive
+    ? joueuses.filter(
+        (joueuse) =>
+          String(joueuse.associationId) ===
+          String(associationActive.id)
+      )
+    : [];
 
   function ouvrirAjoutPantalons() {
     setErreursPantalons([]);
@@ -77,16 +122,18 @@ function GestionPantalons({
     setPantalonSelectionne(pantalon);
 
     setFormulairePantalons({
-      associationId:
-        pantalon.associationId ?? "",
+  associationId:
+    pantalon.associationId ?? "",
 
-      numero: pantalon.numero ?? "",
-      taille: pantalon.taille ?? "",
-      etat: pantalon.etat ?? "Bon",
-      notes: pantalon.notes ?? "",
+  taille:
+    pantalon.taille ?? "",
 
-      actif: pantalon.actif ?? true,
-    });
+  quantiteStock:
+    pantalon.quantiteStock ?? 0,
+
+  actif:
+    pantalon.actif ?? true,
+});
 
     setFenetrePantalonsOuverte(true);
   }
@@ -97,69 +144,129 @@ function GestionPantalons({
     setFenetrePantalonsOuverte(false);
   }
 
-  function enregistrerPantalons(
-    donneesPantalons
+  async function enregistrerPantalons(
+  donneesPantalons
+) {
+  if (
+    typeof ajouterPantalons !==
+      "function" ||
+    typeof modifierPantalons !==
+      "function"
   ) {
-    if (
-      typeof ajouterPantalons !==
-        "function" ||
-      typeof modifierPantalons !==
-        "function"
-    ) {
-      setErreursPantalons([
-        "La gestion des pantalons n'est pas correctement initialisée.",
-      ]);
-      return;
-    }
+    setErreursPantalons([
+      "La gestion des pantalons n'est pas correctement initialisée.",
+    ]);
 
-    const resultat = pantalonSelectionne
-      ? modifierPantalons({
+    return;
+  }
+
+  const resultat =
+    pantalonSelectionne
+      ? await modifierPantalons({
           ...donneesPantalons,
-          id: pantalonSelectionne.id,
+          id:
+            pantalonSelectionne.id,
         })
-      : ajouterPantalons(
+      : await ajouterPantalons(
           donneesPantalons
         );
 
-    if (!resultat.succes) {
-      setErreursPantalons(
-        resultat.erreurs ?? []
-      );
-      return;
-    }
-
-    fermerPantalons();
-  }
-
-  function demanderSuppression(pantalon) {
-    const confirmation = window.confirm(
-      `Supprimer le pantalon numéro ${pantalon.numero}, taille ${pantalon.taille} ?`
+  if (!resultat.succes) {
+    setErreursPantalons(
+      resultat.erreurs ?? []
     );
 
-    if (!confirmation) {
-      return;
-    }
+    return;
+  }
 
-    if (
-      typeof supprimerPantalons !==
-      "function"
-    ) {
-      window.alert(
-        "La gestion des pantalons n'est pas correctement initialisée."
-      );
-      return;
-    }
+  fermerPantalons();
+}
 
-    const resultat =
-      supprimerPantalons(pantalon.id);
+  async function demanderSuppression(
+  pantalon
+) {
+  const confirmation =
+    window.confirm(
+      `Supprimer l'inventaire de pantalons taille ${pantalon.taille} ?`
+    );
+
+  if (!confirmation) {
+    return;
+  }
+
+  if (
+    typeof supprimerPantalons !==
+    "function"
+  ) {
+    window.alert(
+      "La gestion des pantalons n'est pas correctement initialisée."
+    );
+
+    return;
+  }
+
+  const resultat =
+    await supprimerPantalons(
+      pantalon.id
+    );
+
+  if (!resultat.succes) {
+    window.alert(
+      resultat.erreurs?.join(
+        "\n"
+      ) ||
+        "Impossible de supprimer le pantalon."
+    );
+  }
+}
+
+  function ouvrirRemisePantalon() {
+  setErreursRemise([]);
+
+  setFormulaireRemise({
+    ...formulaireRemiseInitial,
+  });
+
+  setFenetreRemiseOuverte(true);
+}
+
+function fermerRemisePantalon() {
+  setErreursRemise([]);
+  setFenetreRemiseOuverte(false);
+}
+
+async function enregistrerRemisePantalon(
+  formulaire
+) {
+  const resultat =
+  await gestionPantalonsJoueuses
+    .ajouterPantalonJoueuse(
+      formulaire
+    );
 
     if (!resultat.succes) {
-      window.alert(
-        resultat.erreurs?.join("\n") ||
-          "Impossible de supprimer le pantalon."
-      );
-    }
+    setErreursRemise(
+      resultat.erreurs ?? []
+    );
+    return;
   }
+
+  fermerRemisePantalon();
+}
+
+const remisesPantalons =
+  gestionPantalonsJoueuses
+    ?.pantalonsJoueuses ?? [];
+
+  const quantiteTotale =
+  pantalonsAssociation.reduce(
+    (total, pantalon) =>
+      total +
+      Number(
+        pantalon.quantiteStock || 0
+      ),
+    0
+  );
 
   return (
     <section className="gestion-pantalons">
@@ -196,6 +303,14 @@ function GestionPantalons({
           >
             Nouveau pantalon
           </button>
+
+          <button
+  type="button"
+  onClick={ouvrirRemisePantalon}
+  disabled={!associationActive}
+>
+  Remettre un pantalon
+</button>
         </div>
       </header>
 
@@ -214,13 +329,18 @@ function GestionPantalons({
           </p>
 
           <p>
-            {pantalonsAssociation.length}{" "}
-            pantalon
-            {pantalonsAssociation.length >
-            1
-              ? "s"
-              : ""}
-          </p>
+  <strong>
+    Tailles en inventaire :
+  </strong>{" "}
+  {pantalonsAssociation.length}
+</p>
+
+<p>
+  <strong>
+    Pantalons en stock :
+  </strong>{" "}
+  {quantiteTotale}
+</p>
 
           <ListePantalons
             pantalons={
@@ -233,6 +353,18 @@ function GestionPantalons({
               demanderSuppression
             }
           />
+
+          <section className="historique-pantalons">
+  <h2>
+    Historique des remises
+  </h2>
+
+    <ListeRemisesPantalons
+     remises={remisesPantalons}
+     pantalons={pantalonsAssociation}
+     joueuses={joueusesAssociation}
+    />
+</section>
 
           <PantalonsModal
             ouverte={
@@ -252,6 +384,16 @@ function GestionPantalons({
               pantalonSelectionne
             }
             erreurs={erreursPantalons}
+          />
+          <RemisePantalonModal
+           ouverte={fenetreRemiseOuverte}
+           fermer={fermerRemisePantalon}
+           enregistrer={enregistrerRemisePantalon}
+           formulaire={formulaireRemise}
+           setFormulaire={setFormulaireRemise}
+           erreurs={erreursRemise}
+           joueuses={joueusesAssociation}
+           pantalons={pantalonsAssociation}
           />
         </>
       )}

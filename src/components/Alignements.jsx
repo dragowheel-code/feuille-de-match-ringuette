@@ -42,9 +42,15 @@ export default function Alignements({
             )
         );
 
-      const joueuse =
-        joueuseMatch ??
-        joueuseAdministration;
+      const joueuse = {
+        ...joueuseAdministration,
+        ...joueuseMatch,
+
+        numero:
+          joueuseAdministration.numero ??
+          joueuseMatch?.numero ??
+          "",
+      };
 
       return (
         <div
@@ -64,14 +70,14 @@ export default function Alignements({
             <label>
               <input
                 type="checkbox"
-                checked={
-                  Boolean(
-                    joueuse.absente
+                checked={Boolean(
+                  joueuse.absente
+                )}
+                onChange={() =>
+                  changerPresence(
+                    joueuse
                   )
                 }
-                onChange={() =>
-  changerPresence(joueuse)
-}
               />
               Abs.
             </label>
@@ -79,14 +85,14 @@ export default function Alignements({
             <label>
               <input
                 type="checkbox"
-                checked={
-                  Boolean(
-                    joueuse.suspendue
+                checked={Boolean(
+                  joueuse.suspendue
+                )}
+                onChange={() =>
+                  changerSuspension(
+                    joueuse
                   )
                 }
-                onChange={() =>
-  changerSuspension(joueuse)
-}
               />
               Susp.
             </label>
@@ -94,17 +100,15 @@ export default function Alignements({
             <label>
               <input
                 type="checkbox"
-                checked={
-                  Boolean(
-                    joueuse.gardienne
+                checked={Boolean(
+                  joueuse.gardienne
+                )}
+                onChange={() =>
+                  changerRoleJoueuse(
+                    joueuse,
+                    ROLES_JOUEUSE.GARDIENNE
                   )
                 }
-                onChange={() =>
-  changerRoleJoueuse(
-    joueuse,
-    ROLES_JOUEUSE.GARDIENNE
-  )
-}
               />
               Gard.
             </label>
@@ -112,17 +116,15 @@ export default function Alignements({
             <label>
               <input
                 type="checkbox"
-                checked={
-                  Boolean(
-                    joueuse.capitaine
+                checked={Boolean(
+                  joueuse.capitaine
+                )}
+                onChange={() =>
+                  changerRoleJoueuse(
+                    joueuse,
+                    ROLES_JOUEUSE.CAPITAINE
                   )
                 }
-                onChange={() =>
-  changerRoleJoueuse(
-    joueuse,
-    ROLES_JOUEUSE.CAPITAINE
-  )
-}
               />
               Cap.
             </label>
@@ -130,17 +132,15 @@ export default function Alignements({
             <label>
               <input
                 type="checkbox"
-                checked={
-                  Boolean(
-                    joueuse.assistanteCapitaine
+                checked={Boolean(
+                  joueuse.assistanteCapitaine
+                )}
+                onChange={() =>
+                  changerRoleJoueuse(
+                    joueuse,
+                    ROLES_JOUEUSE.ASSISTANTE_CAPITAINE
                   )
                 }
-                onChange={() =>
-  changerRoleJoueuse(
-    joueuse,
-    ROLES_JOUEUSE.ASSISTANTE_CAPITAINE
-  )
-}
               />
               Ass.
             </label>

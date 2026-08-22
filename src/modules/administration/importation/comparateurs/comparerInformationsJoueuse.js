@@ -5,17 +5,14 @@ export function comparerInformationsJoueuse(
   const differences = [];
 
   const champs = [
-    "dateNaissance",
-    "numeroInscription",
-    "adresse",
-    "ville",
-    "codePostal",
-    "telephone",
-    "sexe",
-    "categorie",
-    "codeCategorie",
-    "saison",
-  ];
+  "dateNaissance",
+  "numeroInscription",
+  "adresse",
+  "ville",
+  "codePostal",
+  "telephone",
+  "sexe",
+];
 
   for (const champ of champs) {
     const ancienneValeur = joueuse?.[champ] ?? "";

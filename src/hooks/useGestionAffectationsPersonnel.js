@@ -1,32 +1,131 @@
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import { supabase } from "../services/supabase";
+
+import {
   creerAffectationPersonnel,
-  modifierAffectationPersonnel,
-  supprimerAffectationPersonnel,
   validerAffectationPersonnel,
 } from "../domain/personnelEquipe/affectations";
 
-import { useEtatPersistant } from "./useEtatPersistant";
-import { obtenirBaseDeDonnees } from "../services/baseDeDonneesV2";
+function convertirAffectationPersonnelDepuisSupabase(
+  affectation
+) {
+  return {
+    id: affectation.id,
+
+    saisonId:
+      affectation.saison_id,
+
+    equipeId:
+      affectation.equipe_id,
+
+    personnelId:
+      affectation.personnel_id,
+
+    role:
+      affectation.role ?? "",
+
+    actif:
+      affectation.actif !== false,
+  };
+}
+
+function convertirAffectationPersonnelVersSupabase(
+  affectation
+) {
+  return {
+    id:
+      affectation.id,
+
+    saison_id:
+      affectation.saisonId,
+
+    equipe_id:
+      affectation.equipeId,
+
+    personnel_id:
+      affectation.personnelId,
+
+    role:
+      affectation.role,
+
+    actif:
+      affectation.actif !== false,
+  };
+}
 
 export function useGestionAffectationsPersonnel() {
   const [
     affectationsPersonnel,
     setAffectationsPersonnel,
-  ] = useEtatPersistant(
-    "ringuette-v2-affectations-personnel",
-    () => {
-      const base =
-        obtenirBaseDeDonnees();
+  ] = useState([]);
 
-      return Array.isArray(
-        base.affectationsPersonnel
-      )
-        ? base.affectationsPersonnel
-        : [];
+  const [
+    chargement,
+    setChargement,
+  ] = useState(true);
+
+  const [
+    erreurChargement,
+    setErreurChargement,
+  ] = useState(null);
+
+  useEffect(() => {
+    async function chargerAffectationsPersonnel() {
+      setChargement(true);
+      setErreurChargement(null);
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from("affectations_personnel")
+        .select("*");
+
+      if (error) {
+        console.error(
+          "Erreur chargement affectations personnel :",
+          error
+        );
+
+        setErreurChargement(
+          error.message
+        );
+
+        setChargement(false);
+        return;
+      }
+
+      setAffectationsPersonnel(
+        (data ?? []).map(
+          convertirAffectationPersonnelDepuisSupabase
+        )
+      );
+
+      setChargement(false);
     }
-  );
 
-  function ajouterAffectation(
+    chargerAffectationsPersonnel();
+  }, []);
+
+  function obtenirAffectationParId(
+    id
+  ) {
+    return (
+      affectationsPersonnel.find(
+        (affectation) =>
+          String(
+            affectation.id
+          ) ===
+          String(id)
+      ) ?? null
+    );
+  }
+
+  async function ajouterAffectation(
     formulaire
   ) {
     const affectation =
@@ -49,63 +148,216 @@ export function useGestionAffectationsPersonnel() {
       };
     }
 
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "affectations_personnel"
+      )
+      .insert(
+        convertirAffectationPersonnelVersSupabase(
+          affectation
+        )
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        affectation: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const affectationCreee =
+      convertirAffectationPersonnelDepuisSupabase(
+        data
+      );
+
     setAffectationsPersonnel(
       (actuelles) => [
         ...actuelles,
-        affectation,
+        affectationCreee,
       ]
     );
 
     return {
       succes: true,
-      affectation,
+      affectation:
+        affectationCreee,
       erreurs: [],
     };
   }
 
-  function modifierAffectation(
+  async function modifierAffectation(
     formulaire
   ) {
-    const resultat =
-      modifierAffectationPersonnel(
-        affectationsPersonnel,
-        formulaire
+    const affectationExistante =
+      obtenirAffectationParId(
+        formulaire.id
       );
 
-    if (!resultat.succes) {
-      return resultat;
+    if (!affectationExistante) {
+      return {
+        succes: false,
+        affectation: null,
+        erreurs: [
+          "Affectation introuvable.",
+        ],
+      };
     }
 
+    const affectationModifiee =
+      creerAffectationPersonnel({
+        ...affectationExistante,
+        ...formulaire,
+        id:
+          affectationExistante.id,
+      });
+
+    const validation =
+      validerAffectationPersonnel(
+        affectationModifiee,
+        affectationsPersonnel
+      );
+
+    if (!validation.valide) {
+      return {
+        succes: false,
+        affectation: null,
+        erreurs:
+          validation.erreurs,
+      };
+    }
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from(
+        "affectations_personnel"
+      )
+      .update(
+        convertirAffectationPersonnelVersSupabase(
+          affectationModifiee
+        )
+      )
+      .eq(
+        "id",
+        affectationModifiee.id
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        affectation: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const affectationSauvegardee =
+      convertirAffectationPersonnelDepuisSupabase(
+        data
+      );
+
     setAffectationsPersonnel(
-      resultat.affectations
+      (actuelles) =>
+        actuelles.map(
+          (affectation) =>
+            String(
+              affectation.id
+            ) ===
+            String(
+              affectationSauvegardee.id
+            )
+              ? affectationSauvegardee
+              : affectation
+        )
     );
 
-    return resultat;
+    return {
+      succes: true,
+      affectation:
+        affectationSauvegardee,
+      erreurs: [],
+    };
   }
 
-  function supprimerAffectation(
+  async function supprimerAffectation(
     affectationId
   ) {
-    const resultat =
-      supprimerAffectationPersonnel(
-        affectationsPersonnel,
+    const affectationExistante =
+      obtenirAffectationParId(
         affectationId
       );
 
-    if (!resultat.succes) {
-      return resultat;
+    if (!affectationExistante) {
+      return {
+        succes: false,
+        affectation: null,
+        erreurs: [
+          "Affectation introuvable.",
+        ],
+      };
+    }
+
+    const {
+      error,
+    } = await supabase
+      .from(
+        "affectations_personnel"
+      )
+      .delete()
+      .eq(
+        "id",
+        affectationId
+      );
+
+    if (error) {
+      return {
+        succes: false,
+        affectation: null,
+        erreurs: [
+          error.message,
+        ],
+      };
     }
 
     setAffectationsPersonnel(
-      resultat.affectations
+      (actuelles) =>
+        actuelles.filter(
+          (affectation) =>
+            String(
+              affectation.id
+            ) !==
+            String(
+              affectationId
+            )
+        )
     );
 
-    return resultat;
+    return {
+      succes: true,
+      affectation:
+        affectationExistante,
+      erreurs: [],
+    };
   }
 
   return {
     affectationsPersonnel,
     setAffectationsPersonnel,
+
+    chargement,
+    erreurChargement,
 
     ajouterAffectation,
     modifierAffectation,

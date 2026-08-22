@@ -1,165 +1,452 @@
-import { useEtatPersistant } from "./useEtatPersistant";
+import { useEffect, useState } from "react";
 
-import { obtenirBaseDeDonnees } from "../services/baseDeDonneesV2";
+import { supabase } from "../services/supabase";
 
 import { creerAssociation } from "../domain/association/creerAssociation";
-import { remplacerAssociation } from "../domain/association/remplacerAssociation";
-import { supprimerAssociation as retirerAssociation } from "../domain/association/supprimerAssociation";
 import { validerAssociation } from "../domain/association/validerAssociation";
 
-export function useGestionAssociations() {
-  const [associations, setAssociations] =
-  useEtatPersistant(
-    "ringuette-v2-associations",
-    () => {
-      const baseDeDonnees =
-        obtenirBaseDeDonnees();
-
-      return Array.isArray(
-        baseDeDonnees.associations
-      )
-        ? baseDeDonnees.associations
-        : [];
-    }
-  );
-
-  function obtenirAssociationParId(idAssociation) {
-    return associations.find(
-      (association) => association.id === idAssociation
-    );
-  }
-
-  function ajouterAssociation(formulaire) {
-  const nouvelleAssociation =
-    creerAssociation(formulaire);
-
-  const validation = validerAssociation(
-    nouvelleAssociation,
-    associations
-  );
-
-  if (!validation.valide) {
-    return {
-      succes: false,
-      erreurs: validation.erreurs,
-    };
-  }
-
-  setAssociations((associationsActuelles) => {
-    const associationsMisesAJour =
-      nouvelleAssociation.active
-        ? associationsActuelles.map(
-            (association) => ({
-              ...association,
-              active: false,
-            })
-          )
-        : associationsActuelles;
-
-    return [
-      ...associationsMisesAJour,
-      nouvelleAssociation,
-    ];
-  });
-
+function convertirAssociationDepuisSupabase(association) {
   return {
-    succes: true,
-    association: nouvelleAssociation,
-    erreurs: [],
+    id: association.id,
+
+    active: association.active,
+
+    code: association.code,
+    nom: association.nom,
+    abreviation: association.abreviation,
+    ville: association.ville,
+
+    courriel:
+      association.courriel ?? "",
+
+    nomEquipes:
+      association.nom_equipes ?? "",
+
+    logo:
+      association.logo
+      ? {
+      donnees:
+      association.logo,
+      }
+    : null,
+
+    couleurFonce:
+      association.couleur_fonce ??
+      "#000000",
+
+    couleurClair:
+      association.couleur_clair ??
+      "#FFFFFF",
   };
 }
 
-  function modifierAssociation(formulaire) {
-  const associationExistante = obtenirAssociationParId(
-    formulaire.id
-  );
+function convertirAssociationVersSupabase(association) {
+  return {
+    id: association.id,
 
-  if (!associationExistante) {
-    return {
-      succes: false,
-      erreurs: ["Association introuvable."],
-    };
-  }
+    active: association.active,
 
-  const associationModifiee = creerAssociation({
-    ...associationExistante,
-    ...formulaire,
-    id: associationExistante.id,
-  });
+    code: association.code,
+    nom: association.nom,
+    abreviation: association.abreviation,
+    ville: association.ville,
 
-  const validation = validerAssociation(
-    associationModifiee,
-    associations
-  );
+    courriel:
+      association.courriel || null,
 
-  if (!validation.valide) {
-    return {
-      succes: false,
-      erreurs: validation.erreurs,
-    };
-  }
+    nom_equipes:
+      association.nomEquipes,
 
-  setAssociations((associationsActuelles) => {
-  const associationsMisesAJour =
-    associationModifiee.active
-      ? associationsActuelles.map((association) =>
-          association.id === associationModifiee.id
-            ? association
-            : {
-                ...association,
-                active: false,
-              }
-        )
-      : associationsActuelles;
+    logo:
+      association.logo?.donnees ??
+      association.logo ??
+      null,
 
-  return remplacerAssociation(
-    associationsMisesAJour,
-    associationModifiee
-  );
-});
+    couleur_fonce:
+      association.couleurFonce,
 
-return {
-  succes: true,
-  association: associationModifiee,
-  erreurs: [],
-};
+    couleur_clair:
+      association.couleurClair,
+  };
 }
 
-  function supprimerAssociation(idAssociation) {
-    const associationExistante =
-      obtenirAssociationParId(idAssociation);
+export function useGestionAssociations() {
+  const [
+    associations,
+    setAssociations,
+  ] = useState([]);
 
-    if (!associationExistante) {
+  const [
+    chargement,
+    setChargement,
+  ] = useState(true);
+
+  const [
+    erreurChargement,
+    setErreurChargement,
+  ] = useState(null);
+
+  useEffect(() => {
+    async function chargerAssociations() {
+      setChargement(true);
+      setErreurChargement(null);
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from("associations")
+        .select("*")
+        .order("nom");
+
+      if (error) {
+        console.error(
+          "Erreur chargement associations :",
+          error
+        );
+
+        setErreurChargement(
+          error.message
+        );
+
+        setChargement(false);
+        return;
+      }
+
+      setAssociations(
+        (data ?? []).map(
+          convertirAssociationDepuisSupabase
+        )
+      );
+
+      setChargement(false);
+    }
+
+    chargerAssociations();
+  }, []);
+
+  function obtenirAssociationParId(
+    idAssociation
+  ) {
+    return associations.find(
+      (association) =>
+        String(association.id) ===
+        String(idAssociation)
+    );
+  }
+
+  function obtenirAssociationActive() {
+    return associations.find(
+      (association) =>
+        association.active === true
+    );
+  }
+
+  async function ajouterAssociation(
+    formulaire
+  ) {
+    const nouvelleAssociation =
+      creerAssociation(formulaire);
+
+    const validation =
+      validerAssociation(
+        nouvelleAssociation,
+        associations
+      );
+
+    if (!validation.valide) {
       return {
         succes: false,
-        erreur: "Association introuvable.",
+        association: null,
+        erreurs:
+          validation.erreurs,
       };
     }
 
-    setAssociations((associationsActuelles) =>
-      retirerAssociation(
-        associationsActuelles,
-        idAssociation
+    if (nouvelleAssociation.active) {
+      const {
+        error: erreurDesactivation,
+      } = await supabase
+        .from("associations")
+        .update({
+          active: false,
+        })
+        .eq(
+          "active",
+          true
+        );
+
+      if (erreurDesactivation) {
+        return {
+          succes: false,
+          association: null,
+          erreurs: [
+            erreurDesactivation.message,
+          ],
+        };
+      }
+    }
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("associations")
+      .insert(
+        convertirAssociationVersSupabase(
+          nouvelleAssociation
+        )
       )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        association: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const associationCreee =
+      convertirAssociationDepuisSupabase(
+        data
+      );
+
+    setAssociations(
+      (associationsActuelles) => {
+        const associationsMisesAJour =
+          associationCreee.active
+            ? associationsActuelles.map(
+                (association) => ({
+                  ...association,
+                  active: false,
+                })
+              )
+            : associationsActuelles;
+
+        return [
+          ...associationsMisesAJour,
+          associationCreee,
+        ];
+      }
     );
 
     return {
       succes: true,
-      association: associationExistante,
+      association:
+        associationCreee,
+      erreurs: [],
     };
   }
-  function obtenirAssociationActive() {
-  return associations.find(
-    (association) => association.active === true
-  );
-}
+
+  async function modifierAssociation(
+    formulaire
+  ) {
+    const associationExistante =
+      obtenirAssociationParId(
+        formulaire.id
+      );
+
+    if (!associationExistante) {
+      return {
+        succes: false,
+        association: null,
+        erreurs: [
+          "Association introuvable.",
+        ],
+      };
+    }
+
+    const associationModifiee =
+      creerAssociation({
+        ...associationExistante,
+        ...formulaire,
+        id:
+          associationExistante.id,
+      });
+
+    const validation =
+      validerAssociation(
+        associationModifiee,
+        associations
+      );
+
+    if (!validation.valide) {
+      return {
+        succes: false,
+        association: null,
+        erreurs:
+          validation.erreurs,
+      };
+    }
+
+    if (associationModifiee.active) {
+      const {
+        error: erreurDesactivation,
+      } = await supabase
+        .from("associations")
+        .update({
+          active: false,
+        })
+        .eq(
+          "active",
+          true
+        )
+        .neq(
+          "id",
+          associationModifiee.id
+        );
+
+      if (erreurDesactivation) {
+        return {
+          succes: false,
+          association: null,
+          erreurs: [
+            erreurDesactivation.message,
+          ],
+        };
+      }
+    }
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("associations")
+      .update(
+        convertirAssociationVersSupabase(
+          associationModifiee
+        )
+      )
+      .eq(
+        "id",
+        associationModifiee.id
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        association: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const associationSauvegardee =
+      convertirAssociationDepuisSupabase(
+        data
+      );
+
+    setAssociations(
+      (associationsActuelles) =>
+        associationsActuelles.map(
+          (association) => {
+            if (
+              String(
+                association.id
+              ) ===
+              String(
+                associationSauvegardee.id
+              )
+            ) {
+              return associationSauvegardee;
+            }
+
+            if (
+              associationSauvegardee.active
+            ) {
+              return {
+                ...association,
+                active: false,
+              };
+            }
+
+            return association;
+          }
+        )
+    );
+
+    return {
+      succes: true,
+      association:
+        associationSauvegardee,
+      erreurs: [],
+    };
+  }
+
+  async function supprimerAssociation(
+    idAssociation
+  ) {
+    const associationExistante =
+      obtenirAssociationParId(
+        idAssociation
+      );
+
+    if (!associationExistante) {
+      return {
+        succes: false,
+        association: null,
+        erreur:
+          "Association introuvable.",
+      };
+    }
+
+    const {
+      error,
+    } = await supabase
+      .from("associations")
+      .delete()
+      .eq(
+        "id",
+        idAssociation
+      );
+
+    if (error) {
+      return {
+        succes: false,
+        association: null,
+        erreur:
+          error.message,
+      };
+    }
+
+    setAssociations(
+      (associationsActuelles) =>
+        associationsActuelles.filter(
+          (association) =>
+            String(
+              association.id
+            ) !==
+            String(
+              idAssociation
+            )
+        )
+    );
+
+    return {
+      succes: true,
+      association:
+        associationExistante,
+    };
+  }
 
   return {
     associations,
+
+    chargement,
+    erreurChargement,
+
     ajouterAssociation,
     modifierAssociation,
     supprimerAssociation,
+
     obtenirAssociationParId,
-    obtenirAssociationActive
+    obtenirAssociationActive,
   };
 }

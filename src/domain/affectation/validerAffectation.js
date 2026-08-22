@@ -1,3 +1,11 @@
+const TYPES_AFFECTATION = [
+  "NORMALE",
+  "SURCLASSEMENT",
+  "RETROGRADATION",
+  "DEROGATION",
+  "PE",
+];
+
 export function validerAffectation(
   affectation,
   affectationsExistantes = []
@@ -23,52 +31,58 @@ export function validerAffectation(
   }
 
   if (
+    !TYPES_AFFECTATION.includes(
+      affectation.typeAffectation
+    )
+  ) {
+    erreurs.push(
+      "Le type d'affectation est invalide."
+    );
+  }
+
+  if (
     affectation.dateDebut &&
     affectation.dateFin &&
-    affectation.dateDebut > affectation.dateFin
+    affectation.dateDebut >
+      affectation.dateFin
   ) {
     erreurs.push(
       "La date de début doit précéder la date de fin."
     );
   }
 
-  if (
-    affectation.capitaine &&
-    affectation.assistante
-  ) {
-    erreurs.push(
-      "Une joueuse ne peut pas être capitaine et assistante-capitaine dans la même affectation."
-    );
-  }
-
   const affectationsComparables =
     affectationsExistantes.filter(
-      (affectationExistante) =>
-        affectationExistante.id !== affectation.id &&
-        affectationExistante.saisonId ===
-          affectation.saisonId &&
-        affectationExistante.equipeId ===
-          affectation.equipeId
+      (existante) =>
+        String(existante.id) !==
+          String(affectation.id) &&
+        String(existante.saisonId) ===
+          String(affectation.saisonId)
     );
 
-  const affectationJoueuseExiste =
+  const affectationPrincipaleExiste =
     affectationsComparables.some(
-      (affectationExistante) =>
-        affectationExistante.joueuseId ===
-          affectation.joueuseId &&
-        affectationExistante.active &&
-        affectation.active
+      (existante) =>
+        String(existante.joueuseId) ===
+          String(affectation.joueuseId) &&
+        existante.active === true &&
+        affectation.active === true &&
+        existante.typeAffectation !==
+          "PE" &&
+        affectation.typeAffectation !==
+          "PE"
     );
 
-  if (affectationJoueuseExiste) {
+  if (affectationPrincipaleExiste) {
     erreurs.push(
-      "Cette joueuse possède déjà une affectation active dans cette équipe pour cette saison."
+      "Cette joueuse possède déjà une affectation principale active pour cette saison."
     );
   }
 
-  const numeroNormalise = String(
-    affectation.numero ?? ""
-  ).trim();
+  const numeroNormalise =
+    String(
+      affectation.numero ?? ""
+    ).trim();
 
   if (
     affectation.active &&
@@ -76,11 +90,14 @@ export function validerAffectation(
   ) {
     const numeroDejaAttribue =
       affectationsComparables.some(
-        (affectationExistante) =>
-          affectationExistante.active &&
+        (existante) =>
+          String(existante.equipeId) ===
+            String(affectation.equipeId) &&
+          existante.active === true &&
           String(
-            affectationExistante.numero ?? ""
-          ).trim() === numeroNormalise
+            existante.numero ?? ""
+          ).trim() ===
+            numeroNormalise
       );
 
     if (numeroDejaAttribue) {
@@ -90,32 +107,9 @@ export function validerAffectation(
     }
   }
 
-  if (
-  affectation.active &&
-  (
-    affectation.capitaine ||
-    affectation.assistante
-  )
-) {
-  const nombreLettresExistantes =
-    affectationsComparables.filter(
-      (affectationExistante) =>
-        affectationExistante.active &&
-        (
-          affectationExistante.capitaine ||
-          affectationExistante.assistante
-        )
-    ).length;
-
-  if (nombreLettresExistantes >= 3) {
-    erreurs.push(
-      "Cette équipe possède déjà trois joueuses avec une lettre pour cette saison."
-    );
-  }
-}
-
   return {
-    valide: erreurs.length === 0,
+    valide:
+      erreurs.length === 0,
     erreurs,
   };
 }

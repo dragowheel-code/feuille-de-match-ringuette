@@ -13,9 +13,6 @@ import {useTirBarrage} from "./hooks/useTirBarrage";
 import {usePunition} from "./hooks/usePunition";
 import {useAnnulationPunition} from "./hooks/useAnnulationPunition";
 import {useRemplacante} from "./hooks/useRemplacante";
-import {useSuppressionEquipe} from "./hooks/useSuppressionEquipe";
-import {useSuppressionJoueuse} from "./hooks/useSuppressionJoueuse";
-import {useSuppressionOfficiel} from "./hooks/useSuppressionOfficiel";
 import {useExportMatch} from "./hooks/useExportMatch";
 import {useGestionEffectifs} from "./hooks/useGestionEffectifs";
 import {useGestionButs} from "./hooks/useGestionButs";
@@ -27,7 +24,6 @@ import { useGestionPartie } from "./hooks/useGestionPartie";
 import { useHorloge } from "./hooks/useHorloge";
 import { useDonneesMatch } from "./hooks/useDonneesMatch";
 import {calculerTempsCorrige as calculerTempsCorrigeUtil,} from "./utils/temps";
-import { COULEURS } from "./constants/couleurs";
 
 function App({
   donneesApplication,
@@ -35,35 +31,33 @@ function App({
   tournois,
   equipesAdministration,
   joueusesAdministration,
+  officielsAdministration,
   affectationsAdministration,
-
   personnelEquipeAdministration,
   affectationsPersonnelAdministration,
-
   inscriptionsEquipesTournoi,
   inscriptionsOfficielsTournoi,
+  ensemblesChandailsAdministration,
+  attributionsChandailsAdministration,
 }) {
     const {
-    matchInfo,
-    setMatchInfo,
-    equipes,
-    setEquipes,
-    joueuses,
-    setJoueuses,
-    evenements,
-    setEvenements,
-    officiels,
-    setOfficiels,
+  matchInfo,
+  setMatchInfo,
+
+  evenements,
+  setEvenements,
+
+  joueusesMatch: joueuses,
+  setJoueusesMatch: setJoueuses,
   } = donneesApplication;
+
+  const officiels = officielsAdministration ?? [];
   const horloge = useHorloge();
   const [pageActive, setPageActive] = useState("match");
   const tirBarrage = useTirBarrage();
   const [periode, setPeriode] = useState("1");
   const [dureePeriode, setDureePeriode] = useState(12);
   const remplacante = useRemplacante();
-  const suppressionEquipe = useSuppressionEquipe();
-  const suppressionOfficiel = useSuppressionOfficiel();
-  const suppressionJoueuse = useSuppressionJoueuse();
   const tempsMort = useTempsMort();
   const gardienne = useGardienne();
   const buts = useButs();
@@ -72,30 +66,27 @@ function App({
   const [localOuvert, setLocalOuvert] = useState(true);
   const [visiteurOuvert, setVisiteurOuvert] = useState(false);
   const modales = useModales();
-
+  
   const gestionPartie = useGestionPartie({
   matchInfo,
   setMatchInfo,
   setPeriode,
   setEvenements,
+  setJoueuses,
 });
 
-  const gestionEffectifs = useGestionEffectifs({
-  setMatchInfo,
-  setEquipes,
-  joueuses,
-  setJoueuses,
-  officiels,
-  setOfficiels,
-  joueusesAdministration,
-  equipesAdministration,
-  affectationsAdministration,
-  modales,
-  remplacante,
-  suppressionEquipe,
-  suppressionJoueuse,
-  suppressionOfficiel,
-});
+  const gestionEffectifs =
+  useGestionEffectifs({
+    joueuses,
+    setJoueuses,
+
+    joueusesAdministration,
+    equipesAdministration,
+    affectationsAdministration,
+
+    modales,
+    remplacante,
+  });
 const gestionButs = useGestionButs({
   matchInfo,
   periode,
@@ -128,7 +119,8 @@ const donneesMatch = useDonneesMatch({
   joueuses,
   joueusesAdministration,
   affectationsAdministration,
-
+  ensemblesChandailsAdministration,
+  attributionsChandailsAdministration,
   personnelEquipeAdministration,
   affectationsPersonnelAdministration,
 
@@ -258,7 +250,6 @@ const exportMatch = useExportMatch({
 )}
 <GestionModals
   modales={modales}
-  couleurs={COULEURS}
 
   matchInfo={matchInfo}
   setMatchInfo={setMatchInfo}
@@ -267,16 +258,16 @@ const exportMatch = useExportMatch({
   tournois={tournois}
 
   equipesAdministration={
-  equipesAdministration
-}
+    equipesAdministration
+  }
 
-joueusesAdministration={
-  joueusesAdministration
-}
+  joueusesAdministration={
+    joueusesAdministration
+  }
 
-affectationsAdministration={
-  affectationsAdministration
-}
+  affectationsAdministration={
+    affectationsAdministration
+  }
 
   inscriptionsEquipesTournoi={
     inscriptionsEquipesTournoi
@@ -289,62 +280,29 @@ affectationsAdministration={
   dureePeriode={dureePeriode}
   setDureePeriode={setDureePeriode}
 
-  equipes={equipes}
-  setEquipes={setEquipes}
+  officiels={officiels}
 
-  joueuses={joueuses}
   setJoueuses={setJoueuses}
 
-  officiels={officiels}
-  setOfficiels={setOfficiels}
+  equipeLocaleData={
+    donneesMatch.equipeLocaleData
+  }
 
-  equipeLocaleData={donneesMatch.equipeLocaleData}
-  equipeVisiteuseData={donneesMatch.equipeVisiteuseData}
+  equipeVisiteuseData={
+    donneesMatch.equipeVisiteuseData
+  }
 
-  destinataires={donneesMatch.destinataires}
-
-  setPageActive={setPageActive}
+  destinataires={
+    donneesMatch.destinataires
+  }
 
   effacerSauvegarde={
     gestionPartie.effacerSauvegarde
-  }
-
-  ajouterOfficiel={
-    gestionEffectifs.ajouterOfficiel
-  }
-
-  modifierOfficiel={
-    gestionEffectifs.modifierOfficiel
-  }
-
-  suppressionOfficiel={
-    suppressionOfficiel
-  }
-
-  supprimerOfficiel={
-    gestionEffectifs.supprimerOfficiel
-  }
-
-  suppressionEquipe={
-    suppressionEquipe
-  }
-
-  supprimerEquipe={
-    gestionEffectifs.supprimerEquipe
-  }
-
-  suppressionJoueuse={
-    suppressionJoueuse
-  }
-
-  supprimerJoueuse={
-    gestionEffectifs.supprimerJoueuse
   }
 />
 <PartieModals
   matchInfo={matchInfo}
   periode={periode}
-  equipes={equipes}
   joueuses={joueuses}
   buts={buts}
   equipeNomPourBut={donneesMatch.equipeNomPourBut}

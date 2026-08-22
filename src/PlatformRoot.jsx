@@ -11,6 +11,9 @@ import { useGestionJoueuses } from "./hooks/useGestionJoueuses";
 import { useGestionAffectations } from "./hooks/useGestionAffectations";
 import { useGestionPersonnelEquipe } from "./hooks/useGestionPersonnelEquipe";
 import { useGestionAffectationsPersonnel } from "./hooks/useGestionAffectationsPersonnel";
+import { useGestionOfficiels } from "./hooks/useGestionOfficiels";
+import { useGestionChandails } from "./hooks/useGestionChandails";
+import { useGestionAttributionsChandails } from "./hooks/useGestionAttributionsChandails";
 
 const ROUTE_ADMINISTRATION = "/administration";
 
@@ -48,6 +51,15 @@ function PlatformRoot() {
   const gestionAffectationsPersonnel =
   useGestionAffectationsPersonnel();
 
+  const gestionOfficiels =
+  useGestionOfficiels();
+
+  const gestionChandails =
+  useGestionChandails();
+
+const gestionAttributionsChandails =
+  useGestionAttributionsChandails();
+
   useEffect(() => {
     function gererChangementRoute() {
       setRoute(lireRoute());
@@ -59,6 +71,27 @@ function PlatformRoot() {
       window.removeEventListener("hashchange", gererChangementRoute);
     };
   }, []);
+
+  const chargementSupabase =
+  gestionAssociations.chargement ||
+  gestionTournois.chargement ||
+  gestionInscriptionsTournoi.chargement ||
+  gestionEquipes.chargement ||
+  gestionJoueuses.chargement ||
+  gestionAffectations.chargement ||
+  gestionPersonnelEquipe.chargement ||
+  gestionAffectationsPersonnel.chargement ||
+  gestionOfficiels.chargement;
+
+  if (chargementSupabase) {
+  return (
+    <main className="app">
+      <p>
+        Chargement des données…
+      </p>
+    </main>
+  );
+}
 
   if (route === ROUTE_ADMINISTRATION) {
   return (
@@ -75,6 +108,9 @@ function PlatformRoot() {
     gestionJoueuses
   }
 
+  gestionOfficiels={
+    gestionOfficiels
+  }
 
   gestionPersonnelEquipe={
     gestionPersonnelEquipe
@@ -95,13 +131,11 @@ function PlatformRoot() {
   gestionInscriptionsTournoi={
     gestionInscriptionsTournoi
   }
-
-  officiels={
-    donneesApplication.officiels
+gestionChandails={
+    gestionChandails
   }
-
-  setOfficiels={
-    donneesApplication.setOfficiels
+  gestionAttributionsChandails={
+    gestionAttributionsChandails
   }
 />
   );
@@ -139,6 +173,10 @@ function PlatformRoot() {
     gestionAffectations.affectations
   }
 
+  officielsAdministration={
+    gestionOfficiels.officiels
+  }
+
   inscriptionsEquipesTournoi={
     gestionInscriptionsTournoi
       .inscriptionsEquipesTournoi
@@ -147,6 +185,14 @@ function PlatformRoot() {
   inscriptionsOfficielsTournoi={
     gestionInscriptionsTournoi
       .inscriptionsOfficielsTournoi
+  }
+
+  ensemblesChandailsAdministration={
+    gestionChandails.ensemblesChandails
+  }
+
+  attributionsChandailsAdministration={
+    gestionAttributionsChandails.attributionsChandails
   }
 />
 );

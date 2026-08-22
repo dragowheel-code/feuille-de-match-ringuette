@@ -182,59 +182,58 @@ function GestionPersonnelEquipe({
     );
   }
 
-  function enregistrerPersonnel(
-    donneesPersonnel
-  ) {
-    const resultat =
-      personnelSelectionne
-        ? modifierPersonnel({
-            ...donneesPersonnel,
+  async function enregistrerPersonnel(
+  donneesPersonnel
+) {
+  const resultat =
+    personnelSelectionne
+      ? await modifierPersonnel({
+          ...donneesPersonnel,
 
-            id:
-              personnelSelectionne.id,
-          })
-        : ajouterPersonnel(
-            donneesPersonnel
-          );
+          id:
+            personnelSelectionne.id,
+        })
+      : await ajouterPersonnel(
+          donneesPersonnel
+        );
 
-    if (!resultat.succes) {
-      setErreursPersonnel(
-        resultat.erreurs ??
-          []
-      );
+  if (!resultat.succes) {
+    setErreursPersonnel(
+      resultat.erreurs ?? []
+    );
 
-      return;
-    }
-
-    fermerPersonnel();
+    return;
   }
 
-  function demanderSuppression(
-    personnel
-  ) {
-    const confirmation =
-      window.confirm(
-        `Supprimer ${personnel.nomComplet} du personnel d'équipe ?`
-      );
+  fermerPersonnel();
+}
 
-    if (!confirmation) {
-      return;
-    }
+  async function demanderSuppression(
+  personnel
+) {
+  const confirmation =
+    window.confirm(
+      `Supprimer ${personnel.nomComplet} du personnel d'équipe ?`
+    );
 
-    const resultat =
-      supprimerPersonnel(
-        personnel.id
-      );
-
-    if (!resultat.succes) {
-      window.alert(
-        resultat.erreurs?.join(
-          "\n"
-        ) ||
-          "Impossible de supprimer ce membre du personnel."
-      );
-    }
+  if (!confirmation) {
+    return;
   }
+
+  const resultat =
+    await supprimerPersonnel(
+      personnel.id
+    );
+
+  if (!resultat.succes) {
+    window.alert(
+      resultat.erreurs?.join(
+        "\n"
+      ) ||
+        "Impossible de supprimer ce membre du personnel."
+    );
+  }
+}
 
   function afficherPersonnel(
   personnel

@@ -6,36 +6,29 @@ function JoueuseModal({
   setFormulaire,
   joueuse = null,
   associations = [],
-  equipes = [],
   erreurs = [],
 }) {
   if (!ouverte) {
     return null;
   }
 
-  const equipesDisponibles = equipes.filter(
-    (equipe) =>
-      equipe.associationId ===
-      formulaire.associationId
-  );
-
   function changerChamp(evenement) {
-    const { name, value } = evenement.target;
+    const {
+      name,
+      value,
+      type,
+      checked,
+    } = evenement.target;
 
-    setFormulaire((precedent) => {
-      if (name === "associationId") {
-        return {
-          ...precedent,
-          associationId: value,
-          equipeId: "",
-        };
-      }
-
-      return {
+    setFormulaire(
+      (precedent) => ({
         ...precedent,
-        [name]: value,
-      };
-    });
+        [name]:
+          type === "checkbox"
+            ? checked
+            : value,
+      })
+    );
   }
 
   function soumettre(evenement) {
@@ -54,176 +47,176 @@ function JoueuseModal({
 
         {erreurs.length > 0 && (
           <div className="joueuse-erreurs">
-            {erreurs.map((erreur) => (
-              <p key={erreur}>{erreur}</p>
-            ))}
+            {erreurs.map(
+              (erreur) => (
+                <p key={erreur}>
+                  {erreur}
+                </p>
+              )
+            )}
           </div>
         )}
 
         <form onSubmit={soumettre}>
           <label>
             Association
+
             <select
               name="associationId"
-              value={formulaire.associationId}
+              value={
+                formulaire.associationId
+              }
               onChange={changerChamp}
             >
               <option value="">
                 Sélectionner une association
               </option>
 
-              {associations.map((association) => (
-                <option
-                  key={association.id}
-                  value={association.id}
-                >
-                  {association.nom}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label>
-            Équipe
-            <select
-              name="equipeId"
-              value={formulaire.equipeId}
-              onChange={changerChamp}
-              disabled={!formulaire.associationId}
-            >
-              <option value="">
-                Sélectionner une équipe
-              </option>
-
-              {equipesDisponibles.map((equipe) => (
-                <option
-                  key={equipe.id}
-                  value={equipe.id}
-                >
-                  {equipe.nom} — {equipe.calibre}
-                </option>
-              ))}
+              {associations.map(
+                (association) => (
+                  <option
+                    key={association.id}
+                    value={association.id}
+                  >
+                    {association.nom}
+                  </option>
+                )
+              )}
             </select>
           </label>
 
           <label>
             Nom complet
+
             <input
               type="text"
               name="nomComplet"
-              value={formulaire.nomComplet}
+              value={
+                formulaire.nomComplet
+              }
               onChange={changerChamp}
             />
           </label>
 
           <label>
             Numéro d'inscription
+
             <input
               type="text"
               name="numeroInscription"
-              value={formulaire.numeroInscription}
+              value={
+                formulaire.numeroInscription
+              }
               onChange={changerChamp}
             />
           </label>
 
           <label>
             Adresse
+
             <input
               type="text"
               name="adresse"
-              value={formulaire.adresse}
+              value={
+                formulaire.adresse
+              }
               onChange={changerChamp}
             />
           </label>
 
           <label>
             Ville
+
             <input
               type="text"
               name="ville"
-              value={formulaire.ville}
+              value={
+                formulaire.ville
+              }
               onChange={changerChamp}
             />
           </label>
 
           <label>
             Code postal
+
             <input
               type="text"
               name="codePostal"
-              value={formulaire.codePostal}
+              value={
+                formulaire.codePostal
+              }
               onChange={changerChamp}
             />
           </label>
 
           <label>
             Téléphone
+
             <input
               type="text"
               name="telephone"
-              value={formulaire.telephone}
+              value={
+                formulaire.telephone
+              }
               onChange={changerChamp}
             />
           </label>
 
           <label>
             Sexe
-            <input
-              type="text"
+
+            <select
               name="sexe"
-              value={formulaire.sexe}
+              value={
+                formulaire.sexe
+              }
               onChange={changerChamp}
-            />
+            >
+              <option value="">
+                Sélectionner
+              </option>
+
+              <option value="F">
+                Féminin
+              </option>
+
+              <option value="M">
+                Masculin
+              </option>
+
+              <option value="MIXTE">
+                Mixte
+              </option>
+            </select>
           </label>
 
           <label>
             Date de naissance
+
             <input
-              type="text"
+              type="date"
               name="dateNaissance"
-              value={formulaire.dateNaissance}
+              value={
+                formulaire.dateNaissance
+              }
               onChange={changerChamp}
             />
           </label>
 
           <label>
-            Âge
             <input
-              type="text"
-              name="age"
-              value={formulaire.age}
+              type="checkbox"
+              name="active"
+              checked={
+                Boolean(
+                  formulaire.active
+                )
+              }
               onChange={changerChamp}
             />
-          </label>
 
-          <label>
-            Catégorie
-            <input
-              type="text"
-              name="categorie"
-              value={formulaire.categorie}
-              onChange={changerChamp}
-            />
-          </label>
-
-          <label>
-            Code de catégorie
-            <input
-              type="text"
-              name="codeCategorie"
-              value={formulaire.codeCategorie}
-              onChange={changerChamp}
-            />
-          </label>
-
-          <label>
-            Saison
-            <input
-              type="text"
-              name="saison"
-              value={formulaire.saison}
-              onChange={changerChamp}
-            />
+            Joueuse active
           </label>
 
           <div className="modal-actions">
@@ -235,7 +228,9 @@ function JoueuseModal({
             </button>
 
             <button type="submit">
-              {joueuse ? "Enregistrer" : "Créer"}
+              {joueuse
+                ? "Enregistrer"
+                : "Créer"}
             </button>
           </div>
         </form>

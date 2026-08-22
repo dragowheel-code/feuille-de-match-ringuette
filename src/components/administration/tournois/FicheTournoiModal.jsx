@@ -169,127 +169,147 @@ const idsOfficielsInscrits =
       )
     );
 
-  function ajouterEquipe() {
-    if (!equipeId) {
-      return;
-    }
-
-    const resultat =
-      inscrireEquipe({
-        tournoiId:
-          tournoi.id,
-        equipeId,
-      });
-
-    if (!resultat.succes) {
-      alert(
-        resultat.erreurs?.join(
-          "\n"
-        ) ||
-          "Impossible d'inscrire l'équipe."
-      );
-
-      return;
-    }
-
-    setEquipeId("");
+  async function ajouterEquipe() {
+  if (!equipeId) {
+    return;
   }
 
-  function ajouterOfficiel() {
-    if (!officielId) {
-      return;
-    }
+  const resultat =
+    await inscrireEquipe({
+      tournoiId:
+        tournoi.id,
+      equipeId,
+    });
 
-    const resultat =
-      inscrireOfficiel({
-        tournoiId:
-          tournoi.id,
-        officielId,
-      });
+  if (!resultat.succes) {
+    alert(
+      resultat.erreurs?.join(
+        "\n"
+      ) ||
+        "Impossible d'inscrire l'équipe."
+    );
 
-    if (!resultat.succes) {
-      alert(
-        resultat.erreurs?.join(
-          "\n"
-        ) ||
-          "Impossible d'inscrire l'officiel."
-      );
-
-      return;
-    }
-
-    setOfficielId("");
+    return;
   }
 
-  function retirerEquipeInscrite(
-    inscription
+  setEquipeId("");
+}
+
+async function ajouterOfficiel() {
+  if (!officielId) {
+    return;
+  }
+
+  const resultat =
+    await inscrireOfficiel({
+      tournoiId:
+        tournoi.id,
+      officielId,
+    });
+
+  if (!resultat.succes) {
+    alert(
+      resultat.erreurs?.join(
+        "\n"
+      ) ||
+        "Impossible d'inscrire l'officiel."
+    );
+
+    return;
+  }
+
+  setOfficielId("");
+}
+
+async function retirerEquipeInscrite(
+  inscription
+) {
+  const equipe =
+    equipes.find(
+      (element) =>
+        String(
+          element.id
+        ) ===
+        String(
+          inscription.equipeId
+        )
+    );
+
+  const nomEquipe =
+    equipe
+      ? obtenirNomEquipe(
+          equipe,
+          associations
+        )
+      : "cette équipe";
+
+  if (
+    !confirm(
+      `Retirer ${nomEquipe} du tournoi ?`
+    )
   ) {
-    const equipe =
-      equipes.find(
-        (element) =>
-          String(
-            element.id
-          ) ===
-          String(
-            inscription.equipeId
-          )
-      );
+    return;
+  }
 
-    const nomEquipe =
-  equipe
-    ? obtenirNomEquipe(
-        equipe,
-        associations
-      )
-    : "cette équipe";
-
-    if (
-      !confirm(
-        `Retirer ${nomEquipe} du tournoi ?`
-      )
-    ) {
-      return;
-    }
-
-    retirerEquipe(
+  const resultat =
+    await retirerEquipe(
       inscription.id
     );
-  }
 
-  function retirerOfficielInscrit(
-    inscription
-  ) {
-    const officiel =
-      officiels.find(
-        (element) =>
-          String(
-            element.id
-          ) ===
-          String(
-            inscription.officielId
-          )
-      );
-
-    const nomOfficiel =
-  officiel
-    ? obtenirNomOfficiel(
-        officiel,
-        associations
-      )
-    : "cet officiel";
-
-    if (
-      !confirm(
-        `Retirer ${nomOfficiel} du tournoi ?`
-      )
-    ) {
-      return;
-    }
-
-    retirerOfficiel(
-      inscription.id
+  if (!resultat.succes) {
+    alert(
+      resultat.erreurs?.join(
+        "\n"
+      ) ||
+        "Impossible de retirer l'équipe."
     );
   }
+}
+
+async function retirerOfficielInscrit(
+  inscription
+) {
+  const officiel =
+    officiels.find(
+      (element) =>
+        String(
+          element.id
+        ) ===
+        String(
+          inscription.officielId
+        )
+    );
+
+  const nomOfficiel =
+    officiel
+      ? obtenirNomOfficiel(
+          officiel,
+          associations
+        )
+      : "cet officiel";
+
+  if (
+    !confirm(
+      `Retirer ${nomOfficiel} du tournoi ?`
+    )
+  ) {
+    return;
+  }
+
+  const resultat =
+    await retirerOfficiel(
+      inscription.id
+    );
+
+  if (!resultat.succes) {
+    alert(
+      resultat.erreurs?.join(
+        "\n"
+      ) ||
+        "Impossible de retirer l'officiel."
+    );
+  }
+}
 
   return (
     <div className="modal-backdrop">

@@ -54,18 +54,28 @@ export function useGestionPartie({
   }
 
   function effacerSauvegarde() {
-    if (!confirm("Effacer toutes les données sauvegardées ?")) {
-      return;
-    }
-
-    localStorage.removeItem("matchInfo");
-    localStorage.removeItem("equipes");
-    localStorage.removeItem("joueuses");
-    localStorage.removeItem("evenements");
-    localStorage.removeItem("officiels");
-
-    window.location.reload();
+  if (
+    !confirm(
+      "Effacer toutes les données sauvegardées de la partie en cours ?"
+    )
+  ) {
+    return;
   }
+
+  localStorage.removeItem(
+    "matchInfo"
+  );
+
+  localStorage.removeItem(
+    "evenements"
+  );
+
+  localStorage.removeItem(
+    "joueusesMatch"
+  );
+
+  window.location.reload();
+}
 
   return {
     validerFeuilleMatch,

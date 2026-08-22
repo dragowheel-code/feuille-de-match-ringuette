@@ -1,178 +1,503 @@
-import { useEtatPersistant } from "./useEtatPersistant";
+import { useEffect, useState } from "react";
 
-import { obtenirBaseDeDonnees } from "../services/baseDeDonneesV2";
+import { supabase } from "../services/supabase";
 
 import { creerSaison } from "../domain/saison/creerSaison";
-import { remplacerSaison } from "../domain/saison/remplacerSaison";
-import { supprimerSaison as retirerSaison } from "../domain/saison/supprimerSaison";
 import { validerSaison } from "../domain/saison/validerSaison";
 
-export function useGestionSaisons() {
-  const [saisons, setSaisons] =
-  useEtatPersistant(
-    "ringuette-v2-saisons",
-    () => {
-      const baseDeDonnees =
-        obtenirBaseDeDonnees();
+function convertirSaisonDepuisSupabase(saison) {
+  return {
+    id: saison.id,
 
-      return Array.isArray(
-        baseDeDonnees.saisons
-      )
-        ? baseDeDonnees.saisons
-        : [];
-    }
-  );
+    associationId:
+      saison.association_id,
 
-  function obtenirSaisonParId(idSaison) {
-    return saisons.find(
-      (saison) => saison.id === idSaison
-    );
-  }
-  function obtenirSaisonActive() {
-  return saisons.find(
-    (saison) => saison.active === true
-  );
+    nom:
+      saison.nom,
+
+    anneeReference:
+      saison.annee_reference,
+
+    dateDebut:
+      saison.date_debut ?? "",
+
+    dateFin:
+      saison.date_fin ?? "",
+
+    active:
+      saison.active === true,
+
+    verrouillee:
+      saison.verrouillee === true,
+
+    notes:
+      saison.notes ?? "",
+  };
 }
 
-  function ajouterSaison(formulaire) {
-    const nouvelleSaison = creerSaison(formulaire);
+function convertirSaisonVersSupabase(saison) {
+  return {
+    id: saison.id,
 
-    const validation = validerSaison(
-      nouvelleSaison,
-      saisons
+    association_id:
+      saison.associationId,
+
+    nom:
+      saison.nom,
+
+    annee_reference:
+      Number(
+        saison.anneeReference
+      ),
+
+    date_debut:
+      saison.dateDebut || null,
+
+    date_fin:
+      saison.dateFin || null,
+
+    active:
+      saison.active === true,
+
+    verrouillee:
+      saison.verrouillee === true,
+
+    notes:
+      saison.notes || null,
+  };
+}
+
+export function useGestionSaisons() {
+  const [
+    saisons,
+    setSaisons,
+  ] = useState([]);
+
+  const [
+    chargement,
+    setChargement,
+  ] = useState(true);
+
+  const [
+    erreurChargement,
+    setErreurChargement,
+  ] = useState(null);
+
+  useEffect(() => {
+    async function chargerSaisons() {
+      setChargement(true);
+      setErreurChargement(null);
+
+      const {
+        data,
+        error,
+      } = await supabase
+        .from("saisons")
+        .select("*")
+        .order(
+          "annee_reference",
+          {
+            ascending: false,
+          }
+        );
+
+      if (error) {
+        console.error(
+          "Erreur chargement saisons :",
+          error
+        );
+
+        setErreurChargement(
+          error.message
+        );
+
+        setChargement(false);
+        return;
+      }
+
+      setSaisons(
+        (data ?? []).map(
+          convertirSaisonDepuisSupabase
+        )
+      );
+
+      setChargement(false);
+    }
+
+    chargerSaisons();
+  }, []);
+
+  function obtenirSaisonParId(
+    idSaison
+  ) {
+    return saisons.find(
+      (saison) =>
+        String(saison.id) ===
+        String(idSaison)
     );
+  }
+
+  function obtenirSaisonActive(
+    associationId = null
+  ) {
+    return saisons.find(
+      (saison) =>
+        saison.active === true &&
+        (
+          !associationId ||
+          String(
+            saison.associationId
+          ) ===
+          String(associationId)
+        )
+    );
+  }
+
+  async function ajouterSaison(
+    formulaire
+  ) {
+    const nouvelleSaison =
+      creerSaison(formulaire);
+
+    const validation =
+      validerSaison(
+        nouvelleSaison,
+        saisons
+      );
 
     if (!validation.valide) {
       return {
         succes: false,
-        erreurs: validation.erreurs,
+        saison: null,
+        erreurs:
+          validation.erreurs,
       };
     }
 
-    setSaisons((saisonsActuelles) => {
-      const saisonsMisesAJour =
-        nouvelleSaison.active
-          ? saisonsActuelles.map((saison) => ({
-              ...saison,
-              active: false,
-            }))
-          : saisonsActuelles;
+    if (nouvelleSaison.active) {
+      const {
+        error:
+          erreurDesactivation,
+      } = await supabase
+        .from("saisons")
+        .update({
+          active: false,
+        })
+        .eq(
+          "association_id",
+          nouvelleSaison.associationId
+        )
+        .eq(
+          "active",
+          true
+        );
 
-      return [
-        ...saisonsMisesAJour,
-        nouvelleSaison,
-      ];
-    });
+      if (erreurDesactivation) {
+        return {
+          succes: false,
+          saison: null,
+          erreurs: [
+            erreurDesactivation.message,
+          ],
+        };
+      }
+    }
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("saisons")
+      .insert(
+        convertirSaisonVersSupabase(
+          nouvelleSaison
+        )
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        saison: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const saisonCreee =
+      convertirSaisonDepuisSupabase(
+        data
+      );
+
+    setSaisons(
+      (saisonsActuelles) => {
+        const saisonsMisesAJour =
+          saisonCreee.active
+            ? saisonsActuelles.map(
+                (saison) =>
+                  String(
+                    saison.associationId
+                  ) ===
+                    String(
+                      saisonCreee.associationId
+                    )
+                    ? {
+                        ...saison,
+                        active: false,
+                      }
+                    : saison
+              )
+            : saisonsActuelles;
+
+        return [
+          ...saisonsMisesAJour,
+          saisonCreee,
+        ];
+      }
+    );
 
     return {
       succes: true,
-      saison: nouvelleSaison,
+      saison:
+        saisonCreee,
       erreurs: [],
     };
   }
 
-  function modifierSaison(formulaire) {
-    const saisonExistante = obtenirSaisonParId(
-      formulaire.id
-    );
+  async function modifierSaison(
+    formulaire
+  ) {
+    const saisonExistante =
+      obtenirSaisonParId(
+        formulaire.id
+      );
 
     if (!saisonExistante) {
       return {
         succes: false,
-        erreurs: ["Saison introuvable."],
+        saison: null,
+        erreurs: [
+          "Saison introuvable.",
+        ],
       };
     }
 
-    if (saisonExistante.verrouillee) {
+    if (
+      saisonExistante.verrouillee
+    ) {
       return {
         succes: false,
+        saison: null,
         erreurs: [
           "Une saison verrouillée ne peut pas être modifiée.",
         ],
       };
     }
 
-    const saisonModifiee = creerSaison({
-      ...saisonExistante,
-      ...formulaire,
-      id: saisonExistante.id,
-    });
+    const saisonModifiee =
+      creerSaison({
+        ...saisonExistante,
+        ...formulaire,
+        id:
+          saisonExistante.id,
+      });
 
-    const validation = validerSaison(
-      saisonModifiee,
-      saisons
-    );
+    const validation =
+      validerSaison(
+        saisonModifiee,
+        saisons
+      );
 
     if (!validation.valide) {
       return {
         succes: false,
-        erreurs: validation.erreurs,
+        saison: null,
+        erreurs:
+          validation.erreurs,
       };
     }
 
-    setSaisons((saisonsActuelles) => {
-      const saisonsMisesAJour =
-        saisonModifiee.active
-          ? saisonsActuelles.map((saison) =>
-              saison.id === saisonModifiee.id
-                ? saison
-                : {
-                    ...saison,
-                    active: false,
-                  }
-            )
-          : saisonsActuelles;
+    if (saisonModifiee.active) {
+      const {
+        error:
+          erreurDesactivation,
+      } = await supabase
+        .from("saisons")
+        .update({
+          active: false,
+        })
+        .eq(
+          "association_id",
+          saisonModifiee.associationId
+        )
+        .eq(
+          "active",
+          true
+        )
+        .neq(
+          "id",
+          saisonModifiee.id
+        );
 
-      return remplacerSaison(
-        saisonsMisesAJour,
-        saisonModifiee
+      if (erreurDesactivation) {
+        return {
+          succes: false,
+          saison: null,
+          erreurs: [
+            erreurDesactivation.message,
+          ],
+        };
+      }
+    }
+
+    const {
+      data,
+      error,
+    } = await supabase
+      .from("saisons")
+      .update(
+        convertirSaisonVersSupabase(
+          saisonModifiee
+        )
+      )
+      .eq(
+        "id",
+        saisonModifiee.id
+      )
+      .select()
+      .single();
+
+    if (error) {
+      return {
+        succes: false,
+        saison: null,
+        erreurs: [
+          error.message,
+        ],
+      };
+    }
+
+    const saisonSauvegardee =
+      convertirSaisonDepuisSupabase(
+        data
       );
-    });
+
+    setSaisons(
+      (saisonsActuelles) =>
+        saisonsActuelles.map(
+          (saison) => {
+            if (
+              String(saison.id) ===
+              String(
+                saisonSauvegardee.id
+              )
+            ) {
+              return saisonSauvegardee;
+            }
+
+            if (
+              saisonSauvegardee.active &&
+              String(
+                saison.associationId
+              ) ===
+                String(
+                  saisonSauvegardee.associationId
+                )
+            ) {
+              return {
+                ...saison,
+                active: false,
+              };
+            }
+
+            return saison;
+          }
+        )
+    );
 
     return {
       succes: true,
-      saison: saisonModifiee,
+      saison:
+        saisonSauvegardee,
       erreurs: [],
     };
   }
 
-  function supprimerSaison(idSaison) {
+  async function supprimerSaison(
+    idSaison
+  ) {
     const saisonExistante =
-      obtenirSaisonParId(idSaison);
+      obtenirSaisonParId(
+        idSaison
+      );
 
     if (!saisonExistante) {
       return {
         succes: false,
-        erreur: "Saison introuvable.",
+        saison: null,
+        erreur:
+          "Saison introuvable.",
       };
     }
 
-    if (saisonExistante.verrouillee) {
+    if (
+      saisonExistante.verrouillee
+    ) {
       return {
         succes: false,
+        saison: null,
         erreur:
           "Une saison verrouillée ne peut pas être supprimée.",
       };
     }
 
-    setSaisons((saisonsActuelles) =>
-      retirerSaison(
-        saisonsActuelles,
+    const {
+      error,
+    } = await supabase
+      .from("saisons")
+      .delete()
+      .eq(
+        "id",
         idSaison
-      )
+      );
+
+    if (error) {
+      return {
+        succes: false,
+        saison: null,
+        erreur:
+          error.message,
+      };
+    }
+
+    setSaisons(
+      (saisonsActuelles) =>
+        saisonsActuelles.filter(
+          (saison) =>
+            String(saison.id) !==
+            String(idSaison)
+        )
     );
 
     return {
       succes: true,
-      saison: saisonExistante,
+      saison:
+        saisonExistante,
     };
   }
 
   return {
     saisons,
+
+    chargement,
+    erreurChargement,
+
     ajouterSaison,
     modifierSaison,
     supprimerSaison,
+
     obtenirSaisonParId,
     obtenirSaisonActive,
   };

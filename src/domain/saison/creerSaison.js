@@ -1,7 +1,11 @@
 export function creerSaison({
   id = crypto.randomUUID(),
 
+  associationId = "",
+
   nom = "",
+
+  anneeReference = null,
 
   dateDebut = "",
 
@@ -16,16 +20,33 @@ export function creerSaison({
   return {
     id,
 
-    nom: nom.trim(),
+    associationId:
+      String(
+        associationId ?? ""
+      ).trim(),
 
-    dateDebut,
+    nom:
+      String(nom ?? "").trim(),
 
-    dateFin,
+    anneeReference:
+      anneeReference === null ||
+      anneeReference === ""
+        ? null
+        : Number(anneeReference),
 
-    active,
+    dateDebut:
+      dateDebut ?? "",
 
-    verrouillee,
+    dateFin:
+      dateFin ?? "",
 
-    notes: notes.trim(),
+    active:
+      Boolean(active),
+
+    verrouillee:
+      Boolean(verrouillee),
+
+    notes:
+      String(notes ?? "").trim(),
   };
 }

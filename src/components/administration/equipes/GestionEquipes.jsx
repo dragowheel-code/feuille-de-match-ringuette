@@ -100,40 +100,51 @@ function GestionEquipes({
   }
   
 
-  function enregistrerEquipe(donneesEquipe) {
-    const resultat = equipeSelectionnee
-      ? modifierEquipe({
-          ...donneesEquipe,
-          id: equipeSelectionnee.id,
-        })
-      : ajouterEquipe(donneesEquipe);
+  async function enregistrerEquipe(
+  donneesEquipe
+) {
+  const resultat = equipeSelectionnee
+    ? await modifierEquipe({
+        ...donneesEquipe,
+        id: equipeSelectionnee.id,
+      })
+    : await ajouterEquipe(
+        donneesEquipe
+      );
 
-    if (!resultat.succes) {
-      setErreursEquipe(resultat.erreurs);
-      return;
-    }
-
-    fermerAjoutEquipe();
+  if (!resultat.succes) {
+    setErreursEquipe(
+      resultat.erreurs ?? []
+    );
+    return;
   }
 
-  function demanderSuppression(equipe) {
-    const confirmation = window.confirm(
-      `Supprimer l'équipe « ${obtenirNomEquipe(equipe)} » ?`
+  fermerAjoutEquipe();
+}
+
+  async function demanderSuppression(
+  equipe
+) {
+  const confirmation = window.confirm(
+    `Supprimer l'équipe « ${obtenirNomEquipe(equipe)} » ?`
+  );
+
+  if (!confirmation) {
+    return;
+  }
+
+  const resultat =
+    await supprimerEquipe(
+      equipe.id
     );
 
-    if (!confirmation) {
-      return;
-    }
-
-    const resultat = supprimerEquipe(equipe.id);
-
-    if (!resultat.succes) {
-      window.alert(
-        resultat.erreur ??
-          "Impossible de supprimer l'équipe."
-      );
-    }
+  if (!resultat.succes) {
+    window.alert(
+      resultat.erreur ??
+        "Impossible de supprimer l'équipe."
+    );
   }
+}
   
   return (
     <section className="gestion-equipes">

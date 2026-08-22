@@ -1,3 +1,7 @@
+import {
+  formaterTempsPendantSaisie,
+} from "../utils/temps";
+
 export default function GardienneModal({
   ouverte,
   equipeGardienne,
@@ -33,11 +37,17 @@ export default function GardienneModal({
 
         <label>Temps affiché au tableau</label>
         <input
-          type="text"
-          value={tempsGardienneTableau}
-          onChange={(e) => setTempsGardienneTableau(e.target.value)}
-          placeholder="Exemple : 08:32"
-        />
+  value={tempsGardienneTableau}
+  onChange={(e) =>
+    setTempsGardienneTableau(
+      formaterTempsPendantSaisie(
+        e.target.value
+      )
+    )
+  }
+  placeholder="Exemple : 832 → 8:32"
+  inputMode="numeric"
+/>
 
         <p>
           Période : <strong>{periode}</strong>

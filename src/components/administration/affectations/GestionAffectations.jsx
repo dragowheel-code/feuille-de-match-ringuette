@@ -5,12 +5,13 @@ import { obtenirAdmissibiliteCategorie } from "../../../domain/categories/obteni
 import { obtenirCategorieEquipe } from "../../../domain/equipes/obtenirCategorieEquipe";
 import { validerAffectationsEquipe } from "../../../domain/affectation/validerAffectationsEquipe";
 import { CATEGORIES } from "../../../domain/categories/categories";
+import { normaliserCategorie } from "../../../domain/categories/normaliserCategorie";
+import { obtenirCategorieJoueuse } from "../../../domain/categories/obtenirCategorieJoueuse";
+import { obtenirAutresEquipesJoueuse } from "../../../domain/affectation/obtenirAutresEquipesJoueuse";
 
 import AccordeonCategorie from "./AccordeonCategorie";
 import TableauCategorie from "./TableauCategorie";
 import BarreOutilsAffectations from "./BarreOutilsAffectations";
-import { normaliserCategorie } from "../../../domain/categories/normaliserCategorie";
-import { obtenirAutresEquipesJoueuse } from "../../../domain/affectation/obtenirAutresEquipesJoueuse";
 
 function GestionAffectations({
   retour,
@@ -30,7 +31,10 @@ function GestionAffectations({
     setEtatAffectations,
   ] = useState({});
 
-  const [recherche, setRecherche] = useState("");
+  const [
+    recherche,
+    setRecherche,
+  ] = useState("");
 
   const {
     affectations,
@@ -41,10 +45,18 @@ function GestionAffectations({
     associationActive && saisonActive
       ? equipes.filter(
           (equipe) =>
-            equipe.associationId ===
-              associationActive.id &&
-            equipe.saisonId ===
-              saisonActive.id
+            String(
+              equipe.associationId
+            ) ===
+              String(
+                associationActive.id
+              ) &&
+            String(
+              equipe.saisonId
+            ) ===
+              String(
+                saisonActive.id
+              )
         )
       : [];
 
@@ -52,35 +64,59 @@ function GestionAffectations({
     equipesDisponibles.find(
       (equipe) =>
         String(equipe.id) ===
-        String(equipeSelectionneeId)
+        String(
+          equipeSelectionneeId
+        )
     );
 
+  /*
+   * La catégorie de la joueuse n'est plus
+   * enregistrée dans sa fiche permanente.
+   *
+   * Elle est calculée ici à partir de sa
+   * date de naissance et de l'année de
+   * référence de la saison active.
+   */
   const joueusesDisponibles =
-    associationActive && equipeSelectionnee
-      ? joueuses.filter((joueuse) => {
-          if (
-            joueuse.associationId !==
-            associationActive.id
-          ) {
-            return false;
-          }
-          console.log(
-  "Catégories présentes :",
-  [...new Set(joueuses.map(
-    (joueuse) => joueuse.categorie
-  ))]
-);
+    associationActive &&
+    saisonActive &&
+    equipeSelectionnee
+      ? joueuses
+          .filter(
+            (joueuse) =>
+              String(
+                joueuse.associationId
+              ) ===
+              String(
+                associationActive.id
+              )
+          )
+          .map((joueuse) => ({
+            ...joueuse,
 
-          const admissibilite =
-            obtenirAdmissibiliteCategorie(
-              obtenirCategorieEquipe(
-                equipeSelectionnee
+            categorie:
+              obtenirCategorieJoueuse(
+                joueuse.dateNaissance,
+                saisonActive.anneeReference
               ),
-              joueuse.categorie
-            );
+          }))
+          .filter((joueuse) => {
+            if (!joueuse.categorie) {
+              return false;
+            }
 
-          return admissibilite.type !== null;
-        })
+            const admissibilite =
+              obtenirAdmissibiliteCategorie(
+                obtenirCategorieEquipe(
+                  equipeSelectionnee
+                ),
+                joueuse.categorie
+              );
+
+            return (
+              admissibilite.type !== null
+            );
+          })
       : [];
 
   const joueusesFiltrees =
@@ -88,7 +124,9 @@ function GestionAffectations({
       .filter((joueuse) =>
         joueuse.nomComplet
           .toLowerCase()
-          .includes(recherche.toLowerCase())
+          .includes(
+            recherche.toLowerCase()
+          )
       )
       .sort((a, b) => {
         const ordreCategorie = {
@@ -102,14 +140,18 @@ function GestionAffectations({
         };
 
         const ordreA =
-  ordreCategorie[
-    normaliserCategorie(a.categorie)
-  ] ?? 999;
+          ordreCategorie[
+            normaliserCategorie(
+              a.categorie
+            )
+          ] ?? 999;
 
-const ordreB =
-  ordreCategorie[
-    normaliserCategorie(b.categorie)
-  ] ?? 999;
+        const ordreB =
+          ordreCategorie[
+            normaliserCategorie(
+              b.categorie
+            )
+          ] ?? 999;
 
         if (ordreA !== ordreB) {
           return ordreA - ordreB;
@@ -121,124 +163,168 @@ const ordreB =
         );
       });
 
-  const nombreAffectees = Object.values(
-    etatAffectations
-  ).filter(
-    (etat) =>
-      etat.assignee ||
-      etat.derogationHaut ||
-      etat.derogationBas
-  ).length;
+  const nombreAffectees =
+    Object.values(
+      etatAffectations
+    ).filter(
+      (etat) =>
+        etat.assignee ||
+        etat.derogationHaut ||
+        etat.derogationBas
+    ).length;
 
-  const nombrePE = Object.values(
-    etatAffectations
-  ).filter(
-    (etat) => etat.derogationHaut
-  ).length;
+  const nombrePE =
+    Object.values(
+      etatAffectations
+    ).filter(
+      (etat) =>
+        etat.derogationHaut
+    ).length;
 
-  function obtenirAdmissibiliteJoueuse(joueuse) {
+  function obtenirAdmissibiliteJoueuse(
+    joueuse
+  ) {
+    const categorieJoueuse =
+      obtenirCategorieJoueuse(
+        joueuse.dateNaissance,
+        saisonActive?.anneeReference
+      );
+
     return obtenirAdmissibiliteCategorie(
       obtenirCategorieEquipe(
         equipeSelectionnee
       ),
-      joueuse.categorie
+      categorieJoueuse
     );
   }
 
   function obtenirAutresEquipesPourJoueuse(
-  joueuse
-) {
-  if (!equipeSelectionnee) {
-    return [];
-  }
+    joueuse
+  ) {
+    if (!equipeSelectionnee) {
+      return [];
+    }
 
-  return obtenirAutresEquipesJoueuse(
-    affectations,
-    equipes,
-    joueuse.id,
-    equipeSelectionnee.id
-  );
-}
-
-  function affecterJoueuses(listeJoueuses) {
-  if (!equipeSelectionnee) {
-    return;
-  }
-
-  setEtatAffectations((etatActuel) => {
-    const nouvelEtat = {
-      ...etatActuel,
-    };
-
-    listeJoueuses.forEach((joueuse) => {
-      const admissibilite =
-        obtenirAdmissibiliteJoueuse(joueuse);
-
-      nouvelEtat[joueuse.id] = {
-        assignee:
-          admissibilite.type === "normale",
-
-        derogationHaut:
-          admissibilite.type === "D+",
-
-        derogationBas:
-          admissibilite.type === "D-",
-      };
-    });
-
-    return nouvelEtat;
-  });
-}
-
-function affecterToutesLesJoueuses() {
-  affecterJoueuses(joueusesDisponibles);
-}
-
-function affecterCategorie(categorie) {
-  const joueusesCategorie =
-    joueusesDisponibles.filter(
-      (joueuse) =>
-        normaliserCategorie(
-          joueuse.categorie
-        ) === categorie
+    return obtenirAutresEquipesJoueuse(
+      affectations,
+      equipes,
+      joueuse.id,
+      equipeSelectionnee.id
     );
+  }
 
-  affecterJoueuses(joueusesCategorie);
-}
-function retirerCategorie(categorie) {
-  const idsJoueusesCategorie =
-    joueusesDisponibles
-      .filter(
+  function affecterJoueuses(
+    listeJoueuses
+  ) {
+    if (!equipeSelectionnee) {
+      return;
+    }
+
+    setEtatAffectations(
+      (etatActuel) => {
+        const nouvelEtat = {
+          ...etatActuel,
+        };
+
+        listeJoueuses.forEach(
+          (joueuse) => {
+            const admissibilite =
+              obtenirAdmissibiliteJoueuse(
+                joueuse
+              );
+
+            nouvelEtat[joueuse.id] = {
+              assignee:
+                admissibilite.type ===
+                "normale",
+
+              derogationHaut:
+                admissibilite.type ===
+                "D+",
+
+              derogationBas:
+                admissibilite.type ===
+                "D-",
+            };
+          }
+        );
+
+        return nouvelEtat;
+      }
+    );
+  }
+
+  function affecterToutesLesJoueuses() {
+    affecterJoueuses(
+      joueusesDisponibles
+    );
+  }
+
+  function affecterCategorie(
+    categorie
+  ) {
+    const joueusesCategorie =
+      joueusesDisponibles.filter(
         (joueuse) =>
           normaliserCategorie(
             joueuse.categorie
           ) === categorie
-      )
-      .map((joueuse) => joueuse.id);
+      );
 
-  setEtatAffectations((etatActuel) => {
-    const nouvelEtat = {
-      ...etatActuel,
-    };
+    affecterJoueuses(
+      joueusesCategorie
+    );
+  }
 
-    idsJoueusesCategorie.forEach(
-      (joueuseId) => {
-        delete nouvelEtat[joueuseId];
+  function retirerCategorie(
+    categorie
+  ) {
+    const idsJoueusesCategorie =
+      joueusesDisponibles
+        .filter(
+          (joueuse) =>
+            normaliserCategorie(
+              joueuse.categorie
+            ) === categorie
+        )
+        .map(
+          (joueuse) =>
+            joueuse.id
+        );
+
+    setEtatAffectations(
+      (etatActuel) => {
+        const nouvelEtat = {
+          ...etatActuel,
+        };
+
+        idsJoueusesCategorie.forEach(
+          (joueuseId) => {
+            delete nouvelEtat[
+              joueuseId
+            ];
+          }
+        );
+
+        return nouvelEtat;
       }
     );
-
-    return nouvelEtat;
-  });
-}
+  }
 
   function retirerToutesLesJoueuses() {
     setEtatAffectations({});
   }
 
-  function changerEquipe(evenement) {
-    const equipeId = evenement.target.value;
+  function changerEquipe(
+    evenement
+  ) {
+    const equipeId =
+      evenement.target.value;
 
-    setEquipeSelectionneeId(equipeId);
+    setEquipeSelectionneeId(
+      equipeId
+    );
+
     setRecherche("");
 
     if (!equipeId) {
@@ -251,72 +337,107 @@ function retirerCategorie(categorie) {
     affectations
       .filter(
         (affectation) =>
-          String(affectation.equipeId) ===
-          String(equipeId)
+          String(
+            affectation.equipeId
+          ) === String(equipeId)
       )
-      .forEach((affectation) => {
-        nouvelEtat[affectation.joueuseId] = {
-          assignee:
-            !affectation.derogationHaut &&
-            !affectation.derogationBas,
+      .forEach(
+        (affectation) => {
+          nouvelEtat[
+            affectation.joueuseId
+          ] = {
+            assignee:
+              affectation.typeAffectation ===
+              "NORMALE",
 
-          derogationHaut: Boolean(
-            affectation.derogationHaut
-          ),
+            derogationHaut:
+              affectation.typeAffectation ===
+              "PE",
 
-          derogationBas: Boolean(
-            affectation.derogationBas
-          ),
-        };
-      });
+            derogationBas:
+              affectation.typeAffectation ===
+              "RETROGRADATION",
+          };
+        }
+      );
 
-    setEtatAffectations(nouvelEtat);
+    setEtatAffectations(
+      nouvelEtat
+    );
   }
 
-  function enregistrerAffectations() {
+  async function enregistrerAffectations() {
     if (!equipeSelectionnee) {
       window.alert(
         "Sélectionnez une équipe avant d'enregistrer."
       );
+
       return;
     }
 
     const nouvellesAffectations =
       joueusesDisponibles
-        .filter((joueuse) => {
-          const etat =
-            etatAffectations[joueuse.id];
+        .filter(
+          (joueuse) => {
+            const etat =
+              etatAffectations[
+                joueuse.id
+              ];
 
-          return Boolean(
-            etat?.assignee ||
-              etat?.derogationHaut ||
-              etat?.derogationBas
-          );
-        })
+            return Boolean(
+              etat?.assignee ||
+                etat?.derogationHaut ||
+                etat?.derogationBas
+            );
+          }
+        )
         .map((joueuse) => {
           const etat =
-            etatAffectations[joueuse.id];
+            etatAffectations[
+              joueuse.id
+            ];
+
+          let typeAffectation =
+            "NORMALE";
+
+          if (
+            etat.derogationHaut
+          ) {
+            typeAffectation =
+              "PE";
+          }
+
+          if (
+            etat.derogationBas
+          ) {
+            typeAffectation =
+              "RETROGRADATION";
+          }
 
           return {
-            id: crypto.randomUUID(),
+            id:
+              crypto.randomUUID(),
 
             saisonId:
-              saisonActive?.id ?? "",
+              saisonActive?.id ??
+              "",
 
             equipeId:
               equipeSelectionnee.id,
 
-            joueuseId: joueuse.id,
+            joueuseId:
+              joueuse.id,
 
-            derogationHaut: Boolean(
-              etat.derogationHaut
-            ),
+            numero: "",
 
-            derogationBas: Boolean(
-              etat.derogationBas
-            ),
+            typeAffectation,
+
+            dateDebut: "",
+            dateFin: "",
 
             active: true,
+
+            notes: "",
           };
         });
 
@@ -327,15 +448,30 @@ function retirerCategorie(categorie) {
 
     if (!validation.valide) {
       window.alert(
-        validation.erreurs.join("\n")
+        validation.erreurs.join(
+          "\n"
+        )
       );
+
       return;
     }
 
-    remplacerAffectationsEquipe(
-      equipeSelectionnee.id,
-      nouvellesAffectations
-    );
+    const resultat =
+      await remplacerAffectationsEquipe(
+        equipeSelectionnee.id,
+        nouvellesAffectations
+      );
+
+    if (!resultat.succes) {
+      window.alert(
+        resultat.erreurs?.join(
+          "\n"
+        ) ||
+          "Impossible d'enregistrer les affectations."
+      );
+
+      return;
+    }
 
     window.alert(
       "Affectations enregistrées."
@@ -349,8 +485,8 @@ function retirerCategorie(categorie) {
           <h1>Affectations</h1>
 
           <p>
-            Assignez les joueuses à l’équipe
-            sélectionnée.
+            Assignez les joueuses à
+            l’équipe sélectionnée.
           </p>
         </div>
 
@@ -364,8 +500,12 @@ function retirerCategorie(categorie) {
 
           <button
             type="button"
-            onClick={enregistrerAffectations}
-            disabled={!equipeSelectionnee}
+            onClick={
+              enregistrerAffectations
+            }
+            disabled={
+              !equipeSelectionnee
+            }
           >
             Enregistrer
           </button>
@@ -375,13 +515,17 @@ function retirerCategorie(categorie) {
       <div className="affectations-contenu">
         <div className="affectations-contexte">
           <p>
-            <strong>Association :</strong>{" "}
+            <strong>
+              Association :
+            </strong>{" "}
             {associationActive?.nom ??
               "Aucune"}
           </p>
 
           <p>
-            <strong>Saison :</strong>{" "}
+            <strong>
+              Saison :
+            </strong>{" "}
             {saisonActive?.nom ??
               "Aucune"}
           </p>
@@ -390,8 +534,9 @@ function retirerCategorie(categorie) {
         {!associationActive ||
         !saisonActive ? (
           <p>
-            Une association active et une
-            saison active sont requises.
+            Une association active et
+            une saison active sont
+            requises.
           </p>
         ) : (
           <div className="affectations-selection">
@@ -399,22 +544,39 @@ function retirerCategorie(categorie) {
               equipeSelectionneeId={
                 equipeSelectionneeId
               }
+
               equipesDisponibles={
                 equipesDisponibles
               }
-              changerEquipe={changerEquipe}
+
+              changerEquipe={
+                changerEquipe
+              }
+
               obtenirNomEquipe={
                 obtenirNomEquipe
               }
+
               nombreAffectees={
                 nombreAffectees
               }
-              nombrePE={nombrePE}
-              recherche={recherche}
-              setRecherche={setRecherche}
+
+              nombrePE={
+                nombrePE
+              }
+
+              recherche={
+                recherche
+              }
+
+              setRecherche={
+                setRecherche
+              }
+
               affecterToutesLesJoueuses={
                 affecterToutesLesJoueuses
               }
+
               retirerToutesLesJoueuses={
                 retirerToutesLesJoueuses
               }
@@ -429,30 +591,42 @@ function retirerCategorie(categorie) {
                 {joueusesFiltrees.length ===
                 0 ? (
                   <p>
-                    Aucune joueuse ne correspond
-                    à la recherche.
+                    Aucune joueuse ne
+                    correspond à la
+                    recherche.
                   </p>
                 ) : (
                   CATEGORIES.map(
                     (categorie) => {
                       const joueusesCategorie =
-  joueusesFiltrees.filter(
-    (joueuse) =>
-      normaliserCategorie(
-        joueuse.categorie
-      ) === categorie.nom
-  );
-                        const nombreAffecteesCategorie =
-  joueusesCategorie.filter((joueuse) => {
-    const etat =
-      etatAffectations[joueuse.id];
+                        joueusesFiltrees.filter(
+                          (
+                            joueuse
+                          ) =>
+                            normaliserCategorie(
+                              joueuse.categorie
+                            ) ===
+                            categorie.nom
+                        );
 
-    return Boolean(
-      etat?.assignee ||
-        etat?.derogationHaut ||
-        etat?.derogationBas
-    );
-  }).length;
+                      const nombreAffecteesCategorie =
+                        joueusesCategorie.filter(
+                          (
+                            joueuse
+                          ) => {
+                            const etat =
+                              etatAffectations[
+                                joueuse
+                                  .id
+                              ];
+
+                            return Boolean(
+                              etat?.assignee ||
+                                etat?.derogationHaut ||
+                                etat?.derogationBas
+                            );
+                          }
+                        ).length;
 
                       if (
                         joueusesCategorie.length ===
@@ -463,32 +637,62 @@ function retirerCategorie(categorie) {
 
                       return (
                         <AccordeonCategorie
-                          key={categorie.id}
-                          titre={categorie.nom}
-                          nombre={joueusesCategorie.length}
-                          nombreAffectees={nombreAffecteesCategorie}
-                          onToutAffecter={() =>
-  affecterCategorie(categorie.nom)
-}
+                          key={
+                            categorie.id
+                          }
 
-onToutRetirer={() =>
-  retirerCategorie(categorie.nom)
-}
+                          titre={
+                            categorie.nom
+                          }
+
+                          nombre={
+                            joueusesCategorie.length
+                          }
+
+                          nombreAffectees={
+                            nombreAffecteesCategorie
+                          }
+
+                          onToutAffecter={() =>
+                            affecterCategorie(
+                              categorie.nom
+                            )
+                          }
+
+                          onToutRetirer={() =>
+                            retirerCategorie(
+                              categorie.nom
+                            )
+                          }
+
                           ouvertParDefaut={
-  recherche.trim() !== "" ||
-  nombreAffecteesCategorie > 0
-}
+                            recherche.trim() !==
+                              "" ||
+                            nombreAffecteesCategorie >
+                              0
+                          }
+
                           enfants={
                             <TableauCategorie
-                             joueuses={joueusesCategorie}
-                             etatAffectations={etatAffectations}
-                             setEtatAffectations={setEtatAffectations}
-                             obtenirAdmissibilite={
-                             obtenirAdmissibiliteJoueuse
-                             }
-                             obtenirAutresEquipes={
-                             obtenirAutresEquipesPourJoueuse
-                             }
+                              joueuses={
+                                joueusesCategorie
+                              }
+
+                              etatAffectations={
+                                etatAffectations
+                              }
+
+                              setEtatAffectations={
+                                setEtatAffectations
+                              }
+
+                              obtenirAdmissibilite={
+                                obtenirAdmissibiliteJoueuse
+                              }
+
+                              obtenirAutresEquipes={
+                                obtenirAutresEquipesPourJoueuse
+                              }
                             />
                           }
                         />

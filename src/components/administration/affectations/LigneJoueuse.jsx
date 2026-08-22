@@ -1,10 +1,12 @@
+import { normaliserCategorie } from "../../../domain/categories/normaliserCategorie";
+
 function LigneJoueuse({
   joueuse,
   etat,
   admissibilite,
   autresEquipes = [],
   setEtatAffectations,
-  }) {
+}) {
   const libelleAffectation =
     admissibilite.type === "normale"
       ? "Normale"
@@ -16,58 +18,80 @@ function LigneJoueuse({
       etat.derogationBas
   );
 
-  function changerAffectation(evenement) {
-    const cochee = evenement.target.checked;
+  const categorieAffichee =
+    normaliserCategorie(
+      joueuse.categorie
+    );
 
-    setEtatAffectations((etatActuel) => ({
-      ...etatActuel,
+  function changerAffectation(
+    evenement
+  ) {
+    const cochee =
+      evenement.target.checked;
 
-      [joueuse.id]: {
-        assignee:
-          cochee &&
-          admissibilite.type === "normale",
+    setEtatAffectations(
+      (etatActuel) => ({
+        ...etatActuel,
 
-        derogationHaut:
-          cochee &&
-          admissibilite.type === "D+",
+        [joueuse.id]: {
+          assignee:
+            cochee &&
+            admissibilite.type ===
+              "normale",
 
-        derogationBas:
-          cochee &&
-          admissibilite.type === "D-",
-      },
-    }));
+          derogationHaut:
+            cochee &&
+            admissibilite.type ===
+              "D+",
+
+          derogationBas:
+            cochee &&
+            admissibilite.type ===
+              "D-",
+        },
+      })
+    );
   }
 
   return (
     <tr>
       <td>
-  <span
-    className={`pastille-categorie pastille-${joueuse.categorie.toLowerCase()}`}
-  >
-    {joueuse.categorie
-      .slice(0, 3)
-      .toUpperCase()}
-  </span>
+        <span
+          className={`pastille-categorie pastille-${categorieAffichee.toLowerCase()}`}
+        >
+          {categorieAffichee
+            .slice(0, 3)
+            .toUpperCase()}
+        </span>
 
-  <div className="ligne-joueuse-identite">
-    <span>{joueuse.nomComplet}</span>
+        <div className="ligne-joueuse-identite">
+          <span>
+            {joueuse.nomComplet}
+          </span>
 
-    {autresEquipes.length > 0 && (
-      <small className="ligne-joueuse-autres-equipes">
-        Déjà affectée à :{" "}
-        {autresEquipes.join(" • ")}
-      </small>
-    )}
-  </div>
-</td>
+          {autresEquipes.length >
+            0 && (
+            <small className="ligne-joueuse-autres-equipes">
+              Déjà affectée à :{" "}
+              {autresEquipes.join(
+                " • "
+              )}
+            </small>
+          )}
+        </div>
+      </td>
 
-      <td>{libelleAffectation}</td>
+      <td>
+        {libelleAffectation}
+      </td>
 
       <td>
         <input
           type="checkbox"
           checked={estAffectee}
-          onChange={changerAffectation}
+          onChange={
+            changerAffectation
+          }
         />
       </td>
     </tr>

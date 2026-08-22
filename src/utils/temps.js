@@ -57,3 +57,63 @@ export function ajouterMinutes(temps, minutesAAjouter) {
     "0"
   )}:${String(nouvellesSecondes).padStart(2, "0")}`;
 }
+
+export function formaterTempsSaisi(valeur) {
+  const texte = String(valeur ?? "");
+
+  // On conserve uniquement les chiffres.
+  const chiffres = texte
+    .replace(/\D/g, "")
+    .slice(0, 4);
+
+  if (!chiffres) {
+    return "";
+  }
+
+  // 1 ou 2 chiffres = secondes
+  if (chiffres.length <= 2) {
+    return chiffres;
+  }
+
+  // 3 chiffres : M:SS
+  if (chiffres.length === 3) {
+    return `${chiffres.slice(0, 1)}:${chiffres.slice(1)}`;
+  }
+
+  // 4 chiffres : MM:SS
+  return `${chiffres.slice(0, 2)}:${chiffres.slice(2)}`;
+}
+
+export function formaterTempsPendantSaisie(
+  valeur
+) {
+  const chiffres = String(
+    valeur ?? ""
+  )
+    .replace(/\D/g, "")
+    .slice(0, 4);
+
+  if (!chiffres) {
+    return "";
+  }
+
+  if (chiffres.length === 1) {
+    return `0:0${chiffres}`;
+  }
+
+  if (chiffres.length === 2) {
+    return `0:${chiffres}`;
+  }
+
+  if (chiffres.length === 3) {
+    return `${chiffres.slice(
+      0,
+      1
+    )}:${chiffres.slice(1)}`;
+  }
+
+  return `${chiffres.slice(
+    0,
+    2
+  )}:${chiffres.slice(2)}`;
+}

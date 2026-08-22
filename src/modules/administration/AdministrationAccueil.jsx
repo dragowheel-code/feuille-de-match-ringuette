@@ -4,7 +4,7 @@ const SECTIONS_ADMINISTRATION = [
     titre: "Associations",
     description:
       "Créer et gérer les associations, leurs coordonnées, leurs logos et leurs couleurs.",
-    statut: "En développement",
+    statut: "En fonction",
     active: true,
   },
   {
@@ -12,7 +12,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Saisons",
   description:
     "Créer et gérer les saisons utilisées pour les affectations, les équipes et les historiques.",
-  statut: "En développement",
+  statut: "En fonction",
   active: true,
 },
   {
@@ -20,7 +20,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Équipes",
   description:
     "Gérer les équipes appartenant aux différentes associations.",
-  statut: "En développement",
+  statut: "En fonction",
   active: true,
 },
   {
@@ -28,7 +28,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Joueuses",
   description:
     "Gérer les joueuses et leurs affectations saisonnières.",
-  statut: "En développement",
+  statut: "En fonction",
   active: true,
 },
 {
@@ -36,7 +36,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Affectations",
   description:
     "Attribuer les joueuses aux équipes pour chaque saison.",
-  statut: "En développement",
+  statut: "En fonction",
   active: true,
 },
 {
@@ -44,7 +44,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Équipements",
   description:
     "Gérer les équipements physiques, leur disponibilité et leurs affectations.",
-  statut: "En développement",
+  statut: "En fonction",
   active: true,
 },
   {
@@ -52,7 +52,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Personnel d'équipe",
   description:
     "Créer et gérer le personnel d'équipe, les numéros PNCE et les certifications.",
-  statut: "En développement",
+  statut: "En fonction",
   active: true,
 },
 {
@@ -60,7 +60,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Affectations du personnel",
   description:
     "Attribuer le personnel d'équipe aux équipes de l'association active pour la saison active.",
-  statut: "En développement",
+  statut: "En fonction",
   active: true,
 },
   {
@@ -68,7 +68,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Officiels",
   description:
     "Gérer les officiels et les rôles qu'ils peuvent occuper.",
-  statut: "En développement",
+  statut: "En fonction",
   active: true,
 },
 {
@@ -76,7 +76,7 @@ const SECTIONS_ADMINISTRATION = [
   titre: "Tournois",
   description:
     "Créer et gérer les tournois, les équipes inscrites et les officiels participants.",
-  statut: "En développement",
+  statut: "En fonction",
   active: true,
 },
   {

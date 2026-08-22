@@ -13,7 +13,7 @@ function ImportationAdministration({
   retournerAccueil,
   associationActive,
   joueuses,
-  setJoueuses,
+  importerJoueuses,
 }) {
    
   const [fichierSelectionne, setFichierSelectionne] = useState(null);
@@ -96,11 +96,11 @@ function ImportationAdministration({
   )
   .map(adapterParticipanteSportPlus)
   .map((participante) => ({
-    ...participante,
-    associationId:
-      associationActive?.id ?? "",
-    equipeId: "",
-  }));
+  ...participante,
+
+  associationId:
+    associationActive?.id ?? "",
+}));
 
       const validation = validerParticipantes(participantes);
 
@@ -284,9 +284,15 @@ setDocument({
                 </div>
               )}
               <PrevisualisationImportation
-  previsualisation={previsualisation}
-  joueuses={joueuses}
-  setJoueuses={setJoueuses}
+  previsualisation={
+    previsualisation
+  }
+  joueuses={
+    joueuses
+  }
+  importerJoueuses={
+    importerJoueuses
+  }
 />
             </div>
           )}

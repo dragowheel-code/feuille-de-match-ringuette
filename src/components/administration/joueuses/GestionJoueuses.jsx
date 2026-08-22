@@ -6,7 +6,6 @@ import JoueuseModal from "./JoueuseModal";
 function GestionJoueuses({
   retour,
   associations,
-  equipes,
   gestionJoueuses,
 }) {
   const {
@@ -32,25 +31,21 @@ function GestionJoueuses({
   ] = useState(null);
 
   const formulaireJoueuseInitial = {
-    associationId: "",
-    equipeId: "",
+  associationId: "",
 
-    nomComplet: "",
-    numeroInscription: "",
+  nomComplet: "",
+  numeroInscription: "",
 
-    adresse: "",
-    ville: "",
-    codePostal: "",
-    telephone: "",
+  adresse: "",
+  ville: "",
+  codePostal: "",
+  telephone: "",
 
-    sexe: "",
-    dateNaissance: "",
-    age: "",
+  sexe: "",
+  dateNaissance: "",
 
-    categorie: "",
-    codeCategorie: "",
-    saison: "",
-  };
+  active: true,
+};
 
   const [
     formulaireJoueuse,
@@ -72,76 +67,101 @@ function GestionJoueuses({
     setFenetreJoueuseOuverte(false);
   }
 
-  function ouvrirModificationJoueuse(joueuse) {
-    setErreursJoueuse([]);
-    setJoueuseSelectionnee(joueuse);
+  function ouvrirModificationJoueuse(
+  joueuse
+) {
+  setErreursJoueuse([]);
+  setJoueuseSelectionnee(joueuse);
 
-    setFormulaireJoueuse({
-      associationId:
-        joueuse.associationId ?? "",
-      equipeId: joueuse.equipeId ?? "",
+  setFormulaireJoueuse({
+    associationId:
+      joueuse.associationId ?? "",
 
-      nomComplet: joueuse.nomComplet ?? "",
-      numeroInscription:
-        joueuse.numeroInscription ?? "",
+    nomComplet:
+      joueuse.nomComplet ?? "",
 
-      adresse: joueuse.adresse ?? "",
-      ville: joueuse.ville ?? "",
-      codePostal: joueuse.codePostal ?? "",
-      telephone: joueuse.telephone ?? "",
+    numeroInscription:
+      joueuse.numeroInscription ?? "",
 
-      sexe: joueuse.sexe ?? "",
-      dateNaissance:
-        joueuse.dateNaissance ?? "",
-      age: joueuse.age ?? "",
+    adresse:
+      joueuse.adresse ?? "",
 
-      categorie: joueuse.categorie ?? "",
-      codeCategorie:
-        joueuse.codeCategorie ?? "",
-      saison: joueuse.saison ?? "",
-    });
+    ville:
+      joueuse.ville ?? "",
 
-    setFenetreJoueuseOuverte(true);
-  }
+    codePostal:
+      joueuse.codePostal ?? "",
 
-  function enregistrerJoueuse(
-    donneesJoueuse
-  ) {
-    const resultat = joueuseSelectionnee
-      ? modifierJoueuse({
-          ...donneesJoueuse,
-          id: joueuseSelectionnee.id,
-        })
-      : ajouterJoueuse(donneesJoueuse);
+    telephone:
+      joueuse.telephone ?? "",
 
-    if (!resultat.succes) {
-      setErreursJoueuse(resultat.erreurs);
-      return;
-    }
+    sexe:
+      joueuse.sexe ?? "",
 
-    fermerAjoutJoueuse();
-  }
+    dateNaissance:
+      joueuse.dateNaissance ?? "",
 
-  function demanderSuppression(joueuse) {
-    const confirmation = window.confirm(
-      `Supprimer la joueuse « ${joueuse.nomComplet} » ?`
+    active:
+      joueuse.active !== false,
+  });
+
+  setFenetreJoueuseOuverte(true);
+}
+
+  async function enregistrerJoueuse(
+  donneesJoueuse
+) {
+  const resultat = joueuseSelectionnee
+  ? await modifierJoueuse({
+      ...donneesJoueuse,
+      id: joueuseSelectionnee.id,
+    })
+  : await ajouterJoueuse(
+      donneesJoueuse
     );
 
-    if (!confirmation) {
-      return;
-    }
+console.log(
+  "Résultat enregistrement joueuse :",
+  resultat
+);
+console.log(
+  "Erreur exacte :",
+  resultat.erreurs?.[0]
+);
 
-    const resultat = supprimerJoueuse(
+  if (!resultat.succes) {
+    setErreursJoueuse(
+      resultat.erreurs ?? []
+    );
+    return;
+  }
+
+  fermerAjoutJoueuse();
+}
+
+  async function demanderSuppression(
+  joueuse
+) {
+  const confirmation = window.confirm(
+    `Supprimer la joueuse « ${joueuse.nomComplet} » ?`
+  );
+
+  if (!confirmation) {
+    return;
+  }
+
+  const resultat =
+    await supprimerJoueuse(
       joueuse.id
     );
 
-    if (!resultat.succes) {
-      window.alert(
-        resultat.erreur ??
-          "Impossible de supprimer la joueuse."
-      );
-    }
+  if (!resultat.succes) {
+    window.alert(
+      resultat.erreur ??
+        "Impossible de supprimer la joueuse."
+    );
   }
+}
 
   return (
     <section className="gestion-joueuses">
@@ -173,16 +193,15 @@ function GestionJoueuses({
       </header>
 
       <ListeJoueuses
-        joueuses={joueuses}
-        associations={associations}
-        equipes={equipes}
-        modifierJoueuse={
-          ouvrirModificationJoueuse
-        }
-        demanderSuppression={
-          demanderSuppression
-        }
-      />
+  joueuses={joueuses}
+  associations={associations}
+  modifierJoueuse={
+    ouvrirModificationJoueuse
+  }
+  demanderSuppression={
+    demanderSuppression
+  }
+/>
 
       <JoueuseModal
         ouverte={fenetreJoueuseOuverte}
@@ -194,7 +213,6 @@ function GestionJoueuses({
         }
         joueuse={joueuseSelectionnee}
         associations={associations}
-        equipes={equipes}
         erreurs={erreursJoueuse}
       />
     </section>

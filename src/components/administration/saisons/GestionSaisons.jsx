@@ -5,6 +5,7 @@ import SaisonModal from "./SaisonModal";
 
 function GestionSaisons({
   retour,
+  associationActive,
   gestionSaisons,
 }) {
   const {
@@ -30,13 +31,19 @@ function GestionSaisons({
   ] = useState(null);
 
   const formulaireSaisonInitial = {
-    nom: "",
-    dateDebut: "",
-    dateFin: "",
-    active: false,
-    verrouillee: false,
-    notes: "",
-  };
+  associationId:
+    associationActive?.id || "",
+
+  nom: "",
+  anneeReference: "",
+
+  dateDebut: "",
+  dateFin: "",
+
+  active: false,
+  verrouillee: false,
+  notes: "",
+};
 
   const [
     formulaireSaison,
@@ -57,55 +64,99 @@ function GestionSaisons({
   }
 
   function ouvrirModificationSaison(saison) {
-    setErreursSaison([]);
-    setSaisonSelectionnee(saison);
+  setErreursSaison([]);
+  setSaisonSelectionnee(saison);
 
-    setFormulaireSaison({
-      nom: saison.nom,
-      dateDebut: saison.dateDebut,
-      dateFin: saison.dateFin,
-      active: saison.active,
-      verrouillee: saison.verrouillee,
-      notes: saison.notes,
-    });
+  setFormulaireSaison({
+    associationId:
+      saison.associationId ?? "",
 
-    setFenetreSaisonOuverte(true);
+    nom:
+      saison.nom ?? "",
+
+    anneeReference:
+      saison.anneeReference ?? "",
+
+    dateDebut:
+      saison.dateDebut ?? "",
+
+    dateFin:
+      saison.dateFin ?? "",
+
+    active:
+      saison.active ?? false,
+
+    verrouillee:
+      saison.verrouillee ?? false,
+
+    notes:
+      saison.notes ?? "",
+  });
+
+  setFenetreSaisonOuverte(true);
+}
+
+  async function enregistrerSaison(
+  donneesSaison
+) {
+  const anneeReference =
+    donneesSaison.dateDebut
+      ? new Date(
+          donneesSaison.dateDebut
+        ).getFullYear()
+      : null;
+
+  const donneesCompletes = {
+    ...donneesSaison,
+
+    associationId:
+      associationActive?.id || "",
+
+    anneeReference,
+  };
+
+  const resultat = saisonSelectionnee
+    ? await modifierSaison({
+        ...donneesCompletes,
+        id: saisonSelectionnee.id,
+      })
+    : await ajouterSaison(
+        donneesCompletes
+      );
+
+  if (!resultat.succes) {
+    setErreursSaison(
+      resultat.erreurs ?? []
+    );
+    return;
   }
 
-  function enregistrerSaison(donneesSaison) {
-    const resultat = saisonSelectionnee
-      ? modifierSaison({
-          ...donneesSaison,
-          id: saisonSelectionnee.id,
-        })
-      : ajouterSaison(donneesSaison);
+  fermerSaison();
+}
 
-    if (!resultat.succes) {
-      setErreursSaison(resultat.erreurs);
-      return;
-    }
+  async function demanderSuppression(
+  saison
+) {
+  const confirmation = window.confirm(
+    `Supprimer la saison « ${saison.nom} » ?`
+  );
 
-    fermerSaison();
+  if (!confirmation) {
+    return;
   }
 
-  function demanderSuppression(saison) {
-    const confirmation = window.confirm(
-      `Supprimer la saison « ${saison.nom} » ?`
+  const resultat =
+    await supprimerSaison(
+      saison.id
     );
 
-    if (!confirmation) {
-      return;
-    }
-
-    const resultat = supprimerSaison(saison.id);
-
-    if (!resultat.succes) {
-      window.alert(
-        resultat.erreur ??
-          "Impossible de supprimer la saison."
-      );
-    }
+  if (!resultat.succes) {
+    window.alert(
+      resultat.erreur ??
+        "Impossible de supprimer la saison."
+    );
   }
+}
 
   return (
     <section className="gestion-saisons">

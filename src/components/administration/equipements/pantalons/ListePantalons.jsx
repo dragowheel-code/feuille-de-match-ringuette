@@ -15,10 +15,9 @@ function ListePantalons({
     <table className="table-administration">
       <thead>
         <tr>
-          <th>N°</th>
           <th>Taille</th>
-          <th>Clair</th>
-          <th>Foncé</th>
+          <th>Quantité en stock</th>
+          <th>Statut</th>
           <th>Modifier</th>
           <th>Supprimer</th>
         </tr>
@@ -27,16 +26,27 @@ function ListePantalons({
       <tbody>
         {pantalons.map((pantalon) => (
           <tr key={pantalon.id}>
-            <td>{pantalon.numero}</td>
-            <td>{pantalon.taille}</td>
-            <td>{pantalon.etat}</td>
-            
+            <td>
+              {pantalon.taille}
+            </td>
+
+            <td>
+              {pantalon.quantiteStock}
+            </td>
+
+            <td>
+              {pantalon.actif
+                ? "Actif"
+                : "Inactif"}
+            </td>
 
             <td>
               <button
                 type="button"
                 onClick={() =>
-                  modifierPantalon(pantalon)
+                  modifierPantalon(
+                    pantalon
+                  )
                 }
               >
                 Modifier
@@ -47,7 +57,9 @@ function ListePantalons({
               <button
                 type="button"
                 onClick={() =>
-                  demanderSuppression(pantalon)
+                  demanderSuppression(
+                    pantalon
+                  )
                 }
               >
                 Supprimer
