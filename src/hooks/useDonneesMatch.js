@@ -1,4 +1,11 @@
-import { TYPES_EVENEMENT } from "../domain/evenements";
+import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
+  TYPES_EVENEMENT,
+} from "../domain/evenements";
 
 export function useDonneesMatch({
   associations,
@@ -6,19 +13,86 @@ export function useDonneesMatch({
   joueuses,
   joueusesAdministration,
   affectationsAdministration,
-
   ensemblesChandailsAdministration,
   attributionsChandailsAdministration,
-
   personnelEquipeAdministration,
   affectationsPersonnelAdministration,
-
+  chargerPersonnelPublic,
   evenements,
   matchInfo,
   buts,
   gestionPunitions,
   gestionTirBarrage,
 }) {
+
+  const [
+  personnelPublicLocal,
+  setPersonnelPublicLocal,
+] = useState([]);
+
+const [
+  personnelPublicVisiteur,
+  setPersonnelPublicVisiteur,
+] = useState([]);
+
+useEffect(() => {
+  let actif = true;
+
+  async function charger() {
+    if (!chargerPersonnelPublic) {
+      return;
+    }
+
+    if (matchInfo.equipeLocaleId) {
+      const resultatLocal =
+        await chargerPersonnelPublic(
+          matchInfo.equipeLocaleId
+        );
+
+      if (
+        actif &&
+        resultatLocal.succes
+      ) {
+        setPersonnelPublicLocal(
+          resultatLocal.personnel
+        );
+      }
+    } else {
+      setPersonnelPublicLocal([]);
+    }
+
+    if (
+      matchInfo.equipeVisiteuseId
+    ) {
+      const resultatVisiteur =
+        await chargerPersonnelPublic(
+          matchInfo.equipeVisiteuseId
+        );
+
+      if (
+        actif &&
+        resultatVisiteur.succes
+      ) {
+        setPersonnelPublicVisiteur(
+          resultatVisiteur.personnel
+        );
+      }
+    } else {
+      setPersonnelPublicVisiteur([]);
+    }
+  }
+
+  charger();
+
+  return () => {
+    actif = false;
+  };
+}, [
+  chargerPersonnelPublic,
+  matchInfo.equipeLocaleId,
+  matchInfo.equipeVisiteuseId,
+]);
+
   const equipeLocale =
     equipesAdministration.find(
       (equipe) =>
@@ -146,15 +220,68 @@ export function useDonneesMatch({
     };
   }
 
-  const personnelLocale =
-    obtenirPersonnelEquipe(
-      matchInfo.equipeLocaleId
+function convertirPersonnelPublic(
+  personnel
+) {
+  const entraineurChef =
+    personnel.find(
+      (personne) =>
+        personne.role ===
+        "Entraîneur-chef"
     );
 
-  const personnelVisiteur =
-    obtenirPersonnelEquipe(
-      matchInfo.equipeVisiteuseId
+  const entraineursAdjoints =
+    personnel.filter(
+      (personne) =>
+        personne.role ===
+        "Entraîneur adjoint"
     );
+
+  const gerante =
+    personnel.find(
+      (personne) =>
+        personne.role ===
+        "Gérante"
+    );
+
+  return {
+    entraineurChef:
+      entraineurChef?.nomComplet ??
+      "",
+
+    assistant1:
+      entraineursAdjoints[0]
+        ?.nomComplet ??
+      "",
+
+    assistant2:
+      entraineursAdjoints[1]
+        ?.nomComplet ??
+      "",
+
+    gerante:
+      gerante?.nomComplet ??
+      "",
+  };
+}
+
+  const personnelLocale =
+  personnelPublicLocal.length > 0
+    ? convertirPersonnelPublic(
+        personnelPublicLocal
+      )
+    : obtenirPersonnelEquipe(
+        matchInfo.equipeLocaleId
+      );
+
+const personnelVisiteur =
+  personnelPublicVisiteur.length > 0
+    ? convertirPersonnelPublic(
+        personnelPublicVisiteur
+      )
+    : obtenirPersonnelEquipe(
+        matchInfo.equipeVisiteuseId
+      );
 
   const equipeLocaleData =
     equipeLocale
@@ -308,22 +435,6 @@ export function useDonneesMatch({
     construireJoueusesEquipe(
       matchInfo.equipeLocaleId
     );
-
-   console.table(
-  joueusesEquipeLocaleAdministration.map(
-    (joueuse) => ({
-      nom:
-        joueuse.nomComplet ??
-        joueuse.nom,
-
-      numero:
-        joueuse.numero,
-
-      affectationId:
-        joueuse.affectationId,
-    })
-  )
-);
 
   const joueusesEquipeVisiteuseAdministration =
     construireJoueusesEquipe(
@@ -513,7 +624,7 @@ export function useDonneesMatch({
       .filter(Boolean),
   ].filter(Boolean);
 
-  return {
+ return {
     equipeLocaleData,
     equipeVisiteuseData,
 

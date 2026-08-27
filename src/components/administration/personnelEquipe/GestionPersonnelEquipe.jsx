@@ -5,7 +5,7 @@ import PersonnelEquipeModal from "./PersonnelEquipeModal";
 import FichePersonnelEquipeModal from "./FichePersonnelEquipeModal";
 
 function GestionPersonnelEquipe({
-  retour,
+  retournerAccueil,
   associationActive,
   gestionPersonnelEquipe,
 }) {
@@ -275,9 +275,9 @@ function fermerFichePersonnel() {
         <div className="gestion-personnel-equipe-actions">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <button

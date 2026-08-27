@@ -14,7 +14,7 @@ import TableauCategorie from "./TableauCategorie";
 import BarreOutilsAffectations from "./BarreOutilsAffectations";
 
 function GestionAffectations({
-  retour,
+  retournerAccueil,
   associationActive,
   saisonActive,
   equipes,
@@ -493,9 +493,9 @@ function GestionAffectations({
         <div className="gestion-affectations-actions">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <button

@@ -1,5 +1,5 @@
 function GestionEquipements({
-  retour,
+  retournerAccueil,
   ouvrirSection,
 }) {
   return (
@@ -16,9 +16,9 @@ function GestionEquipements({
 
         <button
           type="button"
-          onClick={retour}
+          onClick={retournerAccueil}
         >
-          Retour
+          Retour aux volets administratifs
         </button>
       </header>
 

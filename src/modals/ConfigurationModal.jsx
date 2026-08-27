@@ -3,8 +3,7 @@ import { mettreAJourMatch } from "../domain/match";
 import {
   obtenirEquipesDisponibles,
   obtenirOfficielsDisponibles,
-  creerAlignementDepuisAdministration,
-} from "../domain/configurationMatch";
+  } from "../domain/configurationMatch";
 
 
 export default function ConfigurationModal({
@@ -12,26 +11,19 @@ export default function ConfigurationModal({
   fermer,
   matchInfo,
   setMatchInfo,
-
   associations,
   tournois,
-
-  joueusesAdministration,
-  affectationsAdministration,
   setJoueuses,
-
   equipesAdministration,
   inscriptionsEquipesTournoi,
-
   officiels,
   inscriptionsOfficielsTournoi,
-
   dureePeriode,
   setDureePeriode,
-
   equipeLocaleData,
   equipeVisiteuseData,
   destinataires,
+  chargerAlignementPublic,
 }) {
   const equipesDisponibles =
   obtenirEquipesDisponibles({
@@ -457,49 +449,69 @@ const operateurs30sConfiguration =
               <label>Équipe</label>
               <select
   value={matchInfo.equipeLocaleId || ""}
-  onChange={(e) => {
-    const equipeSelectionnee =
-      equipesDisponibles.find(
-        (equipe) =>
-          String(equipe.id) ===
-          String(e.target.value)
-      );
+  onChange={async (e) => {
+  const equipeId = e.target.value;
 
-      const nomEquipeLocale =
-  equipeSelectionnee
-    ? obtenirNomEquipe(
-        equipeSelectionnee,
-        associations
-      )
-    : "";
-
-const alignementLocal =
-  creerAlignementDepuisAdministration({
-    equipe: equipeSelectionnee,
-    nomEquipeMatch: nomEquipeLocale,
-    joueuses: joueusesAdministration,
-    affectations: affectationsAdministration,
-  });
-
-    modifierMatch({
-  equipeLocaleId: e.target.value,
-  equipeLocale: nomEquipeLocale,
-});
-
-    setJoueuses((anciennesJoueuses) => {
-  const autresJoueuses =
-    anciennesJoueuses.filter(
-      (joueuse) =>
-        joueuse.equipe !==
-        matchInfo.equipeLocale
+  const equipeSelectionnee =
+    equipesDisponibles.find(
+      (equipe) =>
+        String(equipe.id) ===
+        String(equipeId)
     );
 
-  return [
-    ...autresJoueuses,
-    ...alignementLocal,
-  ];
-});
-  }}
+  const nomEquipeLocale =
+    equipeSelectionnee
+      ? obtenirNomEquipe(
+          equipeSelectionnee,
+          associations
+        )
+      : "";
+
+  let alignementLocal = [];
+
+  if (
+    equipeSelectionnee &&
+    chargerAlignementPublic
+  ) {
+    const resultat =
+      await chargerAlignementPublic(
+        equipeSelectionnee.id
+      );
+
+    if (resultat.succes) {
+      alignementLocal =
+        resultat.joueuses.map(
+          (joueuse) => ({
+            ...joueuse,
+            equipe:
+              nomEquipeLocale,
+          })
+        );
+    }
+  }
+
+  modifierMatch({
+    equipeLocaleId: equipeId,
+    equipeLocale:
+      nomEquipeLocale,
+  });
+
+  setJoueuses(
+    (anciennesJoueuses) => {
+      const autresJoueuses =
+        anciennesJoueuses.filter(
+          (joueuse) =>
+            joueuse.equipe !==
+            matchInfo.equipeLocale
+        );
+
+      return [
+        ...autresJoueuses,
+        ...alignementLocal,
+      ];
+    }
+  );
+}}
 >
   <option value="">
     Choisir
@@ -530,49 +542,70 @@ const alignementLocal =
     matchInfo.equipeVisiteuseId ||
     ""
   }
-  onChange={(e) => {
-    const equipeSelectionnee =
-      equipesDisponibles.find(
-        (equipe) =>
-          String(equipe.id) ===
-          String(e.target.value)
-      );
+  onChange={async (e) => {
+  const equipeId = e.target.value;
 
-      const nomEquipeVisiteuse =
-  equipeSelectionnee
-    ? obtenirNomEquipe(
-        equipeSelectionnee,
-        associations
-      )
-    : "";
-
-const alignementVisiteur =
-  creerAlignementDepuisAdministration({
-    equipe: equipeSelectionnee,
-    nomEquipeMatch: nomEquipeVisiteuse,
-    joueuses: joueusesAdministration,
-    affectations: affectationsAdministration,
-  });
-
-    modifierMatch({
-  equipeVisiteuseId: e.target.value,
-  equipeVisiteuse: nomEquipeVisiteuse,
-});
-
-    setJoueuses((anciennesJoueuses) => {
-  const autresJoueuses =
-    anciennesJoueuses.filter(
-      (joueuse) =>
-        joueuse.equipe !==
-        matchInfo.equipeVisiteuse
+  const equipeSelectionnee =
+    equipesDisponibles.find(
+      (equipe) =>
+        String(equipe.id) ===
+        String(equipeId)
     );
 
-  return [
-    ...autresJoueuses,
-    ...alignementVisiteur,
-  ];
-});
-  }}
+  const nomEquipeVisiteuse =
+    equipeSelectionnee
+      ? obtenirNomEquipe(
+          equipeSelectionnee,
+          associations
+        )
+      : "";
+
+  let alignementVisiteur = [];
+
+  if (
+    equipeSelectionnee &&
+    chargerAlignementPublic
+  ) {
+    const resultat =
+      await chargerAlignementPublic(
+        equipeSelectionnee.id
+      );
+
+    if (resultat.succes) {
+      alignementVisiteur =
+        resultat.joueuses.map(
+          (joueuse) => ({
+            ...joueuse,
+            equipe:
+              nomEquipeVisiteuse,
+          })
+        );
+    }
+  }
+
+  modifierMatch({
+    equipeVisiteuseId:
+      equipeId,
+    equipeVisiteuse:
+      nomEquipeVisiteuse,
+  });
+
+  setJoueuses(
+    (anciennesJoueuses) => {
+      const autresJoueuses =
+        anciennesJoueuses.filter(
+          (joueuse) =>
+            joueuse.equipe !==
+            matchInfo.equipeVisiteuse
+        );
+
+      return [
+        ...autresJoueuses,
+        ...alignementVisiteur,
+      ];
+    }
+  );
+}}
 >
   <option value="">
     Choisir

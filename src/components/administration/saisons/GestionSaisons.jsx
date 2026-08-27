@@ -4,7 +4,7 @@ import ListeSaisons from "./ListeSaisons";
 import SaisonModal from "./SaisonModal";
 
 function GestionSaisons({
-  retour,
+  retournerAccueil,
   associationActive,
   gestionSaisons,
 }) {
@@ -173,9 +173,9 @@ function GestionSaisons({
         <div className="gestion-saisons-actions">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <button

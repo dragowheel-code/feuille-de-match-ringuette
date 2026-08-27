@@ -970,7 +970,7 @@ function GestionChandails({
             type="button"
             onClick={retour}
           >
-            Retour
+            Retour page équipement
           </button>
 
           {!modeRetourChandails && (

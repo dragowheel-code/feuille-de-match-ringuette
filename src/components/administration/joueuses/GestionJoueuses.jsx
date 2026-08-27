@@ -4,7 +4,7 @@ import ListeJoueuses from "./ListeJoueuses";
 import JoueuseModal from "./JoueuseModal";
 
 function GestionJoueuses({
-  retour,
+  retournerAccueil,
   associations,
   gestionJoueuses,
 }) {
@@ -120,15 +120,6 @@ function GestionJoueuses({
       donneesJoueuse
     );
 
-console.log(
-  "Résultat enregistrement joueuse :",
-  resultat
-);
-console.log(
-  "Erreur exacte :",
-  resultat.erreurs?.[0]
-);
-
   if (!resultat.succes) {
     setErreursJoueuse(
       resultat.erreurs ?? []
@@ -178,9 +169,9 @@ console.log(
         <div className="gestion-joueuses-actions">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <button

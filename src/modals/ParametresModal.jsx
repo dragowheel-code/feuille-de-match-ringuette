@@ -9,6 +9,12 @@ export default function ParametresModal({
     return null;
   }
 
+  function ouvrirAdministration() {
+    fermer();
+    window.location.hash =
+      "/administration";
+  }
+
   return (
     <div className="modal-backdrop">
       <div className="modal config-modal">
@@ -37,11 +43,26 @@ export default function ParametresModal({
 
           <button
             className="delete-button"
-            onClick={
-              effacerSauvegarde
-            }
+            onClick={effacerSauvegarde}
           >
             Effacer les données sauvegardées
+          </button>
+        </div>
+
+        <div className="config-section">
+          <h3>Administration</h3>
+
+          <p>
+            Accéder au module
+            d'administration de la
+            plateforme.
+          </p>
+
+          <button
+            type="button"
+            onClick={ouvrirAdministration}
+          >
+            Ouvrir l'administration
           </button>
         </div>
 

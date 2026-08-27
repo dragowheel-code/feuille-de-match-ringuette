@@ -5,7 +5,7 @@ import ListeEquipes from "./ListeEquipes";
 import EquipeModal from "./EquipeModal";
 
 function GestionEquipes({
-  retour,
+  retournerAccueil,
   associationActive,
   saisonActive,
   gestionEquipes,
@@ -161,9 +161,9 @@ function GestionEquipes({
         <div className="gestion-equipes-actions">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <button

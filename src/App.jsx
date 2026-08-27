@@ -35,6 +35,10 @@ function App({
   affectationsAdministration,
   personnelEquipeAdministration,
   affectationsPersonnelAdministration,
+
+  chargerAlignementPublic,
+  chargerPersonnelPublic,
+
   inscriptionsEquipesTournoi,
   inscriptionsOfficielsTournoi,
   ensemblesChandailsAdministration,
@@ -123,6 +127,8 @@ const donneesMatch = useDonneesMatch({
   attributionsChandailsAdministration,
   personnelEquipeAdministration,
   affectationsPersonnelAdministration,
+
+  chargerPersonnelPublic,
 
   evenements,
   matchInfo,
@@ -298,6 +304,10 @@ const exportMatch = useExportMatch({
 
   effacerSauvegarde={
     gestionPartie.effacerSauvegarde
+  }
+
+  chargerAlignementPublic={
+    chargerAlignementPublic
   }
 />
 <PartieModals

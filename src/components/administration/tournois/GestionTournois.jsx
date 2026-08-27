@@ -5,7 +5,7 @@ import TournoiModal from "./TournoiModal";
 import FicheTournoiModal from "./FicheTournoiModal";
 
 function GestionTournois({
-  retour,
+  retournerAccueil,
   associationActive,
   saisonActive,
   associations,
@@ -198,9 +198,9 @@ function fermerFiche() {
         <div className="administration-section-entete">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <h2>Tournois</h2>
@@ -220,9 +220,9 @@ function fermerFiche() {
         <div className="administration-section-entete">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <h2>Tournois</h2>
@@ -250,9 +250,9 @@ function fermerFiche() {
 
         <button
           type="button"
-          onClick={retour}
+          onClick={retournerAccueil}
         >
-          Retour
+          Retour aux volets administratifs
         </button>
       </div>
 

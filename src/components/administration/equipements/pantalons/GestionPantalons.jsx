@@ -287,7 +287,7 @@ const remisesPantalons =
             type="button"
             onClick={retour}
           >
-            Retour
+            Retour page equipement
           </button>
 
           <button

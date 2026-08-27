@@ -19,7 +19,7 @@ function creerFormulaireVide() {
 }
 
 function GestionOfficiels({
-  retour,
+  retournerAccueil,
   associationActive,
   gestionOfficiels,
 }) {
@@ -266,9 +266,9 @@ function GestionOfficiels({
 
         <button
           type="button"
-          onClick={retour}
+          onClick={retournerAccueil}
         >
-          Retour
+          Retour aux volets administratifs
         </button>
       </div>
 

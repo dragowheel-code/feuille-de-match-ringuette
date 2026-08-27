@@ -1,8 +1,16 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useState,
+} from "react";
+
 import App from "./App";
 import AdministrationApp from "./modules/administration/AdministrationApp";
-// Hooks //
+
+import ConnexionAdministration from "./components/auth/ConnexionAdministration";
+
+// Hooks
 import { useDonneesApplication } from "./hooks/useDonneesApplication";
+
 import { useGestionAssociations } from "./hooks/useGestionAssociations";
 import { useGestionTournois } from "./hooks/useGestionTournois";
 import { useGestionInscriptionsTournoi } from "./hooks/useGestionInscriptionsTournoi";
@@ -15,187 +23,337 @@ import { useGestionOfficiels } from "./hooks/useGestionOfficiels";
 import { useGestionChandails } from "./hooks/useGestionChandails";
 import { useGestionAttributionsChandails } from "./hooks/useGestionAttributionsChandails";
 
-const ROUTE_ADMINISTRATION = "/administration";
+import { useAuthentification } from "./hooks/useAuthentification";
+
+import {
+  useDonneesFeuilleMatchPubliques,
+} from "./hooks/useDonneesFeuilleMatchPubliques";
+
+const ROUTE_ADMINISTRATION =
+  "/administration";
 
 function lireRoute() {
-  const route = window.location.hash.replace(/^#/, "");
+  const route =
+    window.location.hash.replace(
+      /^#/,
+      ""
+    );
 
   return route || "/";
 }
 
 function PlatformRoot() {
-  const [route, setRoute] = useState(lireRoute);
-  const donneesApplication = useDonneesApplication();
-  
+  const [
+    route,
+    setRoute,
+  ] = useState(lireRoute);
+
+  const donneesApplication =
+    useDonneesApplication();
+
+  /*
+   * Données publiques destinées
+   * uniquement à la feuille de match.
+   *
+   * Elles fonctionnent sans connexion.
+   */
+  const donneesFeuilleMatch =
+    useDonneesFeuilleMatchPubliques();
+
+  /*
+   * Données administratives.
+   *
+   * Elles restent protégées par
+   * l'authentification et la RLS.
+   */
   const gestionAssociations =
-  useGestionAssociations();
+    useGestionAssociations();
 
   const gestionTournois =
-  useGestionTournois();
+    useGestionTournois();
 
   const gestionInscriptionsTournoi =
-  useGestionInscriptionsTournoi();
+    useGestionInscriptionsTournoi();
 
   const gestionEquipes =
-  useGestionEquipes();
+    useGestionEquipes();
 
   const gestionJoueuses =
-  useGestionJoueuses();
+    useGestionJoueuses();
 
   const gestionAffectations =
-  useGestionAffectations();
+    useGestionAffectations();
 
   const gestionPersonnelEquipe =
-  useGestionPersonnelEquipe();
+    useGestionPersonnelEquipe();
 
   const gestionAffectationsPersonnel =
-  useGestionAffectationsPersonnel();
+    useGestionAffectationsPersonnel();
 
   const gestionOfficiels =
-  useGestionOfficiels();
+    useGestionOfficiels();
 
   const gestionChandails =
-  useGestionChandails();
+    useGestionChandails();
 
-const gestionAttributionsChandails =
-  useGestionAttributionsChandails();
+  const gestionAttributionsChandails =
+    useGestionAttributionsChandails();
+
+  const authentification =
+    useAuthentification();
 
   useEffect(() => {
     function gererChangementRoute() {
-      setRoute(lireRoute());
+      setRoute(
+        lireRoute()
+      );
     }
 
-    window.addEventListener("hashchange", gererChangementRoute);
+    window.addEventListener(
+      "hashchange",
+      gererChangementRoute
+    );
 
     return () => {
-      window.removeEventListener("hashchange", gererChangementRoute);
+      window.removeEventListener(
+        "hashchange",
+        gererChangementRoute
+      );
     };
   }, []);
 
-  const chargementSupabase =
-  gestionAssociations.chargement ||
-  gestionTournois.chargement ||
-  gestionInscriptionsTournoi.chargement ||
-  gestionEquipes.chargement ||
-  gestionJoueuses.chargement ||
-  gestionAffectations.chargement ||
-  gestionPersonnelEquipe.chargement ||
-  gestionAffectationsPersonnel.chargement ||
-  gestionOfficiels.chargement;
+  /*
+   * =====================================================
+   * ADMINISTRATION
+   * =====================================================
+   */
 
-  if (chargementSupabase) {
+  if (
+    route === ROUTE_ADMINISTRATION &&
+    authentification.chargement
+  ) {
+    return (
+      <main className="app">
+        <p>
+          Vérification de la session…
+        </p>
+      </main>
+    );
+  }
+
+  if (
+    route === ROUTE_ADMINISTRATION &&
+    !authentification.estConnecte
+  ) {
+    return (
+      <ConnexionAdministration
+        authentification={
+          authentification
+        }
+        fermer={() => {
+          window.location.hash = "";
+        }}
+      />
+    );
+  }
+
+  if (
+    route === ROUTE_ADMINISTRATION
+  ) {
+    const chargementAdministration =
+      gestionAssociations.chargement ||
+      gestionTournois.chargement ||
+      gestionInscriptionsTournoi.chargement ||
+      gestionEquipes.chargement ||
+      gestionJoueuses.chargement ||
+      gestionAffectations.chargement ||
+      gestionPersonnelEquipe.chargement ||
+      gestionAffectationsPersonnel.chargement ||
+      gestionOfficiels.chargement ||
+      gestionChandails.chargement ||
+      gestionAttributionsChandails.chargement;
+
+    if (
+      chargementAdministration
+    ) {
+      return (
+        <main className="app">
+          <p>
+            Chargement des données
+            administratives…
+          </p>
+        </main>
+      );
+    }
+
+    return (
+      <AdministrationApp
+        gestionAssociations={
+          gestionAssociations
+        }
+
+        gestionEquipes={
+          gestionEquipes
+        }
+
+        gestionJoueuses={
+          gestionJoueuses
+        }
+
+        gestionOfficiels={
+          gestionOfficiels
+        }
+
+        gestionPersonnelEquipe={
+          gestionPersonnelEquipe
+        }
+
+        gestionAffectationsPersonnel={
+          gestionAffectationsPersonnel
+        }
+
+        gestionAffectations={
+          gestionAffectations
+        }
+
+        gestionTournois={
+          gestionTournois
+        }
+
+        gestionInscriptionsTournoi={
+          gestionInscriptionsTournoi
+        }
+
+        gestionChandails={
+          gestionChandails
+        }
+
+        gestionAttributionsChandails={
+          gestionAttributionsChandails
+        }
+
+        authentification={
+          authentification
+        }
+      />
+    );
+  }
+
+  /*
+   * =====================================================
+   * FEUILLE DE MATCH PUBLIQUE
+   * =====================================================
+   */
+
+  if (
+    donneesFeuilleMatch.chargement
+  ) {
+    return (
+      <main className="app">
+        <p>
+          Chargement des données…
+        </p>
+      </main>
+    );
+  }
+
+  if (
+    donneesFeuilleMatch.erreur
+  ) {
+    return (
+      <main className="app">
+        <p>
+          Impossible de charger les
+          données de la feuille de
+          match.
+        </p>
+      </main>
+    );
+  }
+
   return (
-    <main className="app">
-      <p>
-        Chargement des données…
-      </p>
-    </main>
-  );
+    <App
+      donneesApplication={
+        donneesApplication
+      }
+
+      /*
+       * Données PUBLIQUES.
+       */
+      associations={
+        donneesFeuilleMatch.associations
+      }
+
+      equipesAdministration={
+        donneesFeuilleMatch.equipes
+      }
+
+      chargerAlignementPublic={
+        donneesFeuilleMatch.chargerAlignement
+      }
+
+      chargerPersonnelPublic={
+        donneesFeuilleMatch.chargerPersonnel
+      }
+
+      /*
+       * Ces données utilisent encore
+       * temporairement les anciens
+       * hooks administratifs.
+       *
+       * Déconnecté, elles seront donc
+       * vides jusqu'à ce qu'on crée
+       * leurs RPC publiques.
+       */
+      tournois={
+  donneesFeuilleMatch.tournois
 }
 
-  if (route === ROUTE_ADMINISTRATION) {
-  return (
-    <AdministrationApp
-  gestionAssociations={
-    gestionAssociations
-  }
+      joueusesAdministration={
+        gestionJoueuses.joueuses
+      }
 
-  gestionEquipes={
-    gestionEquipes
-  }
+      personnelEquipeAdministration={
+        gestionPersonnelEquipe
+          .personnelEquipe
+      }
 
-  gestionJoueuses={
-    gestionJoueuses
-  }
+      affectationsPersonnelAdministration={
+        gestionAffectationsPersonnel
+          .affectationsPersonnel
+      }
 
-  gestionOfficiels={
-    gestionOfficiels
-  }
+      affectationsAdministration={
+        gestionAffectations
+          .affectations
+      }
 
-  gestionPersonnelEquipe={
-    gestionPersonnelEquipe
-  }
+      officielsAdministration={
+        donneesFeuilleMatch
+           .officiels
+      }
 
-  gestionAffectationsPersonnel={
-    gestionAffectationsPersonnel
-  }
-  
-  gestionAffectations={
-    gestionAffectations
-  }
+      inscriptionsEquipesTournoi={
+        donneesFeuilleMatch
+           .inscriptionsEquipesTournoi
+      }
 
-  gestionTournois={
-    gestionTournois
-  }
+      inscriptionsOfficielsTournoi={
+        donneesFeuilleMatch
+           .inscriptionsOfficielsTournoi
+      }
 
-  gestionInscriptionsTournoi={
-    gestionInscriptionsTournoi
-  }
-gestionChandails={
-    gestionChandails
-  }
-  gestionAttributionsChandails={
-    gestionAttributionsChandails
-  }
-/>
+      ensemblesChandailsAdministration={
+        gestionChandails
+          .ensemblesChandails
+      }
+
+      attributionsChandailsAdministration={
+        gestionAttributionsChandails
+          .attributionsChandails
+      }
+    />
   );
-}
-
-  return (
-  <App
-  donneesApplication={donneesApplication}
-
-  associations={
-    gestionAssociations.associations
-  }
-
-  tournois={
-    gestionTournois.tournois
-  }
-
-  equipesAdministration={
-    gestionEquipes.equipes
-  }
-
-  joueusesAdministration={
-    gestionJoueuses.joueuses
-  }
-
-  personnelEquipeAdministration={
-    gestionPersonnelEquipe.personnelEquipe
-  }
-
-  affectationsPersonnelAdministration={
-    gestionAffectationsPersonnel.affectationsPersonnel
-  }
-
-  affectationsAdministration={
-    gestionAffectations.affectations
-  }
-
-  officielsAdministration={
-    gestionOfficiels.officiels
-  }
-
-  inscriptionsEquipesTournoi={
-    gestionInscriptionsTournoi
-      .inscriptionsEquipesTournoi
-  }
-
-  inscriptionsOfficielsTournoi={
-    gestionInscriptionsTournoi
-      .inscriptionsOfficielsTournoi
-  }
-
-  ensemblesChandailsAdministration={
-    gestionChandails.ensemblesChandails
-  }
-
-  attributionsChandailsAdministration={
-    gestionAttributionsChandails.attributionsChandails
-  }
-/>
-);
 }
 
 export default PlatformRoot;

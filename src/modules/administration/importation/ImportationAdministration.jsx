@@ -104,10 +104,6 @@ function ImportationAdministration({
 
       const validation = validerParticipantes(participantes);
 
-console.table(participantes);
-console.log(participantes[0]);
-console.log(joueuses[0]);
-
 // Temporaire : la base est vide
 const comparaison = comparerParticipantes({
   participantes,

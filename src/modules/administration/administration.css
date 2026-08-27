@@ -821,3 +821,9 @@
   border-top: 1px solid
     rgba(255, 255, 255, 0.15);
 }
+.administration-actions-entete {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}

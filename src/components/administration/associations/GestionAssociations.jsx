@@ -4,7 +4,7 @@ import ListeAssociations from "./ListeAssociations";
 import AssociationModal from "./AssociationModal";
 
 function GestionAssociations({
-  retour,
+  retournerAccueil,
   gestionAssociations,
 }) {
   
@@ -140,9 +140,9 @@ async function demanderSuppression(association)
         <div className="gestion-associations-actions">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <button

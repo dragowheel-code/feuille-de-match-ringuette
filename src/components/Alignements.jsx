@@ -155,10 +155,8 @@ export default function Alignements({
     <section className="events">
       <h2>Alignements</h2>
 
-      {joueusesEquipeLocaleAdministration.length ===
-  0 &&
-joueusesEquipeVisiteuseAdministration.length ===
-  0 ? (
+      {!matchInfo.equipeLocaleId &&
+       !matchInfo.equipeVisiteuseId ? (
   <p>
     Sélectionne les équipes dans la
     configuration du match pour afficher

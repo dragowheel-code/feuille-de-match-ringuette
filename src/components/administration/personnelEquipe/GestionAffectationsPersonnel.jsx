@@ -7,7 +7,7 @@ const ROLES = {
 };
 
 function GestionAffectationsPersonnel({
-  retour,
+  retournerAccueil,
   associationActive,
   saisonActive,
   equipes,
@@ -370,9 +370,9 @@ const nomB = [
         <div className="administration-section-entete">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <h2>
@@ -393,9 +393,9 @@ const nomB = [
         <div className="administration-section-entete">
           <button
             type="button"
-            onClick={retour}
-          >
-            Retour
+            onClick={retournerAccueil}
+        >
+          Retour aux volets administratifs
           </button>
 
           <h2>
@@ -415,9 +415,9 @@ const nomB = [
       <div className="administration-section-entete">
         <button
           type="button"
-          onClick={retour}
+          onClick={retournerAccueil}
         >
-          Retour
+          Retour aux volets administratifs
         </button>
 
         <h2>

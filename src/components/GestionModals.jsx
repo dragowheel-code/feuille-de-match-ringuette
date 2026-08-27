@@ -13,6 +13,7 @@ function GestionModals({
   equipesAdministration,
   joueusesAdministration,
   affectationsAdministration,
+  chargerAlignementPublic,
 
   inscriptionsEquipesTournoi,
   inscriptionsOfficielsTournoi,
@@ -79,6 +80,10 @@ function GestionModals({
   }
 
   destinataires={destinataires}
+
+  chargerAlignementPublic={
+    chargerAlignementPublic
+  }
 />
 
       <ParametresModal
