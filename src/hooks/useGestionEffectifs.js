@@ -14,11 +14,7 @@ import {
 export function useGestionEffectifs({
   joueuses,
   setJoueuses,
-
-  joueusesAdministration,
   equipesAdministration,
-  affectationsAdministration,
-
   modales,
   remplacante,
 }) {
@@ -32,7 +28,9 @@ export function useGestionEffectifs({
     modales.ouvrirRemplacante();
   }
 
-  function confirmerRemplacante() {
+  function confirmerRemplacante(
+    joueuseOriginale = null
+  ) {
     if (
       !remplacante.equipeRemplacante
     ) {
@@ -92,15 +90,6 @@ export function useGestionEffectifs({
       remplacante.modeRemplacante ===
       "existante"
     ) {
-      const joueuseOriginale =
-        joueusesAdministration.find(
-          (joueuse) =>
-            String(joueuse.id) ===
-            String(
-              remplacante.joueuseSelectionnee
-            )
-        );
-
       if (!joueuseOriginale) {
         alert(
           "Sélectionne une joueuse existante."
@@ -118,29 +107,11 @@ export function useGestionEffectifs({
             )
         );
 
-      const affectationProvenance =
-        affectationsAdministration.find(
-          (affectation) =>
-            String(
-              affectation.equipeId
-            ) ===
-              String(
-                remplacante.equipeProvenance
-              ) &&
-            String(
-              affectation.joueuseId
-            ) ===
-              String(
-                joueuseOriginale.id
-              ) &&
-            affectation.active !== false
-        );
-
       nouvelleJoueuse = {
-        id:
-          creerId(),
+        id: creerId(),
 
         joueuseOriginaleId:
+          joueuseOriginale.joueuseId ??
           joueuseOriginale.id,
 
         equipe:
@@ -150,40 +121,12 @@ export function useGestionEffectifs({
 
         nom:
           joueuseOriginale.nomComplet ??
+          joueuseOriginale.nom ??
           nom,
-
-        numeroInscription:
-          joueuseOriginale.numeroInscription ??
-          "",
-
-        dateNaissance:
-          joueuseOriginale.dateNaissance ??
-          "",
-
-        adresse:
-          joueuseOriginale.adresse ??
-          "",
-
-        ville:
-          joueuseOriginale.ville ??
-          "",
-
-        codePostal:
-          joueuseOriginale.codePostal ??
-          "",
-
-        telephone:
-          joueuseOriginale.telephone ??
-          "",
-
-        sexe:
-          joueuseOriginale.sexe ??
-          "",
 
         gardienne: false,
         capitaine: false,
         assistanteCapitaine: false,
-
         absente: false,
         suspendue: false,
         remplacante: true,
@@ -201,15 +144,10 @@ export function useGestionEffectifs({
                 .filter(Boolean)
                 .join(" ")
             : "",
-
-        affectationProvenanceId:
-          affectationProvenance?.id ??
-          "",
       };
     } else {
       nouvelleJoueuse = {
-        id:
-          creerId(),
+        id: creerId(),
 
         equipe:
           remplacante.equipeRemplacante,
@@ -229,7 +167,6 @@ export function useGestionEffectifs({
         gardienne: false,
         capitaine: false,
         assistanteCapitaine: false,
-
         absente: false,
         suspendue: false,
         remplacante: true,
@@ -270,7 +207,6 @@ export function useGestionEffectifs({
         if (index === -1) {
           return [
             ...anciennesJoueuses,
-
             basculerPresence({
               ...joueuseReference,
             }),
@@ -313,7 +249,6 @@ export function useGestionEffectifs({
         if (index === -1) {
           return [
             ...anciennesJoueuses,
-
             basculerSuspension({
               ...joueuseReference,
             }),
@@ -406,7 +341,6 @@ export function useGestionEffectifs({
   return {
     ouvrirFenetreRemplacante,
     confirmerRemplacante,
-
     changerPresence,
     changerSuspension,
     changerRoleJoueuse,

@@ -2,64 +2,48 @@ import Alignements from "./Alignements";
 
 function AlignementsPage({
   joueuses,
-
-  joueusesEquipeLocaleAdministration,
-  joueusesEquipeVisiteuseAdministration,
-
+  joueusesEquipeLocale,
+  joueusesEquipeVisiteuse,
   matchInfo,
   setMatchInfo,
-
   equipeLocaleData,
   equipeVisiteuseData,
-
   localOuvert,
   setLocalOuvert,
-
   visiteurOuvert,
   setVisiteurOuvert,
-
   gestionEffectifs,
 }) {
   return (
     <Alignements
       joueuses={joueuses}
-
-      joueusesEquipeLocaleAdministration={
-        joueusesEquipeLocaleAdministration
+      joueusesEquipeLocale={
+        joueusesEquipeLocale
       }
-
-      joueusesEquipeVisiteuseAdministration={
-        joueusesEquipeVisiteuseAdministration
+      joueusesEquipeVisiteuse={
+        joueusesEquipeVisiteuse
       }
-
       matchInfo={matchInfo}
       setMatchInfo={setMatchInfo}
-
       equipeLocaleData={equipeLocaleData}
       equipeVisiteuseData={
         equipeVisiteuseData
       }
-
       localOuvert={localOuvert}
       setLocalOuvert={setLocalOuvert}
-
       visiteurOuvert={visiteurOuvert}
       setVisiteurOuvert={
         setVisiteurOuvert
       }
-
       ouvrirFenetreRemplacante={
         gestionEffectifs.ouvrirFenetreRemplacante
       }
-
       changerPresence={
         gestionEffectifs.changerPresence
       }
-
       changerSuspension={
         gestionEffectifs.changerSuspension
       }
-
       changerRoleJoueuse={
         gestionEffectifs.changerRoleJoueuse
       }

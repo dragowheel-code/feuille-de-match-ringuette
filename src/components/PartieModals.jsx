@@ -11,8 +11,7 @@ function PartieModals({
   periode,
   associations,
   equipesAdministration,
-  joueusesAdministration,
-  affectationsAdministration,
+  chargerAlignementPublic,
   joueuses,
   buts,
   equipeNomPourBut,
@@ -144,11 +143,10 @@ function PartieModals({
        ouverte={modales.fenetreRemplacanteOuverte}
        associations={associations}
        equipesAdministration={equipesAdministration}
-       joueusesAdministration={joueusesAdministration}
-       affectationsAdministration={affectationsAdministration}
        equipeProvenance={remplacante.equipeProvenance}
        setEquipeProvenance={remplacante.setEquipeProvenance}
        equipeRemplacante={remplacante.equipeRemplacante}
+       chargerAlignementPublic={chargerAlignementPublic}
        modeRemplacante={remplacante.modeRemplacante}
        setModeRemplacante={remplacante.setModeRemplacante}
        joueuseSelectionnee={remplacante.joueuseSelectionnee}

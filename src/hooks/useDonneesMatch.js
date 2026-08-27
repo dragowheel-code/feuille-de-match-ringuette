@@ -11,12 +11,6 @@ export function useDonneesMatch({
   associations,
   equipesAdministration,
   joueuses,
-  joueusesAdministration,
-  affectationsAdministration,
-  ensemblesChandailsAdministration,
-  attributionsChandailsAdministration,
-  personnelEquipeAdministration,
-  affectationsPersonnelAdministration,
   chargerPersonnelPublic,
   evenements,
   matchInfo,
@@ -24,74 +18,71 @@ export function useDonneesMatch({
   gestionPunitions,
   gestionTirBarrage,
 }) {
+  const [
+    personnelPublicLocal,
+    setPersonnelPublicLocal,
+  ] = useState([]);
 
   const [
-  personnelPublicLocal,
-  setPersonnelPublicLocal,
-] = useState([]);
+    personnelPublicVisiteur,
+    setPersonnelPublicVisiteur,
+  ] = useState([]);
 
-const [
-  personnelPublicVisiteur,
-  setPersonnelPublicVisiteur,
-] = useState([]);
+  useEffect(() => {
+    let actif = true;
 
-useEffect(() => {
-  let actif = true;
-
-  async function charger() {
-    if (!chargerPersonnelPublic) {
-      return;
-    }
-
-    if (matchInfo.equipeLocaleId) {
-      const resultatLocal =
-        await chargerPersonnelPublic(
-          matchInfo.equipeLocaleId
-        );
-
-      if (
-        actif &&
-        resultatLocal.succes
-      ) {
-        setPersonnelPublicLocal(
-          resultatLocal.personnel
-        );
+    async function charger() {
+      if (!chargerPersonnelPublic) {
+        return;
       }
-    } else {
-      setPersonnelPublicLocal([]);
-    }
 
-    if (
-      matchInfo.equipeVisiteuseId
-    ) {
-      const resultatVisiteur =
-        await chargerPersonnelPublic(
-          matchInfo.equipeVisiteuseId
-        );
+      if (matchInfo.equipeLocaleId) {
+        const resultatLocal =
+          await chargerPersonnelPublic(
+            matchInfo.equipeLocaleId
+          );
 
-      if (
-        actif &&
-        resultatVisiteur.succes
-      ) {
-        setPersonnelPublicVisiteur(
-          resultatVisiteur.personnel
-        );
+        if (
+          actif &&
+          resultatLocal.succes
+        ) {
+          setPersonnelPublicLocal(
+            resultatLocal.personnel
+          );
+        }
+      } else {
+        setPersonnelPublicLocal([]);
       }
-    } else {
-      setPersonnelPublicVisiteur([]);
+
+      if (matchInfo.equipeVisiteuseId) {
+        const resultatVisiteur =
+          await chargerPersonnelPublic(
+            matchInfo.equipeVisiteuseId
+          );
+
+        if (
+          actif &&
+          resultatVisiteur.succes
+        ) {
+          setPersonnelPublicVisiteur(
+            resultatVisiteur.personnel
+          );
+        }
+      } else {
+        setPersonnelPublicVisiteur([]);
+      }
     }
-  }
 
-  charger();
+    charger();
 
-  return () => {
-    actif = false;
-  };
-}, [
-  chargerPersonnelPublic,
-  matchInfo.equipeLocaleId,
-  matchInfo.equipeVisiteuseId,
-]);
+    return () => {
+      actif = false;
+    };
+  }, [
+    chargerPersonnelPublic,
+    matchInfo.equipeLocaleId,
+    matchInfo.equipeVisiteuseId,
+  ]);
 
   const equipeLocale =
     equipesAdministration.find(
@@ -129,182 +120,75 @@ useEffect(() => {
         )
     );
 
-  function obtenirPersonnelEquipe(
-    equipeId
+  function convertirPersonnelPublic(
+    personnel
   ) {
-    const affectations =
-      affectationsPersonnelAdministration.filter(
-        (affectation) =>
-          affectation.actif !== false &&
-          String(
-            affectation.equipeId
-          ) ===
-            String(equipeId)
-      );
-
-    function trouverPersonnel(
-      role
-    ) {
-      const affectation =
-        affectations.find(
-          (element) =>
-            element.role === role
-        );
-
-      if (!affectation) {
-        return null;
-      }
-
-      return (
-        personnelEquipeAdministration.find(
-          (personne) =>
-            String(
-              personne.id
-            ) ===
-            String(
-              affectation.personnelId
-            )
-        ) ?? null
-      );
-    }
-
     const entraineurChef =
-      trouverPersonnel(
-        "Entraîneur-chef"
+      personnel.find(
+        (personne) =>
+          personne.role ===
+          "Entraîneur-chef"
       );
 
     const entraineursAdjoints =
-      affectations
-        .filter(
-          (affectation) =>
-            affectation.role ===
-            "Entraîneur adjoint"
-        )
-        .map(
-          (affectation) =>
-            personnelEquipeAdministration.find(
-              (personne) =>
-                String(
-                  personne.id
-                ) ===
-                String(
-                  affectation.personnelId
-                )
-            )
-        )
-        .filter(Boolean);
+      personnel.filter(
+        (personne) =>
+          personne.role ===
+          "Entraîneur adjoint"
+      );
 
     const gerante =
-      trouverPersonnel(
-        "Gérante"
+      personnel.find(
+        (personne) =>
+          personne.role ===
+          "Gérante"
       );
 
     return {
       entraineurChef:
         entraineurChef?.nomComplet ??
         "",
-
       assistant1:
         entraineursAdjoints[0]
           ?.nomComplet ??
         "",
-
       assistant2:
         entraineursAdjoints[1]
           ?.nomComplet ??
         "",
-
       gerante:
         gerante?.nomComplet ??
         "",
     };
   }
 
-function convertirPersonnelPublic(
-  personnel
-) {
-  const entraineurChef =
-    personnel.find(
-      (personne) =>
-        personne.role ===
-        "Entraîneur-chef"
-    );
-
-  const entraineursAdjoints =
-    personnel.filter(
-      (personne) =>
-        personne.role ===
-        "Entraîneur adjoint"
-    );
-
-  const gerante =
-    personnel.find(
-      (personne) =>
-        personne.role ===
-        "Gérante"
-    );
-
-  return {
-    entraineurChef:
-      entraineurChef?.nomComplet ??
-      "",
-
-    assistant1:
-      entraineursAdjoints[0]
-        ?.nomComplet ??
-      "",
-
-    assistant2:
-      entraineursAdjoints[1]
-        ?.nomComplet ??
-      "",
-
-    gerante:
-      gerante?.nomComplet ??
-      "",
-  };
-}
-
   const personnelLocale =
-  personnelPublicLocal.length > 0
-    ? convertirPersonnelPublic(
-        personnelPublicLocal
-      )
-    : obtenirPersonnelEquipe(
-        matchInfo.equipeLocaleId
-      );
+    convertirPersonnelPublic(
+      personnelPublicLocal
+    );
 
-const personnelVisiteur =
-  personnelPublicVisiteur.length > 0
-    ? convertirPersonnelPublic(
-        personnelPublicVisiteur
-      )
-    : obtenirPersonnelEquipe(
-        matchInfo.equipeVisiteuseId
-      );
+  const personnelVisiteur =
+    convertirPersonnelPublic(
+      personnelPublicVisiteur
+    );
 
   const equipeLocaleData =
     equipeLocale
       ? {
           ...equipeLocale,
           ...personnelLocale,
-
           courriel:
             associationLocale?.courriel ??
             equipeLocale?.courriel ??
             "",
-
           nomCouleurPrimaire:
             "Foncé",
-
           couleurPrimaire:
             associationLocale
               ?.couleurFonce ||
             "#000000",
-
           nomCouleurSecondaire:
             "Clair",
-
           couleurSecondaire:
             associationLocale
               ?.couleurClair ||
@@ -317,24 +201,19 @@ const personnelVisiteur =
       ? {
           ...equipeVisiteuse,
           ...personnelVisiteur,
-
           courriel:
             associationVisiteuse
               ?.courriel ??
             equipeVisiteuse?.courriel ??
             "",
-
           nomCouleurPrimaire:
             "Foncé",
-
           couleurPrimaire:
             associationVisiteuse
               ?.couleurFonce ||
             "#000000",
-
           nomCouleurSecondaire:
             "Clair",
-
           couleurSecondaire:
             associationVisiteuse
               ?.couleurClair ||
@@ -342,112 +221,29 @@ const personnelVisiteur =
         }
       : null;
 
-  function obtenirNumeroChandailPourAffectation(
-    affectation
-  ) {
-    const attribution =
-      attributionsChandailsAdministration.find(
-        (element) =>
-          element.active === true &&
-          String(
-            element.affectationId
-          ) ===
-            String(
-              affectation.id
-            )
-      );
-
-    if (!attribution) {
-      return (
-        affectation.numero ?? ""
-      );
-    }
-
-    const ensemble =
-      ensemblesChandailsAdministration.find(
-        (element) =>
-          String(
-            element.id
-          ) ===
-          String(
-            attribution.ensembleId
-          )
-      );
-
-    return (
-      ensemble?.numero ??
-      affectation.numero ??
-      ""
-    );
-  }
-
-  function construireJoueusesEquipe(
-    equipeId
-  ) {
-    return affectationsAdministration
-      .filter(
-        (affectation) =>
-          affectation.active !== false &&
-          String(
-            affectation.equipeId
-          ) ===
-            String(equipeId)
-      )
-      .map(
-        (affectation) => {
-          const joueuse =
-            joueusesAdministration.find(
-              (element) =>
-                String(
-                  element.id
-                ) ===
-                String(
-                  affectation.joueuseId
-                )
-            );
-
-          if (!joueuse) {
-            return null;
-          }
-
-          return {
-            ...joueuse,
-
-            affectationId:
-              affectation.id,
-
-            numero:
-              obtenirNumeroChandailPourAffectation(
-                affectation
-              ),
-
-            gardienne: false,
-            capitaine: false,
-            assistanteCapitaine:
-              false,
-          };
-        }
-      )
-      .filter(Boolean);
-  }
-
-  const joueusesEquipeLocaleAdministration =
-    construireJoueusesEquipe(
-      matchInfo.equipeLocaleId
+  const joueusesEquipeLocale =
+    joueuses.filter(
+      (joueuse) =>
+        joueuse.equipe ===
+          matchInfo.equipeLocale &&
+        joueuse.remplacante !== true
     );
 
-  const joueusesEquipeVisiteuseAdministration =
-    construireJoueusesEquipe(
-      matchInfo.equipeVisiteuseId
+  const joueusesEquipeVisiteuse =
+    joueuses.filter(
+      (joueuse) =>
+        joueuse.equipe ===
+          matchInfo.equipeVisiteuse &&
+        joueuse.remplacante !== true
     );
 
   function construireJoueusesMatch(
-    joueusesAdministrationEquipe,
+    joueusesEquipe,
     equipeNom
   ) {
-    const idsJoueusesAdministration =
+    const idsJoueusesEquipe =
       new Set(
-        joueusesAdministrationEquipe.map(
+        joueusesEquipe.map(
           (joueuse) =>
             String(
               joueuse.id
@@ -456,10 +252,8 @@ const personnelVisiteur =
       );
 
     const joueusesRegulieres =
-      joueusesAdministrationEquipe.map(
-        (
-          joueuseAdministration
-        ) => {
+      joueusesEquipe.map(
+        (joueuseBase) => {
           const joueuseMatch =
             joueuses.find(
               (joueuse) =>
@@ -467,39 +261,30 @@ const personnelVisiteur =
                   joueuse.id
                 ) ===
                 String(
-                  joueuseAdministration.id
+                  joueuseBase.id
                 )
             );
 
           return {
-            ...joueuseAdministration,
+            ...joueuseBase,
             ...joueuseMatch,
-
             numero:
-              joueuseAdministration
-                .numero ??
+              joueuseBase.numero ??
               joueuseMatch?.numero ??
               "",
-
             nom:
               joueuseMatch?.nom ??
-              joueuseAdministration
-                .nom ??
-              joueuseAdministration
-                .nomComplet ??
+              joueuseBase.nom ??
+              joueuseBase.nomComplet ??
               "",
-
             equipe:
               equipeNom,
-
             absente:
               joueuseMatch
                 ?.absente === true,
-
             suspendue:
               joueuseMatch
                 ?.suspendue === true,
-
             remplacante:
               joueuseMatch
                 ?.remplacante ===
@@ -515,7 +300,7 @@ const personnelVisiteur =
             true &&
           joueuse.equipe ===
             equipeNom &&
-          !idsJoueusesAdministration.has(
+          !idsJoueusesEquipe.has(
             String(
               joueuse.id
             )
@@ -530,13 +315,13 @@ const personnelVisiteur =
 
   const joueusesMatchLocale =
     construireJoueusesMatch(
-      joueusesEquipeLocaleAdministration,
+      joueusesEquipeLocale,
       matchInfo.equipeLocale
     );
 
   const joueusesMatchVisiteuse =
     construireJoueusesMatch(
-      joueusesEquipeVisiteuseAdministration,
+      joueusesEquipeVisiteuse,
       matchInfo.equipeVisiteuse
     );
 
@@ -604,13 +389,11 @@ const personnelVisiteur =
     matchInfo.envoyerCourrielLocal
       ? equipeLocaleData?.courriel
       : null,
-
     matchInfo
       .envoyerCourrielVisiteur
       ? equipeVisiteuseData
           ?.courriel
       : null,
-
     ...String(
       matchInfo
         .courrielPersonnalise ||
@@ -624,25 +407,19 @@ const personnelVisiteur =
       .filter(Boolean),
   ].filter(Boolean);
 
- return {
+  return {
     equipeLocaleData,
     equipeVisiteuseData,
-
-    joueusesEquipeLocaleAdministration,
-    joueusesEquipeVisiteuseAdministration,
-
+    joueusesEquipeLocale,
+    joueusesEquipeVisiteuse,
     joueusesMatchLocale,
     joueusesMatchVisiteuse,
-
     equipeNomPourBut,
-
     joueusesDisponibles,
     joueusesPunitionDisponibles,
     joueusesTirBarrageDisponibles,
-
     scoreLocal,
     scoreVisiteur,
-
     destinataires,
   };
 }

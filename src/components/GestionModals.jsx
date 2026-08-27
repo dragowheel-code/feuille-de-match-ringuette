@@ -11,8 +11,6 @@ function GestionModals({
   tournois,
 
   equipesAdministration,
-  joueusesAdministration,
-  affectationsAdministration,
   chargerAlignementPublic,
 
   inscriptionsEquipesTournoi,
@@ -43,14 +41,6 @@ function GestionModals({
 
   associations={associations}
   tournois={tournois}
-
-  joueusesAdministration={
-    joueusesAdministration
-  }
-
-  affectationsAdministration={
-    affectationsAdministration
-  }
 
   setJoueuses={setJoueuses}
 

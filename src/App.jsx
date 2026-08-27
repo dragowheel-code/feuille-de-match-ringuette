@@ -1,346 +1,445 @@
-import {useState } from "react";
+import { useState } from "react";
+
 import "./App.css";
+
 import PartieModals from "./components/PartieModals";
 import GestionModals from "./components/GestionModals";
 import MatchPage from "./components/MatchPage";
 import AlignementsPage from "./components/AlignementsPage";
 import AppNavigation from "./components/AppNavigation";
-import {useTempsMort} from "./hooks/useTempsMort";
-import {useGardienne} from "./hooks/useGardienne";
-import {useModales} from "./hooks/useModales";
-import {useButs} from "./hooks/useButs";
-import {useTirBarrage} from "./hooks/useTirBarrage";
-import {usePunition} from "./hooks/usePunition";
-import {useAnnulationPunition} from "./hooks/useAnnulationPunition";
-import {useRemplacante} from "./hooks/useRemplacante";
-import {useExportMatch} from "./hooks/useExportMatch";
-import {useGestionEffectifs} from "./hooks/useGestionEffectifs";
-import {useGestionButs} from "./hooks/useGestionButs";
-import {useGestionPunitions} from "./hooks/useGestionPunitions";
-import {useGestionTirBarrage} from "./hooks/useGestionTirBarrage";
-import {useGestionGardienne} from "./hooks/useGestionGardienne";
+
+import { useTempsMort } from "./hooks/useTempsMort";
+import { useGardienne } from "./hooks/useGardienne";
+import { useModales } from "./hooks/useModales";
+import { useButs } from "./hooks/useButs";
+import { useTirBarrage } from "./hooks/useTirBarrage";
+import { usePunition } from "./hooks/usePunition";
+import { useAnnulationPunition } from "./hooks/useAnnulationPunition";
+import { useRemplacante } from "./hooks/useRemplacante";
+import { useExportMatch } from "./hooks/useExportMatch";
+import { useGestionEffectifs } from "./hooks/useGestionEffectifs";
+import { useGestionButs } from "./hooks/useGestionButs";
+import { useGestionPunitions } from "./hooks/useGestionPunitions";
+import { useGestionTirBarrage } from "./hooks/useGestionTirBarrage";
+import { useGestionGardienne } from "./hooks/useGestionGardienne";
 import { useGestionTempsMort } from "./hooks/useGestionTempsMort";
 import { useGestionPartie } from "./hooks/useGestionPartie";
 import { useHorloge } from "./hooks/useHorloge";
 import { useDonneesMatch } from "./hooks/useDonneesMatch";
-import {calculerTempsCorrige as calculerTempsCorrigeUtil,} from "./utils/temps";
+
+import {
+  calculerTempsCorrige as calculerTempsCorrigeUtil,
+} from "./utils/temps";
 
 function App({
   donneesApplication,
   associations,
   tournois,
   equipesAdministration,
-  joueusesAdministration,
   officielsAdministration,
-  affectationsAdministration,
-  personnelEquipeAdministration,
-  affectationsPersonnelAdministration,
-
   chargerAlignementPublic,
   chargerPersonnelPublic,
-
   inscriptionsEquipesTournoi,
   inscriptionsOfficielsTournoi,
-  ensemblesChandailsAdministration,
-  attributionsChandailsAdministration,
 }) {
-    const {
-  matchInfo,
-  setMatchInfo,
-
-  evenements,
-  setEvenements,
-
-  joueusesMatch: joueuses,
-  setJoueusesMatch: setJoueuses,
+  const {
+    matchInfo,
+    setMatchInfo,
+    evenements,
+    setEvenements,
+    joueusesMatch: joueuses,
+    setJoueusesMatch: setJoueuses,
   } = donneesApplication;
 
-  const officiels = officielsAdministration ?? [];
+  const officiels =
+    officielsAdministration ?? [];
+
   const horloge = useHorloge();
-  const [pageActive, setPageActive] = useState("match");
-  const tirBarrage = useTirBarrage();
-  const [periode, setPeriode] = useState("1");
-  const [dureePeriode, setDureePeriode] = useState(12);
-  const remplacante = useRemplacante();
-  const tempsMort = useTempsMort();
-  const gardienne = useGardienne();
-  const buts = useButs();
-  const punition = usePunition();
-  const annulationPunition = useAnnulationPunition();
-  const [localOuvert, setLocalOuvert] = useState(true);
-  const [visiteurOuvert, setVisiteurOuvert] = useState(false);
-  const modales = useModales();
-  
-  const gestionPartie = useGestionPartie({
-  matchInfo,
-  setMatchInfo,
-  setPeriode,
-  setEvenements,
-  setJoueuses,
-});
+
+  const [
+    pageActive,
+    setPageActive,
+  ] = useState("match");
+
+  const tirBarrage =
+    useTirBarrage();
+
+  const [
+    periode,
+    setPeriode,
+  ] = useState("1");
+
+  const [
+    dureePeriode,
+    setDureePeriode,
+  ] = useState(12);
+
+  const remplacante =
+    useRemplacante();
+
+  const tempsMort =
+    useTempsMort();
+
+  const gardienne =
+    useGardienne();
+
+  const buts =
+    useButs();
+
+  const punition =
+    usePunition();
+
+  const annulationPunition =
+    useAnnulationPunition();
+
+  const [
+    localOuvert,
+    setLocalOuvert,
+  ] = useState(true);
+
+  const [
+    visiteurOuvert,
+    setVisiteurOuvert,
+  ] = useState(false);
+
+  const modales =
+    useModales();
+
+  const gestionPartie =
+    useGestionPartie({
+      matchInfo,
+      setMatchInfo,
+      setPeriode,
+      setEvenements,
+      setJoueuses,
+    });
 
   const gestionEffectifs =
-  useGestionEffectifs({
-    joueuses,
-    setJoueuses,
+    useGestionEffectifs({
+      joueuses,
+      setJoueuses,
+      equipesAdministration,
+      modales,
+      remplacante,
+    });
 
-    joueusesAdministration,
-    equipesAdministration,
-    affectationsAdministration,
+  const gestionButs =
+    useGestionButs({
+      matchInfo,
+      periode,
+      dureePeriode,
+      joueuses,
+      evenements,
+      setEvenements,
+      buts,
+      annulationPunition,
+    });
 
-    modales,
-    remplacante,
-  });
-const gestionButs = useGestionButs({
-  matchInfo,
-  periode,
-  dureePeriode,
-  joueuses,
-  evenements,
-  setEvenements,
-  buts,
-  annulationPunition,
-});
-const gestionPunitions = useGestionPunitions({
-  matchInfo,
-  periode,
-  dureePeriode,
-  joueuses,
-  setEvenements,
-  punition,
-});
+  const gestionPunitions =
+    useGestionPunitions({
+      matchInfo,
+      periode,
+      dureePeriode,
+      joueuses,
+      setEvenements,
+      punition,
+    });
 
-const gestionTirBarrage = useGestionTirBarrage({
-  matchInfo,
-  joueuses,
-  setEvenements,
-  tirBarrage,
-});
+  const gestionTirBarrage =
+    useGestionTirBarrage({
+      matchInfo,
+      joueuses,
+      setEvenements,
+      tirBarrage,
+    });
 
-const donneesMatch = useDonneesMatch({
-  associations,
-  equipesAdministration,
-  joueuses,
-  joueusesAdministration,
-  affectationsAdministration,
-  ensemblesChandailsAdministration,
-  attributionsChandailsAdministration,
-  personnelEquipeAdministration,
-  affectationsPersonnelAdministration,
+  const donneesMatch =
+    useDonneesMatch({
+      associations,
+      equipesAdministration,
+      joueuses,
+      chargerPersonnelPublic,
+      evenements,
+      matchInfo,
+      buts,
+      gestionPunitions,
+      gestionTirBarrage,
+    });
 
-  chargerPersonnelPublic,
+  const gestionGardienne =
+    useGestionGardienne({
+      matchInfo,
+      periode,
+      dureePeriode,
+      evenements,
+      setEvenements,
+      gardienne,
+    });
 
-  evenements,
-  matchInfo,
-  buts,
-  gestionPunitions,
-  gestionTirBarrage,
-});
+  const gestionTempsMort =
+    useGestionTempsMort({
+      matchInfo,
+      periode,
+      evenements,
+      setEvenements,
+      tempsMort,
+    });
 
-const gestionGardienne = useGestionGardienne({
-  matchInfo,
-  periode,
-  dureePeriode,
-  evenements,
-  setEvenements,
-  gardienne,
-});
+  function calculerTempsCorrige(
+    temps
+  ) {
+    return calculerTempsCorrigeUtil(
+      temps,
+      dureePeriode
+    );
+  }
 
-const gestionTempsMort = useGestionTempsMort({
-  matchInfo,
-  periode,
-  evenements,
-  setEvenements,
-  tempsMort,
-});
-
-  function calculerTempsCorrige(temps) {
-  return calculerTempsCorrigeUtil(
-    temps,
-    dureePeriode
-  );
-}
-
-const exportMatch = useExportMatch({
-  matchInfo,
-  dureePeriode,
-  evenements,
-  joueuses,
-
-  joueusesMatchLocale:
-    donneesMatch.joueusesMatchLocale,
-
-  joueusesMatchVisiteuse:
-    donneesMatch.joueusesMatchVisiteuse,
-
-  equipeLocaleData:
-    donneesMatch.equipeLocaleData,
-
-  equipeVisiteuseData:
-    donneesMatch.equipeVisiteuseData,
-
-  scoreLocal:
-    donneesMatch.scoreLocal,
-
-  scoreVisiteur:
-    donneesMatch.scoreVisiteur,
-
-  destinataires:
-    donneesMatch.destinataires,
-
-  validerFeuilleMatch:
-    gestionPartie.validerFeuilleMatch,
-});
+  const exportMatch =
+    useExportMatch({
+      matchInfo,
+      dureePeriode,
+      evenements,
+      joueuses,
+      joueusesMatchLocale:
+        donneesMatch.joueusesMatchLocale,
+      joueusesMatchVisiteuse:
+        donneesMatch.joueusesMatchVisiteuse,
+      equipeLocaleData:
+        donneesMatch.equipeLocaleData,
+      equipeVisiteuseData:
+        donneesMatch.equipeVisiteuseData,
+      scoreLocal:
+        donneesMatch.scoreLocal,
+      scoreVisiteur:
+        donneesMatch.scoreVisiteur,
+      destinataires:
+        donneesMatch.destinataires,
+      validerFeuilleMatch:
+        gestionPartie.validerFeuilleMatch,
+    });
 
   return (
+    <main className="app">
+      <AppNavigation
+        matchInfo={matchInfo}
+        pageActive={pageActive}
+        setPageActive={setPageActive}
+        ouvrirParametres={
+          modales.ouvrirParametres
+        }
+      />
 
-    
-  <main className="app">
-  <AppNavigation
-    matchInfo={matchInfo}
-    pageActive={pageActive}
-    setPageActive={setPageActive}
-    ouvrirParametres={modales.ouvrirParametres}
-  />
-  
-  {pageActive === "match" && (
-  <MatchPage
-    matchInfo={matchInfo}
-    setMatchInfo={setMatchInfo}
+      {pageActive === "match" && (
+        <MatchPage
+          matchInfo={matchInfo}
+          setMatchInfo={setMatchInfo}
+          periode={periode}
+          setPeriode={setPeriode}
+          dureePeriode={dureePeriode}
+          setDureePeriode={
+            setDureePeriode
+          }
+          scoreLocal={
+            donneesMatch.scoreLocal
+          }
+          scoreVisiteur={
+            donneesMatch.scoreVisiteur
+          }
+          evenements={evenements}
+          horloge={horloge}
+          exportMatch={exportMatch}
+          gestionPartie={
+            gestionPartie
+          }
+          gestionButs={
+            gestionButs
+          }
+          gestionPunitions={
+            gestionPunitions
+          }
+          gestionTirBarrage={
+            gestionTirBarrage
+          }
+          gestionGardienne={
+            gestionGardienne
+          }
+          gestionTempsMort={
+            gestionTempsMort
+          }
+          ouvrirConfiguration={
+            modales.ouvrirConfiguration
+          }
+        />
+      )}
 
-    periode={periode}
-    setPeriode={setPeriode}
+      {pageActive ===
+        "alignements" && (
+        <AlignementsPage
+          joueuses={joueuses}
+          joueusesEquipeLocale={
+            donneesMatch.joueusesEquipeLocale
+          }
+          joueusesEquipeVisiteuse={
+            donneesMatch.joueusesEquipeVisiteuse
+          }
+          matchInfo={matchInfo}
+          setMatchInfo={setMatchInfo}
+          equipeLocaleData={
+            donneesMatch.equipeLocaleData
+          }
+          equipeVisiteuseData={
+            donneesMatch.equipeVisiteuseData
+          }
+          localOuvert={
+            localOuvert
+          }
+          setLocalOuvert={
+            setLocalOuvert
+          }
+          visiteurOuvert={
+            visiteurOuvert
+          }
+          setVisiteurOuvert={
+            setVisiteurOuvert
+          }
+          gestionEffectifs={
+            gestionEffectifs
+          }
+        />
+      )}
 
-    dureePeriode={dureePeriode}
-    setDureePeriode={setDureePeriode}
+      <GestionModals
+        modales={modales}
+        matchInfo={matchInfo}
+        setMatchInfo={setMatchInfo}
+        associations={
+          associations
+        }
+        tournois={
+          tournois
+        }
+        equipesAdministration={
+          equipesAdministration
+        }
+        inscriptionsEquipesTournoi={
+          inscriptionsEquipesTournoi
+        }
+        inscriptionsOfficielsTournoi={
+          inscriptionsOfficielsTournoi
+        }
+        dureePeriode={
+          dureePeriode
+        }
+        setDureePeriode={
+          setDureePeriode
+        }
+        officiels={officiels}
+        setJoueuses={
+          setJoueuses
+        }
+        equipeLocaleData={
+          donneesMatch.equipeLocaleData
+        }
+        equipeVisiteuseData={
+          donneesMatch.equipeVisiteuseData
+        }
+        destinataires={
+          donneesMatch.destinataires
+        }
+        effacerSauvegarde={
+          gestionPartie.effacerSauvegarde
+        }
+        chargerAlignementPublic={
+          chargerAlignementPublic
+        }
+      />
 
-    scoreLocal={donneesMatch.scoreLocal}
-    scoreVisiteur={donneesMatch.scoreVisiteur}
-
-    evenements={evenements}
-
-    horloge={horloge}
-    exportMatch={exportMatch}
-    gestionPartie={gestionPartie}
-    gestionButs={gestionButs}
-    gestionPunitions={gestionPunitions}
-    gestionTirBarrage={gestionTirBarrage}
-    gestionGardienne={gestionGardienne}
-    gestionTempsMort={gestionTempsMort}
-
-    ouvrirConfiguration={
-      modales.ouvrirConfiguration
-    }
-  />
-)}
-
- {pageActive === "alignements" && (
-  <AlignementsPage
-  joueuses={joueuses}
-  joueusesEquipeLocaleAdministration={
-    donneesMatch.joueusesEquipeLocaleAdministration
-  }
-  joueusesEquipeVisiteuseAdministration={
-    donneesMatch.joueusesEquipeVisiteuseAdministration
-  }
-  matchInfo={matchInfo}
-  setMatchInfo={setMatchInfo}
-  equipeLocaleData={donneesMatch.equipeLocaleData}
-  equipeVisiteuseData={donneesMatch.equipeVisiteuseData}
-  localOuvert={localOuvert}
-  setLocalOuvert={setLocalOuvert}
-  visiteurOuvert={visiteurOuvert}
-  setVisiteurOuvert={setVisiteurOuvert}
-  gestionEffectifs={gestionEffectifs}
-/>
-)}
-<GestionModals
-  modales={modales}
-
-  matchInfo={matchInfo}
-  setMatchInfo={setMatchInfo}
-
-  associations={associations}
-  tournois={tournois}
-
-  equipesAdministration={
-    equipesAdministration
-  }
-
-  joueusesAdministration={
-    joueusesAdministration
-  }
-
-  affectationsAdministration={
-    affectationsAdministration
-  }
-
-  inscriptionsEquipesTournoi={
-    inscriptionsEquipesTournoi
-  }
-
-  inscriptionsOfficielsTournoi={
-    inscriptionsOfficielsTournoi
-  }
-
-  dureePeriode={dureePeriode}
-  setDureePeriode={setDureePeriode}
-
-  officiels={officiels}
-
-  setJoueuses={setJoueuses}
-
-  equipeLocaleData={
-    donneesMatch.equipeLocaleData
-  }
-
-  equipeVisiteuseData={
-    donneesMatch.equipeVisiteuseData
-  }
-
-  destinataires={
-    donneesMatch.destinataires
-  }
-
-  effacerSauvegarde={
-    gestionPartie.effacerSauvegarde
-  }
-
-  chargerAlignementPublic={
-    chargerAlignementPublic
-  }
-/>
-<PartieModals
-  matchInfo={matchInfo}
-  periode={periode}
-  joueuses={joueuses}
-  buts={buts}
-  equipeNomPourBut={donneesMatch.equipeNomPourBut}
-  associations={associations}
-  equipesAdministration={equipesAdministration}
-  joueusesAdministration={joueusesAdministration}
-  affectationsAdministration={affectationsAdministration}
-  calculerTempsCorrige={calculerTempsCorrige}
-  joueusesDisponibles={donneesMatch.joueusesDisponibles}
-  confirmerBut={gestionButs.confirmerBut}
-  tirBarrage={tirBarrage}
-  joueusesTirBarrageDisponibles={donneesMatch.joueusesTirBarrageDisponibles}
-  confirmerTirBarrage={gestionTirBarrage.confirmerTirBarrage}
-  punition={punition}
-  joueusesPunitionDisponibles={donneesMatch.joueusesPunitionDisponibles}
-  confirmerPunition={gestionPunitions.confirmerPunition}
-  annulationPunition={annulationPunition}
-  confirmerAnnulationPunition={gestionButs.confirmerAnnulationPunition}
-  confirmerButSansAnnulation={gestionButs.confirmerButSansAnnulation}
-  modales={modales}
-  remplacante={remplacante}
-  confirmerRemplacante={gestionEffectifs.confirmerRemplacante}
-  gardienne={gardienne}
-  confirmerChangementGardienne={gestionGardienne.confirmerChangementGardienne}
-  tempsMort={tempsMort}
-  confirmerTempsMort={gestionTempsMort.confirmerTempsMort}
-/>
+      <PartieModals
+        matchInfo={matchInfo}
+        periode={periode}
+        joueuses={joueuses}
+        buts={buts}
+        equipeNomPourBut={
+          donneesMatch.equipeNomPourBut
+        }
+        associations={
+          associations
+        }
+        equipesAdministration={
+          equipesAdministration
+        }
+        chargerAlignementPublic={
+          chargerAlignementPublic
+        }
+        calculerTempsCorrige={
+          calculerTempsCorrige
+        }
+        joueusesDisponibles={
+          donneesMatch.joueusesDisponibles
+        }
+        confirmerBut={
+          gestionButs.confirmerBut
+        }
+        tirBarrage={
+          tirBarrage
+        }
+        joueusesTirBarrageDisponibles={
+          donneesMatch
+            .joueusesTirBarrageDisponibles
+        }
+        confirmerTirBarrage={
+          gestionTirBarrage
+            .confirmerTirBarrage
+        }
+        punition={
+          punition
+        }
+        joueusesPunitionDisponibles={
+          donneesMatch
+            .joueusesPunitionDisponibles
+        }
+        confirmerPunition={
+          gestionPunitions
+            .confirmerPunition
+        }
+        annulationPunition={
+          annulationPunition
+        }
+        confirmerAnnulationPunition={
+          gestionButs
+            .confirmerAnnulationPunition
+        }
+        confirmerButSansAnnulation={
+          gestionButs
+            .confirmerButSansAnnulation
+        }
+        modales={
+          modales
+        }
+        remplacante={
+          remplacante
+        }
+        confirmerRemplacante={
+          gestionEffectifs
+            .confirmerRemplacante
+        }
+        gardienne={
+          gardienne
+        }
+        confirmerChangementGardienne={
+          gestionGardienne
+            .confirmerChangementGardienne
+        }
+        tempsMort={
+          tempsMort
+        }
+        confirmerTempsMort={
+          gestionTempsMort
+            .confirmerTempsMort
+        }
+      />
     </main>
   );
 }
+
 export default App;

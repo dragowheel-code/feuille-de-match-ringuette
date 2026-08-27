@@ -1,4 +1,9 @@
 import {
+  useEffect,
+  useState,
+} from "react";
+
+import {
   obtenirChandailsDisponibles,
 } from "../utils/joueuses";
 
@@ -7,8 +12,7 @@ export default function RemplacanteModal({
   equipeRemplacante,
   associations = [],
   equipesAdministration = [],
-  joueusesAdministration = [],
-  affectationsAdministration = [],
+  chargerAlignementPublic,
   equipeProvenance,
   setEquipeProvenance,
   modeRemplacante,
@@ -23,6 +27,63 @@ export default function RemplacanteModal({
   fermer,
   joueuses = [],
 }) {
+
+const [
+  joueusesEquipeProvenance,
+  setJoueusesEquipeProvenance,
+] = useState([]);
+
+useEffect(() => {
+  let actif = true;
+
+  async function charger() {
+    if (
+      !ouverte ||
+      modeRemplacante !== "existante" ||
+      !equipeProvenance ||
+      !chargerAlignementPublic
+    ) {
+      if (actif) {
+        setJoueusesEquipeProvenance([]);
+      }
+
+      return;
+    }
+
+    const resultat =
+      await chargerAlignementPublic(
+        equipeProvenance
+      );
+
+    if (!actif) {
+      return;
+    }
+
+    if (resultat.succes) {
+      setJoueusesEquipeProvenance(
+        [...resultat.joueuses].sort(
+          (a, b) =>
+            Number(a.numero || 0) -
+            Number(b.numero || 0)
+        )
+      );
+    } else {
+      setJoueusesEquipeProvenance([]);
+    }
+  }
+
+  charger();
+
+  return () => {
+    actif = false;
+  };
+}, [
+  ouverte,
+  modeRemplacante,
+  equipeProvenance,
+  chargerAlignementPublic,
+]);
+
   if (!ouverte) return null;
 
   function obtenirNomEquipe(equipe) {
@@ -50,37 +111,6 @@ export default function RemplacanteModal({
   return `${nomAssociation} — ${nomEquipe}`;
 }
 
-const joueusesEquipeProvenance =
-  affectationsAdministration
-    .filter(
-      (affectation) =>
-        affectation.active !== false &&
-        String(affectation.equipeId) ===
-          String(equipeProvenance)
-    )
-    .map((affectation) => {
-      const joueuse =
-        joueusesAdministration.find(
-          (element) =>
-            String(element.id) ===
-            String(affectation.joueuseId)
-        );
-
-      if (!joueuse) {
-        return null;
-      }
-
-      return {
-        ...joueuse,
-        numero: affectation.numero,
-      };
-    })
-    .filter(Boolean)
-    .sort(
-      (a, b) =>
-        Number(a.numero) - Number(b.numero)
-    );
-  
   const chandailsDisponibles =
   obtenirChandailsDisponibles(
     joueuses,
@@ -151,12 +181,19 @@ const joueusesEquipeProvenance =
   );
 
         if (joueuse) {
-          setNumeroRemplacante(joueuse.numero);
-          setNomRemplacante(joueuse.nomComplet);
-       } else {
-         setNumeroRemplacante("");
-         setNomRemplacante("");
-  }
+  setNumeroRemplacante(
+    String(joueuse.numero ?? "")
+  );
+
+  setNomRemplacante(
+    joueuse.nomComplet ??
+      joueuse.nom ??
+      ""
+  );
+} else {
+  setNumeroRemplacante("");
+  setNomRemplacante("");
+}
 }}
     >
       <option value="">-- Sélectionner --</option>
@@ -218,9 +255,24 @@ const joueusesEquipeProvenance =
 />
 
         <div className="modal-actions">
-          <button onClick={confirmerRemplacante}>
-            Ajouter
-          </button>
+          <button
+  onClick={() => {
+    const joueuseSelectionneeComplete =
+      modeRemplacante === "existante"
+        ? joueusesEquipeProvenance.find(
+            (joueuse) =>
+              String(joueuse.id) ===
+              String(joueuseSelectionnee)
+          )
+        : null;
+
+    confirmerRemplacante(
+      joueuseSelectionneeComplete
+    );
+  }}
+>
+  Ajouter
+</button>
 
           <button
             className="cancel-button"
