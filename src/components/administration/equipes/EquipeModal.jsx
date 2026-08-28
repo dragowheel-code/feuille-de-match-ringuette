@@ -1,3 +1,5 @@
+import { CATEGORIES } from "../../../domain/categories/categories";
+
 function EquipeModal({
   ouverte,
   fermer,
@@ -23,6 +25,7 @@ function EquipeModal({
 
   function soumettre(evenement) {
     evenement.preventDefault();
+
     enregistrer(formulaire);
   }
 
@@ -55,70 +58,92 @@ function EquipeModal({
                 Sélectionner une association
               </option>
 
-              {associations.map((association) => (
-                <option
-                  key={association.id}
-                  value={association.id}
-                >
-                  {association.nom}
-                </option>
-              ))}
+              {associations.map(
+                (association) => (
+                  <option
+                    key={association.id}
+                    value={association.id}
+                  >
+                    {association.nom}
+                  </option>
+                )
+              )}
             </select>
           </label>
 
           <label>
-  Catégorie
-  <input
-    type="text"
-    name="categorie"
-    value={formulaire.categorie}
-    onChange={changerChamp}
-  />
-</label>
+            Catégorie
+            <select
+              name="categorie"
+              value={formulaire.categorie}
+              onChange={changerChamp}
+            >
+              <option value="">
+                Sélectionner une catégorie
+              </option>
 
-<label>
-  Niveau
-  <input
-    type="text"
-    name="niveau"
-    value={formulaire.niveau}
-    onChange={changerChamp}
-    placeholder="Ex. A, B, AA"
-  />
-</label>
+              {[...CATEGORIES]
+                .sort(
+                  (a, b) =>
+                    a.ordre - b.ordre
+                )
+                .map((categorie) => (
+                  <option
+                    key={categorie.id}
+                    value={categorie.code}
+                  >
+                    {categorie.nom}
+                  </option>
+                ))}
+            </select>
+          </label>
 
-<label>
-  Numéro d'équipe
-  <input
-    type="text"
-    inputMode="numeric"
-    name="numeroEquipe"
-    value={formulaire.numeroEquipe}
-    onChange={(evenement) => {
-      const valeur = evenement.target.value.replace(
-        /\D/g,
-        ""
-      );
+          <label>
+            Niveau
+            <input
+              type="text"
+              name="niveau"
+              value={formulaire.niveau}
+              onChange={changerChamp}
+              placeholder="Ex. A, B, AA"
+            />
+          </label>
 
-      setFormulaire((precedent) => ({
-        ...precedent,
-        numeroEquipe: valeur,
-      }));
-    }}
-    placeholder="Optionnel : 1, 2, 3..."
-  />
-</label>
+          <label>
+            Numéro d'équipe
+            <input
+              type="text"
+              inputMode="numeric"
+              name="numeroEquipe"
+              value={formulaire.numeroEquipe}
+              onChange={(evenement) => {
+                const valeur =
+                  evenement.target.value.replace(
+                    /\D/g,
+                    ""
+                  );
 
-<label>
-  Code SportPlus
-  <input
-    type="text"
-    name="abreviation"
-    value={formulaire.abreviation}
-    onChange={changerChamp}
-    placeholder="Ex. 2-N-26"
-  />
-</label>
+                setFormulaire(
+                  (precedent) => ({
+                    ...precedent,
+                    numeroEquipe: valeur,
+                  })
+                );
+              }}
+              placeholder="Optionnel : 1, 2, 3..."
+            />
+          </label>
+
+          <label>
+            Code SportPlus
+            <input
+              type="text"
+              name="abreviation"
+              value={formulaire.abreviation}
+              onChange={changerChamp}
+              placeholder="Ex. 2-N-26"
+            />
+          </label>
 
           <div className="modal-actions">
             <button
@@ -129,7 +154,9 @@ function EquipeModal({
             </button>
 
             <button type="submit">
-              {equipe ? "Enregistrer" : "Créer"}
+              {equipe
+                ? "Enregistrer"
+                : "Créer"}
             </button>
           </div>
         </form>

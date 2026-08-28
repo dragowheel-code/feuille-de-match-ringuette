@@ -1,11 +1,21 @@
+import { obtenirCategorieParCode } from "../categories/obtenirCategorie";
+
 export function obtenirNomEquipe(equipe) {
   if (!equipe) {
     return "";
   }
 
-  const categorie = String(
+  const codeCategorie = String(
     equipe.categorie ?? ""
   ).trim();
+
+  const categorie =
+    obtenirCategorieParCode(
+      codeCategorie
+    );
+
+  const nomCategorie =
+    categorie?.nom ?? codeCategorie;
 
   const niveau = String(
     equipe.niveau ?? ""
@@ -23,7 +33,7 @@ export function obtenirNomEquipe(equipe) {
     .join("");
 
   return [
-    categorie,
+    nomCategorie,
     designation,
   ]
     .filter(Boolean)

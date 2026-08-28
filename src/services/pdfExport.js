@@ -317,7 +317,7 @@ centerText("T.B./S.O.", resumeX + colW * 3, footY + 5, colW, 4.2);
 centerText(String(resume.p1), resumeX, footY + 7.4, colW, 4.5, "bold");
 centerText(String(resume.p2), resumeX + colW, footY + 7.4, colW, 4.5, "bold");
 centerText(String(resume.prol), resumeX + colW * 2, footY + 7.4, colW, 4.5, "bold");
-centerText(String(resume.total), resumeX + colW * 3, footY + 7.4, colW, 4.5, "bold");
+centerText(String(resume.tb), resumeX + colW * 3, footY + 7.4, colW, 4.5, "bold");
 
 doc.line(resumeX + colW, footY + 3, resumeX + colW, footY + 8);
 doc.line(resumeX + colW * 2, footY + 3, resumeX + colW * 2, footY + 8);

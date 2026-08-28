@@ -1,10 +1,27 @@
 import { obtenirNomEquipe } from "../../../domain/equipes/obtenirNomEquipe";
 
+import { obtenirCategorieParCode } from "../../../domain/categories/obtenirCategorie";
+
 function ListeEquipes({
   equipes = [],
   modifierEquipe,
   demanderSuppression,
 }) {
+  function obtenirNomCategorie(
+    codeCategorie
+  ) {
+    const categorie =
+      obtenirCategorieParCode(
+        codeCategorie
+      );
+
+    return (
+      categorie?.nom ??
+      codeCategorie ??
+      "Non définie"
+    );
+  }
+
   if (equipes.length === 0) {
     return (
       <div className="equipes-etat-vide">
@@ -16,53 +33,72 @@ function ListeEquipes({
   return (
     <div className="equipes-liste">
       {equipes.map((equipe) => (
-  <article
-    key={equipe.id}
-    className="equipe-carte"
-  >
-    <div className="equipe-carte-informations">
-      <h3>{obtenirNomEquipe(equipe)}</h3>
+        <article
+          key={equipe.id}
+          className="equipe-carte"
+        >
+          <div className="equipe-carte-informations">
+            <h3>
+              {obtenirNomEquipe(equipe)}
+            </h3>
 
-      <p>
-        <strong>Catégorie :</strong>{" "}
-        {equipe.categorie || "Non définie"}
-      </p>
+            <p>
+              <strong>
+                Catégorie :
+              </strong>{" "}
+              {obtenirNomCategorie(
+                equipe.categorie
+              )}
+            </p>
 
-      <p>
-        <strong>Niveau :</strong>{" "}
-        {equipe.niveau || "Non défini"}
-      </p>
+            <p>
+              <strong>
+                Niveau :
+              </strong>{" "}
+              {equipe.niveau ||
+                "Non défini"}
+            </p>
 
-      <p>
-        <strong>Équipe :</strong>{" "}
-        {equipe.numeroEquipe || "Aucun numéro"}
-      </p>
+            <p>
+              <strong>
+                Équipe :
+              </strong>{" "}
+              {equipe.numeroEquipe ||
+                "Aucun numéro"}
+            </p>
 
-      <p>
-        <strong>Code SportPlus :</strong>{" "}
-        {equipe.abreviation || "Non défini"}
-      </p>
-    </div>
+            <p>
+              <strong>
+                Code SportPlus :
+              </strong>{" "}
+              {equipe.abreviation ||
+                "Non défini"}
+            </p>
+          </div>
 
-    <div className="equipe-carte-actions">
-      <button
-        type="button"
-        onClick={() => modifierEquipe(equipe)}
-      >
-        Modifier
-      </button>
+          <div className="equipe-carte-actions">
+            <button
+              type="button"
+              onClick={() =>
+                modifierEquipe(equipe)
+              }
+            >
+              Modifier
+            </button>
 
-      <button
-        type="button"
-        onClick={() =>
-          demanderSuppression(equipe)
-        }
-      >
-        Supprimer
-      </button>
-    </div>
-  </article>
-))}
+            <button
+              type="button"
+              onClick={() =>
+                demanderSuppression(
+                  equipe
+                )
+              }
+            >
+              Supprimer
+            </button>
+          </div>
+        </article>
+      ))}
     </div>
   );
 }

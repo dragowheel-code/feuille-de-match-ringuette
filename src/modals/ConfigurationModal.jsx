@@ -4,7 +4,7 @@ import {
   obtenirEquipesDisponibles,
   obtenirOfficielsDisponibles,
   } from "../domain/configurationMatch";
-
+import { obtenirNomEquipe as obtenirDesignationEquipe } from "../domain/equipes/obtenirNomEquipe";
 
 export default function ConfigurationModal({
   ouverte,
@@ -116,13 +116,8 @@ const operateurs30sConfiguration =
     association?.nom ||
     "Association";
 
-  const nomEquipe = [
-    equipe.categorie,
-    equipe.niveau,
-    equipe.numeroEquipe,
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const nomEquipe =
+    obtenirDesignationEquipe(equipe);
 
   return `${nomAssociation} — ${nomEquipe}`;
 }

@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { obtenirNomEquipe } from "../../../domain/equipes/obtenirNomEquipe";
 
 const ROLES = {
   ENTRAINEUR_CHEF: "Entraîneur-chef",
@@ -55,28 +56,12 @@ function GestionAffectationsPersonnel({
             associationActive.id &&
           equipe.saisonId === saisonActive.id
       )
-      .sort((a, b) => {
-        const nomA = [
-  a.categorie,
-  a.niveau,
-  a.numeroEquipe,
-]
-  .filter(Boolean)
-  .join(" ");
-
-const nomB = [
-  b.categorie,
-  b.niveau,
-  b.numeroEquipe,
-]
-  .filter(Boolean)
-  .join(" ");
-
-        return nomA.localeCompare(
-          nomB,
-          "fr"
-        );
-      });
+      .sort((a, b) =>
+  obtenirNomEquipe(a).localeCompare(
+    obtenirNomEquipe(b),
+    "fr"
+  )
+);
   }, [
     equipes,
     associationActive,
@@ -127,16 +112,6 @@ const nomB = [
       membre.nom ?? ""
     }`.trim();
   }
-
-  function obtenirNomEquipe(equipe) {
-  return [
-    equipe.categorie,
-    equipe.niveau,
-    equipe.numeroEquipe,
-  ]
-    .filter(Boolean)
-    .join(" ");
-}
 
   function changerEquipe(
     nouvelleEquipeId
