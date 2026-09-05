@@ -11,6 +11,10 @@ const ORDRE_TAILLES = [
   "XL",
   "XXL",
   "XXXL",
+  "GC-JRXL",
+  "GC-S",
+  "GC-L",
+  "GC-XXL",
 ];
 
 export function trierTailles(
