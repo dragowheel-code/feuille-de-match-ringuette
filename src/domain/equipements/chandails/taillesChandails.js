@@ -10,4 +10,9 @@ export const TAILLES_CHANDAIL = [
   "L",
   "XL",
   "XXL",
+  // gardienne //
+  "GC-JRXL",
+  "GC-S",
+  "GC-L",
+  "GC-XXL",
 ];
