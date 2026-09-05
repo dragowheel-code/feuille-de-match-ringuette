@@ -12,6 +12,10 @@ export const TAILLES_CHANDAILS = [
   "XL",
   "XXL",
   "XXXL",
+  "GCJR-XL",
+  "GC-S",
+  "GC-L",
+  "GC-XXL",
 ];
 export function comparerTailles(
   tailleA,
