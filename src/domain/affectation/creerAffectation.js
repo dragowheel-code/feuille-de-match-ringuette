@@ -1,53 +1,41 @@
 export function creerAffectation({
   id = crypto.randomUUID(),
-
-  saisonId = "",
-  equipeId = "",
-  joueuseId = "",
-
-  numero = "",
-
-  typeAffectation = "NORMALE",
-
-  dateDebut = "",
-  dateFin = "",
-
+  saisonId = '',
+  equipeId = '',
+  joueuseId = '',
+  numero = '',
+  typeAffectation = 'NORMALE',
+  roleEquipe = 'JOUEUSE',
+  dateDebut = '',
+  dateFin = '',
   active = true,
-
-  notes = "",
+  notes = '',
 } = {}) {
   return {
     id,
 
-    saisonId:
-      String(saisonId ?? "").trim(),
+    saisonId: String(saisonId ?? '').trim(),
 
-    equipeId:
-      String(equipeId ?? "").trim(),
+    equipeId: String(equipeId ?? '').trim(),
 
-    joueuseId:
-      String(joueuseId ?? "").trim(),
+    joueuseId: String(joueuseId ?? '').trim(),
 
-    numero:
-      String(numero ?? "").trim(),
+    numero: String(numero ?? '').trim(),
 
-    typeAffectation:
-      String(
-        typeAffectation ?? "NORMALE"
-      )
-        .trim()
-        .toUpperCase(),
+    typeAffectation: String(typeAffectation ?? 'NORMALE')
+      .trim()
+      .toUpperCase(),
 
-    dateDebut:
-      String(dateDebut ?? "").trim(),
+    roleEquipe: String(roleEquipe ?? 'JOUEUSE')
+      .trim()
+      .toUpperCase(),
 
-    dateFin:
-      String(dateFin ?? "").trim(),
+    dateDebut: String(dateDebut ?? '').trim(),
 
-    active:
-      Boolean(active),
+    dateFin: String(dateFin ?? '').trim(),
 
-    notes:
-      String(notes ?? "").trim(),
-  };
+    active: Boolean(active),
+
+    notes: String(notes ?? '').trim(),
+  }
 }

@@ -1,24 +1,21 @@
-import {
-  ROLES_JOUEUSE,
-  peutAjouterGardienne,
-  peutAjouterLettre,
-} from ".";
+import { ROLES_JOUEUSE, peutAjouterGardienne, peutAjouterLettre } from '.'
 
-export function changerRoleJoueuse(joueuses, id, role) {
+export function changerRoleJoueuse(joueuses, id, equipe, role) {
   const joueuseCible = joueuses.find(
-    (joueuse) => joueuse.id === id
-  );
+    (joueuse) =>
+      String(joueuse.id) === String(id) &&
+      String(joueuse.equipe ?? '') === String(equipe ?? '')
+  )
 
   if (!joueuseCible) {
     return {
       succes: false,
-      raison: "JOUEUSE_INTROUVABLE",
+      raison: 'JOUEUSE_INTROUVABLE',
       joueuses,
-    };
+    }
   }
 
-  const equipe = joueuseCible.equipe;
-  const valeurActuelle = joueuseCible[role] || false;
+  const valeurActuelle = joueuseCible[role] || false
 
   if (
     role === ROLES_JOUEUSE.GARDIENNE &&
@@ -27,9 +24,9 @@ export function changerRoleJoueuse(joueuses, id, role) {
   ) {
     return {
       succes: false,
-      raison: "MAX_GARDIENNES",
+      raison: 'MAX_GARDIENNES',
       joueuses,
-    };
+    }
   }
 
   if (
@@ -40,20 +37,22 @@ export function changerRoleJoueuse(joueuses, id, role) {
   ) {
     return {
       succes: false,
-      raison: "MAX_LETTRES",
+      raison: 'MAX_LETTRES',
       joueuses,
-    };
+    }
   }
 
   return {
     succes: true,
+
     joueuses: joueuses.map((joueuse) =>
-      joueuse.id === id
+      String(joueuse.id) === String(id) &&
+      String(joueuse.equipe ?? '') === String(equipe ?? '')
         ? {
             ...joueuse,
             [role]: !valeurActuelle,
           }
         : joueuse
     ),
-  };
+  }
 }

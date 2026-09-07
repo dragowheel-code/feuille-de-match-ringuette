@@ -1,489 +1,297 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from 'react'
 
-import { supabase } from "../services/supabase";
+import { supabase } from '../services/supabase'
 
 import {
   attribuerEnsembleChandail,
   terminerAttributionChandail,
   libererAttributionChandail,
-} from "../domain/equipements/attributionsChandails";
+} from '../domain/equipements/attributionsChandails'
 
-function convertirAttributionDepuisSupabase(
-  attribution
-) {
+function convertirAttributionDepuisSupabase(attribution) {
   return {
-    id:
-      attribution.id,
+    id: attribution.id,
 
-    ensembleId:
-      attribution.ensemble_id,
+    ensembleId: attribution.ensemble_id,
 
-    joueuseId:
-      attribution.joueuse_id ?? "",
+    joueuseId: attribution.joueuse_id ?? '',
 
-    saisonId:
-      attribution.saison_id ?? "",
+    saisonId: attribution.saison_id ?? '',
 
-    affectationId:
-      attribution.affectation_id ??
-      null,
+    affectationId: attribution.affectation_id ?? null,
 
-    dateAttribution:
-      attribution.date_attribution ??
-      "",
+    typeUtilisation: attribution.type_utilisation ?? 'JOUEUSE',
 
-    dateRetour:
-      attribution.date_retour ??
-      null,
+    dateAttribution: attribution.date_attribution ?? '',
 
-    active:
-      attribution.active === true,
+    dateRetour: attribution.date_retour ?? null,
 
-    commentaire:
-      attribution.commentaire ?? "",
+    active: attribution.active === true,
 
-    typeFin:
-      attribution.type_fin ?? null,
-  };
+    commentaire: attribution.commentaire ?? '',
+
+    typeFin: attribution.type_fin ?? null,
+  }
 }
 
-function convertirAttributionVersSupabase(
-  attribution
-) {
+function convertirAttributionVersSupabase(attribution) {
   return {
-    id:
-      attribution.id,
+    id: attribution.id,
 
-    ensemble_id:
-      attribution.ensembleId,
+    ensemble_id: attribution.ensembleId,
 
-    joueuse_id:
-      attribution.joueuseId ||
-      null,
+    joueuse_id: attribution.joueuseId || null,
 
-    saison_id:
-      attribution.saisonId ||
-      null,
+    saison_id: attribution.saisonId || null,
 
-    affectation_id:
-      attribution.affectationId ||
-      null,
+    affectation_id: attribution.affectationId || null,
 
-    date_attribution:
-      attribution.dateAttribution,
+    type_utilisation: attribution.typeUtilisation || 'JOUEUSE',
 
-    date_retour:
-      attribution.dateRetour ||
-      null,
+    date_attribution: attribution.dateAttribution,
 
-    active:
-      attribution.active === true,
+    date_retour: attribution.dateRetour || null,
 
-    commentaire:
-      attribution.commentaire ||
-      null,
+    active: attribution.active === true,
 
-    type_fin:
-      attribution.typeFin ||
-      null,
-  };
+    commentaire: attribution.commentaire || null,
+
+    type_fin: attribution.typeFin || null,
+  }
 }
 
 export function useGestionAttributionsChandails() {
-  const [
-    attributionsChandails,
-    setAttributionsChandails,
-  ] = useState([]);
+  const [attributionsChandails, setAttributionsChandails] = useState([])
 
-  const [
-    chargement,
-    setChargement,
-  ] = useState(true);
+  const [chargement, setChargement] = useState(true)
 
-  const [
-    erreurChargement,
-    setErreurChargement,
-  ] = useState(null);
+  const [erreurChargement, setErreurChargement] = useState(null)
 
   useEffect(() => {
     async function chargerAttributions() {
-      setChargement(true);
-      setErreurChargement(null);
+      setChargement(true)
+      setErreurChargement(null)
 
-      const {
-        data,
-        error,
-      } = await supabase
-        .from(
-          "attributions_chandails"
-        )
-        .select("*")
-        .order(
-          "date_attribution",
-          {
-            ascending: false,
-          }
-        );
+      const { data, error } = await supabase
+        .from('attributions_chandails')
+        .select('*')
+        .order('date_attribution', {
+          ascending: false,
+        })
 
       if (error) {
-        console.error(
-          "Erreur chargement attributions chandails :",
-          error
-        );
+        console.error('Erreur chargement attributions chandails :', error)
 
-        setErreurChargement(
-          error.message
-        );
+        setErreurChargement(error.message)
 
-        setChargement(false);
-        return;
+        setChargement(false)
+        return
       }
 
       setAttributionsChandails(
-        (data ?? []).map(
-          convertirAttributionDepuisSupabase
-        )
-      );
+        (data ?? []).map(convertirAttributionDepuisSupabase)
+      )
 
-      setChargement(false);
+      setChargement(false)
     }
 
-    chargerAttributions();
-  }, []);
+    chargerAttributions()
+  }, [])
 
-  async function distribuerEnsemble(
-    formulaire
-  ) {
-    const resultat =
-      attribuerEnsembleChandail(
-        formulaire,
-        attributionsChandails
-      );
+  async function distribuerEnsemble(formulaire) {
+    const resultat = attribuerEnsembleChandail(
+      formulaire,
+      attributionsChandails
+    )
 
     if (!resultat.succes) {
-      return resultat;
+      return resultat
     }
 
-    const attribution =
-      resultat.attribution;
+    const attribution = resultat.attribution
 
-    const {
-      data,
-      error,
-    } = await supabase
-      .from(
-        "attributions_chandails"
-      )
-      .insert(
-        convertirAttributionVersSupabase(
-          attribution
-        )
-      )
+    const { data, error } = await supabase
+      .from('attributions_chandails')
+      .insert(convertirAttributionVersSupabase(attribution))
       .select()
-      .single();
+      .single()
 
     if (error) {
       return {
         succes: false,
         attribution: null,
-        erreurs: [
-          error.message,
-        ],
-      };
+        erreurs: [error.message],
+      }
     }
 
-    const attributionCreee =
-      convertirAttributionDepuisSupabase(
-        data
-      );
+    const attributionCreee = convertirAttributionDepuisSupabase(data)
 
-    setAttributionsChandails(
-      (actuelles) => [
-        ...actuelles,
-        attributionCreee,
-      ]
-    );
+    setAttributionsChandails((actuelles) => [...actuelles, attributionCreee])
 
     return {
       succes: true,
-      attribution:
-        attributionCreee,
+      attribution: attributionCreee,
       erreurs: [],
-    };
+    }
   }
 
-  async function libererEnsemble(
-    attributionId,
-    donneesLiberation = {}
-  ) {
-    const attributionExistante =
-      attributionsChandails.find(
-        (attribution) =>
-          String(
-            attribution.id
-          ) ===
-          String(
-            attributionId
-          )
-      );
+  async function libererEnsemble(attributionId, donneesLiberation = {}) {
+    const attributionExistante = attributionsChandails.find(
+      (attribution) => String(attribution.id) === String(attributionId)
+    )
 
     if (!attributionExistante) {
       return {
         succes: false,
         attribution: null,
-        erreurs: [
-          "L'attribution est introuvable.",
-        ],
-      };
+        erreurs: ["L'attribution est introuvable."],
+      }
     }
 
-    const resultat =
-      libererAttributionChandail(
-        attributionExistante,
-        donneesLiberation
-      );
+    const resultat = libererAttributionChandail(
+      attributionExistante,
+      donneesLiberation
+    )
 
     if (!resultat.succes) {
-      return resultat;
+      return resultat
     }
 
-    const attributionLiberee =
-      resultat.attribution;
+    const attributionLiberee = resultat.attribution
 
-    const {
-      data,
-      error,
-    } = await supabase
-      .from(
-        "attributions_chandails"
-      )
-      .update(
-        convertirAttributionVersSupabase(
-          attributionLiberee
-        )
-      )
-      .eq(
-        "id",
-        attributionId
-      )
+    const { data, error } = await supabase
+      .from('attributions_chandails')
+      .update(convertirAttributionVersSupabase(attributionLiberee))
+      .eq('id', attributionId)
       .select()
-      .single();
+      .single()
 
     if (error) {
       return {
         succes: false,
         attribution: null,
-        erreurs: [
-          error.message,
-        ],
-      };
+        erreurs: [error.message],
+      }
     }
 
-    const attributionSauvegardee =
-      convertirAttributionDepuisSupabase(
-        data
-      );
+    const attributionSauvegardee = convertirAttributionDepuisSupabase(data)
 
-    setAttributionsChandails(
-      (actuelles) =>
-        actuelles.map(
-          (attribution) =>
-            String(
-              attribution.id
-            ) ===
-            String(
-              attributionId
-            )
-              ? attributionSauvegardee
-              : attribution
-        )
-    );
+    setAttributionsChandails((actuelles) =>
+      actuelles.map((attribution) =>
+        String(attribution.id) === String(attributionId)
+          ? attributionSauvegardee
+          : attribution
+      )
+    )
 
     return {
       succes: true,
-      attribution:
-        attributionSauvegardee,
+      attribution: attributionSauvegardee,
       erreurs: [],
-    };
+    }
   }
 
-  async function retournerEnsemble(
-    attributionId,
-    donneesRetour = {}
-  ) {
-    const attributionExistante =
-      attributionsChandails.find(
-        (attribution) =>
-          String(
-            attribution.id
-          ) ===
-          String(
-            attributionId
-          )
-      );
+  async function retournerEnsemble(attributionId, donneesRetour = {}) {
+    const attributionExistante = attributionsChandails.find(
+      (attribution) => String(attribution.id) === String(attributionId)
+    )
 
     if (!attributionExistante) {
       return {
         succes: false,
         attribution: null,
-        erreurs: [
-          "L'attribution est introuvable.",
-        ],
-      };
+        erreurs: ["L'attribution est introuvable."],
+      }
     }
 
-    const attributionTerminee =
-      terminerAttributionChandail(
-        attributionExistante,
-        donneesRetour
-      );
+    const attributionTerminee = terminerAttributionChandail(
+      attributionExistante,
+      donneesRetour
+    )
 
     const attributionRetournee = {
       ...attributionTerminee,
 
-      typeFin:
-        "RETOUR",
-    };
+      typeFin: 'RETOUR',
+    }
 
-    const {
-      data,
-      error,
-    } = await supabase
-      .from(
-        "attributions_chandails"
-      )
-      .update(
-        convertirAttributionVersSupabase(
-          attributionRetournee
-        )
-      )
-      .eq(
-        "id",
-        attributionId
-      )
+    const { data, error } = await supabase
+      .from('attributions_chandails')
+      .update(convertirAttributionVersSupabase(attributionRetournee))
+      .eq('id', attributionId)
       .select()
-      .single();
+      .single()
 
     if (error) {
       return {
         succes: false,
         attribution: null,
-        erreurs: [
-          error.message,
-        ],
-      };
+        erreurs: [error.message],
+      }
     }
 
-    const attributionSauvegardee =
-      convertirAttributionDepuisSupabase(
-        data
-      );
+    const attributionSauvegardee = convertirAttributionDepuisSupabase(data)
 
-    setAttributionsChandails(
-      (actuelles) =>
-        actuelles.map(
-          (attribution) =>
-            String(
-              attribution.id
-            ) ===
-            String(
-              attributionId
-            )
-              ? attributionSauvegardee
-              : attribution
-        )
-    );
+    setAttributionsChandails((actuelles) =>
+      actuelles.map((attribution) =>
+        String(attribution.id) === String(attributionId)
+          ? attributionSauvegardee
+          : attribution
+      )
+    )
 
     return {
       succes: true,
-      attribution:
-        attributionSauvegardee,
+      attribution: attributionSauvegardee,
       erreurs: [],
-    };
+    }
   }
 
-  async function rattacherAffectation(
-    attributionId,
-    affectationId
-  ) {
-    const attributionExistante =
-      attributionsChandails.find(
-        (attribution) =>
-          String(
-            attribution.id
-          ) ===
-          String(
-            attributionId
-          )
-      );
+  async function rattacherAffectation(attributionId, affectationId) {
+    const attributionExistante = attributionsChandails.find(
+      (attribution) => String(attribution.id) === String(attributionId)
+    )
 
     if (!attributionExistante) {
       return {
         succes: false,
         attribution: null,
-        erreurs: [
-          "L'attribution est introuvable.",
-        ],
-      };
+        erreurs: ["L'attribution est introuvable."],
+      }
     }
 
-    const {
-      data,
-      error,
-    } = await supabase
-      .from(
-        "attributions_chandails"
-      )
+    const { data, error } = await supabase
+      .from('attributions_chandails')
       .update({
-        affectation_id:
-          affectationId || null,
+        affectation_id: affectationId || null,
       })
-      .eq(
-        "id",
-        attributionId
-      )
+      .eq('id', attributionId)
       .select()
-      .single();
+      .single()
 
     if (error) {
       return {
         succes: false,
         attribution: null,
-        erreurs: [
-          error.message,
-        ],
-      };
+        erreurs: [error.message],
+      }
     }
 
-    const attributionSauvegardee =
-      convertirAttributionDepuisSupabase(
-        data
-      );
+    const attributionSauvegardee = convertirAttributionDepuisSupabase(data)
 
-    setAttributionsChandails(
-      (actuelles) =>
-        actuelles.map(
-          (attribution) =>
-            String(
-              attribution.id
-            ) ===
-            String(
-              attributionId
-            )
-              ? attributionSauvegardee
-              : attribution
-        )
-    );
+    setAttributionsChandails((actuelles) =>
+      actuelles.map((attribution) =>
+        String(attribution.id) === String(attributionId)
+          ? attributionSauvegardee
+          : attribution
+      )
+    )
 
     return {
       succes: true,
-      attribution:
-        attributionSauvegardee,
+      attribution: attributionSauvegardee,
       erreurs: [],
-    };
+    }
   }
 
   return {
@@ -497,5 +305,5 @@ export function useGestionAttributionsChandails() {
     libererEnsemble,
     retournerEnsemble,
     rattacherAffectation,
-  };
+  }
 }

@@ -1,4 +1,4 @@
-import LigneJoueuse from "./LigneJoueuse";
+import LigneJoueuse from './LigneJoueuse'
 
 function TableauCategorie({
   joueuses,
@@ -13,41 +13,38 @@ function TableauCategorie({
         <tr>
           <th>Joueuse</th>
           <th>Type</th>
+          <th>Rôle</th>
           <th>Affecter</th>
         </tr>
       </thead>
 
       <tbody>
         {joueuses.map((joueuse) => {
-          const etat =
-            etatAffectations[joueuse.id] ?? {
-              assignee: false,
-              derogationHaut: false,
-              derogationBas: false,
-            };
+          const etat = etatAffectations[joueuse.id] ?? {
+            assignee: false,
+            derogationHaut: false,
+            derogationBas: false,
+            roleEquipe: 'JOUEUSE',
+          }
 
-          const admissibilite =
-            obtenirAdmissibilite(joueuse);
+          const admissibilite = obtenirAdmissibilite(joueuse)
 
-          const autresEquipes =
-            obtenirAutresEquipes(joueuse);
+          const autresEquipes = obtenirAutresEquipes(joueuse)
 
           return (
             <LigneJoueuse
-             key={joueuse.id}
-             joueuse={joueuse}
-             etat={etat}
-             admissibilite={admissibilite}
-             autresEquipes={autresEquipes}
-             setEtatAffectations={
-             setEtatAffectations
-             }
+              key={joueuse.id}
+              joueuse={joueuse}
+              etat={etat}
+              admissibilite={admissibilite}
+              autresEquipes={autresEquipes}
+              setEtatAffectations={setEtatAffectations}
             />
-          );
+          )
         })}
       </tbody>
     </table>
-  );
+  )
 }
 
-export default TableauCategorie;
+export default TableauCategorie

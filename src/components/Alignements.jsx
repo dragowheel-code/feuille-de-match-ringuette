@@ -1,8 +1,8 @@
-import CouleurApercu from "./CouleurApercu";
+import CouleurApercu from './CouleurApercu'
 
-import { mettreAJourMatch } from "../domain/match";
+import { mettreAJourMatch } from '../domain/match'
 
-import { ROLES_JOUEUSE } from "../domain/joueuses";
+import { ROLES_JOUEUSE } from '../domain/joueuses'
 
 export default function Alignements({
   joueuses,
@@ -22,143 +22,97 @@ export default function Alignements({
   changerRoleJoueuse,
 }) {
   function modifierMatch(modifications) {
-    setMatchInfo(
-      mettreAJourMatch(
-        matchInfo,
-        modifications
-      )
-    );
+    setMatchInfo(mettreAJourMatch(matchInfo, modifications))
   }
 
-  function afficherJoueuses(
-    joueusesEquipe
-  ) {
-    return joueusesEquipe.map(
-      (joueuseBase) => {
-        const joueuseMatch =
-          joueuses.find(
-            (joueuse) =>
-              String(joueuse.id) ===
-              String(joueuseBase.id)
-          );
+  function afficherJoueuses(joueusesEquipe) {
+    return joueusesEquipe.map((joueuseBase) => {
+      const joueuseMatch = joueuses.find(
+        (joueuse) =>
+          String(joueuse.id) === String(joueuseBase.id) &&
+          String(joueuse.equipe ?? '') === String(joueuseBase.equipe ?? '')
+      )
 
-        const joueuse = {
-          ...joueuseBase,
-          ...joueuseMatch,
-          numero:
-            joueuseBase.numero ??
-            joueuseMatch?.numero ??
-            "",
-        };
-
-        return (
-          <div
-            className="roster-row"
-            key={joueuse.id}
-          >
-            <div className="roster-player">
-              #{joueuse.numero}{" "}
-              {joueuse.nom ??
-                joueuse.nomComplet}
-              {joueuse.remplacante &&
-                " — Remplaçante"}
-            </div>
-
-            <div className="roster-options">
-              <label>
-                <input
-                  type="checkbox"
-                  checked={Boolean(
-                    joueuse.absente
-                  )}
-                  onChange={() =>
-                    changerPresence(
-                      joueuse
-                    )
-                  }
-                />
-                Abs.
-              </label>
-
-              <label>
-                <input
-                  type="checkbox"
-                  checked={Boolean(
-                    joueuse.suspendue
-                  )}
-                  onChange={() =>
-                    changerSuspension(
-                      joueuse
-                    )
-                  }
-                />
-                Susp.
-              </label>
-
-              <label>
-                <input
-                  type="checkbox"
-                  checked={Boolean(
-                    joueuse.gardienne
-                  )}
-                  onChange={() =>
-                    changerRoleJoueuse(
-                      joueuse,
-                      ROLES_JOUEUSE.GARDIENNE
-                    )
-                  }
-                />
-                Gard.
-              </label>
-
-              <label>
-                <input
-                  type="checkbox"
-                  checked={Boolean(
-                    joueuse.capitaine
-                  )}
-                  onChange={() =>
-                    changerRoleJoueuse(
-                      joueuse,
-                      ROLES_JOUEUSE.CAPITAINE
-                    )
-                  }
-                />
-                Cap.
-              </label>
-
-              <label>
-                <input
-                  type="checkbox"
-                  checked={Boolean(
-                    joueuse.assistanteCapitaine
-                  )}
-                  onChange={() =>
-                    changerRoleJoueuse(
-                      joueuse,
-                      ROLES_JOUEUSE
-                        .ASSISTANTE_CAPITAINE
-                    )
-                  }
-                />
-                Ass.
-              </label>
-            </div>
-          </div>
-        );
+      const joueuse = {
+        ...joueuseBase,
+        ...joueuseMatch,
+        numero: joueuseBase.numero ?? joueuseMatch?.numero ?? '',
       }
-    );
+
+      return (
+        <div className="roster-row" key={joueuse.id}>
+          <div className="roster-player">
+            #{joueuse.numero} {joueuse.nom ?? joueuse.nomComplet}
+            {joueuse.remplacante && ' — Remplaçante'}
+          </div>
+
+          <div className="roster-options">
+            <label>
+              <input
+                type="checkbox"
+                checked={Boolean(joueuse.absente)}
+                onChange={() => changerPresence(joueuse)}
+              />
+              Abs.
+            </label>
+
+            <label>
+              <input
+                type="checkbox"
+                checked={Boolean(joueuse.suspendue)}
+                onChange={() => changerSuspension(joueuse)}
+              />
+              Susp.
+            </label>
+
+            <label>
+              <input
+                type="checkbox"
+                checked={Boolean(joueuse.gardienne)}
+                onChange={() =>
+                  changerRoleJoueuse(joueuse, ROLES_JOUEUSE.GARDIENNE)
+                }
+              />
+              Gard.
+            </label>
+
+            <label>
+              <input
+                type="checkbox"
+                checked={Boolean(joueuse.capitaine)}
+                onChange={() =>
+                  changerRoleJoueuse(joueuse, ROLES_JOUEUSE.CAPITAINE)
+                }
+              />
+              Cap.
+            </label>
+
+            <label>
+              <input
+                type="checkbox"
+                checked={Boolean(joueuse.assistanteCapitaine)}
+                onChange={() =>
+                  changerRoleJoueuse(
+                    joueuse,
+                    ROLES_JOUEUSE.ASSISTANTE_CAPITAINE
+                  )
+                }
+              />
+              Ass.
+            </label>
+          </div>
+        </div>
+      )
+    })
   }
 
   return (
     <section className="events">
       <h2>Alignements</h2>
 
-      {!matchInfo.equipeLocaleId &&
-      !matchInfo.equipeVisiteuseId ? (
+      {!matchInfo.equipeLocaleId && !matchInfo.equipeVisiteuseId ? (
         <p>
-          Sélectionne les équipes dans la
-          configuration du match pour afficher
+          Sélectionne les équipes dans la configuration du match pour afficher
           les alignements.
         </p>
       ) : (
@@ -166,16 +120,10 @@ export default function Alignements({
           <div>
             <button
               className="accordion-title"
-              onClick={() =>
-                setLocalOuvert(
-                  !localOuvert
-                )
-              }
+              onClick={() => setLocalOuvert(!localOuvert)}
             >
-              {localOuvert ? "▼" : "▶"}{" "}
-              {matchInfo.equipeLocale ||
-                "Équipe locale"}{" "}
-              — Local
+              {localOuvert ? '▼' : '▶'}{' '}
+              {matchInfo.equipeLocale || 'Équipe locale'} — Local
             </button>
 
             {localOuvert && (
@@ -183,41 +131,29 @@ export default function Alignements({
                 <div className="alignement-actions">
                   <button
                     onClick={() =>
-                      ouvrirFenetreRemplacante(
-                        matchInfo.equipeLocale
-                      )
+                      ouvrirFenetreRemplacante(matchInfo.equipeLocale)
                     }
                   >
                     Ajouter remplaçante
                   </button>
 
                   <div className="jersey-selector">
-                    <label>
-                      Couleur du chandail
-                    </label>
+                    <label>Couleur du chandail</label>
 
                     <select
-                      value={
-                        matchInfo
-                          .couleurLocaleChoisie
-                      }
+                      value={matchInfo.couleurLocaleChoisie}
                       onChange={(e) =>
                         modifierMatch({
-                          couleurLocaleChoisie:
-                            e.target.value,
+                          couleurLocaleChoisie: e.target.value,
                         })
                       }
                     >
                       <option value="primaire">
-                        {equipeLocaleData
-                          ?.nomCouleurPrimaire ||
-                          "Primaire"}
+                        {equipeLocaleData?.nomCouleurPrimaire || 'Primaire'}
                       </option>
 
                       <option value="secondaire">
-                        {equipeLocaleData
-                          ?.nomCouleurSecondaire ||
-                          "Secondaire"}
+                        {equipeLocaleData?.nomCouleurSecondaire || 'Secondaire'}
                       </option>
                     </select>
                   </div>
@@ -226,32 +162,18 @@ export default function Alignements({
                 {equipeLocaleData && (
                   <div>
                     <CouleurApercu
-                      nom={
-                        equipeLocaleData
-                          .nomCouleurPrimaire
-                      }
-                      code={
-                        equipeLocaleData
-                          .couleurPrimaire
-                      }
+                      nom={equipeLocaleData.nomCouleurPrimaire}
+                      code={equipeLocaleData.couleurPrimaire}
                     />
 
                     <CouleurApercu
-                      nom={
-                        equipeLocaleData
-                          .nomCouleurSecondaire
-                      }
-                      code={
-                        equipeLocaleData
-                          .couleurSecondaire
-                      }
+                      nom={equipeLocaleData.nomCouleurSecondaire}
+                      code={equipeLocaleData.couleurSecondaire}
                     />
                   </div>
                 )}
 
-                {afficherJoueuses(
-                  joueusesEquipeLocale
-                )}
+                {afficherJoueuses(joueusesEquipeLocale)}
               </>
             )}
           </div>
@@ -259,18 +181,10 @@ export default function Alignements({
           <div>
             <button
               className="accordion-title"
-              onClick={() =>
-                setVisiteurOuvert(
-                  !visiteurOuvert
-                )
-              }
+              onClick={() => setVisiteurOuvert(!visiteurOuvert)}
             >
-              {visiteurOuvert
-                ? "▼"
-                : "▶"}{" "}
-              {matchInfo.equipeVisiteuse ||
-                "Équipe visiteuse"}{" "}
-              — Visiteur
+              {visiteurOuvert ? '▼' : '▶'}{' '}
+              {matchInfo.equipeVisiteuse || 'Équipe visiteuse'} — Visiteur
             </button>
 
             {visiteurOuvert && (
@@ -278,42 +192,30 @@ export default function Alignements({
                 <div className="alignement-actions">
                   <button
                     onClick={() =>
-                      ouvrirFenetreRemplacante(
-                        matchInfo
-                          .equipeVisiteuse
-                      )
+                      ouvrirFenetreRemplacante(matchInfo.equipeVisiteuse)
                     }
                   >
                     Ajouter remplaçante
                   </button>
 
                   <div className="jersey-selector">
-                    <label>
-                      Couleur du chandail
-                    </label>
+                    <label>Couleur du chandail</label>
 
                     <select
-                      value={
-                        matchInfo
-                          .couleurVisiteuseChoisie
-                      }
+                      value={matchInfo.couleurVisiteuseChoisie}
                       onChange={(e) =>
                         modifierMatch({
-                          couleurVisiteuseChoisie:
-                            e.target.value,
+                          couleurVisiteuseChoisie: e.target.value,
                         })
                       }
                     >
                       <option value="primaire">
-                        {equipeVisiteuseData
-                          ?.nomCouleurPrimaire ||
-                          "Primaire"}
+                        {equipeVisiteuseData?.nomCouleurPrimaire || 'Primaire'}
                       </option>
 
                       <option value="secondaire">
-                        {equipeVisiteuseData
-                          ?.nomCouleurSecondaire ||
-                          "Secondaire"}
+                        {equipeVisiteuseData?.nomCouleurSecondaire ||
+                          'Secondaire'}
                       </option>
                     </select>
                   </div>
@@ -322,37 +224,23 @@ export default function Alignements({
                 {equipeVisiteuseData && (
                   <div>
                     <CouleurApercu
-                      nom={
-                        equipeVisiteuseData
-                          .nomCouleurPrimaire
-                      }
-                      code={
-                        equipeVisiteuseData
-                          .couleurPrimaire
-                      }
+                      nom={equipeVisiteuseData.nomCouleurPrimaire}
+                      code={equipeVisiteuseData.couleurPrimaire}
                     />
 
                     <CouleurApercu
-                      nom={
-                        equipeVisiteuseData
-                          .nomCouleurSecondaire
-                      }
-                      code={
-                        equipeVisiteuseData
-                          .couleurSecondaire
-                      }
+                      nom={equipeVisiteuseData.nomCouleurSecondaire}
+                      code={equipeVisiteuseData.couleurSecondaire}
                     />
                   </div>
                 )}
 
-                {afficherJoueuses(
-                  joueusesEquipeVisiteuse
-                )}
+                {afficherJoueuses(joueusesEquipeVisiteuse)}
               </>
             )}
           </div>
         </div>
       )}
     </section>
-  );
+  )
 }

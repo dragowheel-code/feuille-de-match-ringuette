@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState } from 'react'
 
 function DistributionChandailModal({
   ouverte,
@@ -15,36 +15,28 @@ function DistributionChandailModal({
 
   erreurs = [],
 }) {
-  const [recherche, setRecherche] =
-    useState("");
+  const [recherche, setRecherche] = useState('')
 
   if (!ouverte) {
-    return null;
+    return null
   }
 
-  const texteRecherche =
-    recherche.trim().toLowerCase();
+  const texteRecherche = recherche.trim().toLowerCase()
 
-  const joueusesFiltrees =
-    joueuses.filter((joueuse) =>
-      joueuse.label
-        .toLowerCase()
-        .includes(texteRecherche)
-    );
+  const joueusesFiltrees = joueuses.filter((joueuse) =>
+    joueuse.label.toLowerCase().includes(texteRecherche)
+  )
 
-  function modifierChamp(
-    champ,
-    valeur
-  ) {
+  function modifierChamp(champ, valeur) {
     setFormulaire((precedent) => ({
       ...precedent,
       [champ]: valeur,
-    }));
+    }))
   }
 
   function soumettre(event) {
-    event.preventDefault();
-    enregistrer(formulaire);
+    event.preventDefault()
+    enregistrer(formulaire)
   }
 
   return (
@@ -52,42 +44,20 @@ function DistributionChandailModal({
       <div className="modal-contenu">
         <header className="modal-entete">
           <div>
-            <h2>
-              Distribution de
-              l'ensemble #
-              {ensemble?.numero ?? ""}
-            </h2>
+            <h2>Distribution de l'ensemble #{ensemble?.numero ?? ''}</h2>
 
             <p>
-              Saison active :
-              {" "}
-              <strong>
-                {saisons[0]?.nom ??
-                  "Aucune"}
-              </strong>
+              Saison active : <strong>{saisons[0]?.nom ?? 'Aucune'}</strong>
             </p>
 
             <p>
-              {
-                joueusesFiltrees.length
-              }{" "}
-              joueuse
-              {joueusesFiltrees.length >
-              1
-                ? "s"
-                : ""}{" "}
-              disponible
-              {joueusesFiltrees.length >
-              1
-                ? "s"
-                : ""}
+              {joueusesFiltrees.length} joueuse
+              {joueusesFiltrees.length > 1 ? 's' : ''} disponible
+              {joueusesFiltrees.length > 1 ? 's' : ''}
             </p>
           </div>
 
-          <button
-            type="button"
-            onClick={fermer}
-          >
+          <button type="button" onClick={fermer}>
             ×
           </button>
         </header>
@@ -96,28 +66,19 @@ function DistributionChandailModal({
           {erreurs.length > 0 && (
             <div className="liste-erreurs">
               {erreurs.map((erreur) => (
-                <p key={erreur}>
-                  {erreur}
-                </p>
+                <p key={erreur}>{erreur}</p>
               ))}
             </div>
           )}
 
           <div className="champ-formulaire">
-            <label>
-              Rechercher une
-              joueuse
-            </label>
+            <label>Rechercher une joueuse</label>
 
             <input
               type="search"
               placeholder="Nom de la joueuse..."
               value={recherche}
-              onChange={(event) =>
-                setRecherche(
-                  event.target.value
-                )
-              }
+              onChange={(event) => setRecherche(event.target.value)}
             />
           </div>
 
@@ -125,78 +86,61 @@ function DistributionChandailModal({
             <label>Joueuse</label>
 
             <select
-              value={
-                formulaire.joueuseId
-              }
+              value={formulaire.joueuseId}
               onChange={(event) =>
-                modifierChamp(
-                  "joueuseId",
-                  event.target.value
-                )
+                modifierChamp('joueuseId', event.target.value)
               }
             >
-              <option value="">
-                Sélectionner une
-                joueuse...
-              </option>
+              <option value="">Sélectionner une joueuse...</option>
 
-              {joueusesFiltrees.map(
-                (option) => (
-                  <option
-                    key={
-                      option.value
-                    }
-                    value={
-                      option.value
-                    }
-                  >
-                    {option.label}
-                  </option>
-                )
-              )}
+              {joueusesFiltrees.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="champ-formulaire">
-            <label>
-              Commentaire
-            </label>
+            <label>Utilisation</label>
+
+            <select
+              value={formulaire.typeUtilisation ?? 'JOUEUSE'}
+              onChange={(event) =>
+                modifierChamp('typeUtilisation', event.target.value)
+              }
+            >
+              <option value="JOUEUSE">Joueuse</option>
+
+              <option value="GARDIENNE">Gardienne</option>
+            </select>
+          </div>
+
+          <div className="champ-formulaire">
+            <label>Commentaire</label>
 
             <textarea
               rows={4}
-              value={
-                formulaire.commentaire
-              }
+              value={formulaire.commentaire}
               onChange={(event) =>
-                modifierChamp(
-                  "commentaire",
-                  event.target.value
-                )
+                modifierChamp('commentaire', event.target.value)
               }
             />
           </div>
 
           <div className="modal-actions">
-            <button
-              type="button"
-              onClick={fermer}
-            >
+            <button type="button" onClick={fermer}>
               Annuler
             </button>
 
-            <button
-              type="submit"
-              disabled={
-                !formulaire.joueuseId
-              }
-            >
+            <button type="submit" disabled={!formulaire.joueuseId}>
               Distribuer
             </button>
           </div>
         </form>
       </div>
     </div>
-  );
+  )
 }
 
-export default DistributionChandailModal;
+export default DistributionChandailModal

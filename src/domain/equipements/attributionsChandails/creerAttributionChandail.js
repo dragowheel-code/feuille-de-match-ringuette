@@ -1,48 +1,35 @@
 export function creerAttributionChandail({
   id = crypto.randomUUID(),
-
-  ensembleId = "",
-  joueuseId = "",
-  saisonId = "",
+  ensembleId = '',
+  joueuseId = '',
+  saisonId = '',
   affectationId = null,
-
-  dateAttribution = new Date()
-    .toISOString()
-    .slice(0, 10),
-
+  typeUtilisation = 'JOUEUSE',
+  dateAttribution = new Date().toISOString().slice(0, 10),
   dateRetour = null,
-
   active = true,
-  commentaire = "",
+  commentaire = '',
 } = {}) {
   return {
     id,
 
-    ensembleId: String(
-      ensembleId ?? ""
-    ).trim(),
+    ensembleId: String(ensembleId ?? '').trim(),
 
-    joueuseId: String(
-      joueuseId ?? ""
-    ).trim(),
+    joueuseId: String(joueuseId ?? '').trim(),
 
-    saisonId: String(
-      saisonId ?? ""
-    ).trim(),
+    saisonId: String(saisonId ?? '').trim(),
 
-    affectationId:
-      affectationId
-        ? String(affectationId).trim()
-        : null,
+    affectationId: affectationId ? String(affectationId).trim() : null,
+
+    typeUtilisation: String(typeUtilisation ?? 'JOUEUSE')
+      .trim()
+      .toUpperCase(),
 
     dateAttribution,
-
     dateRetour,
 
     active: Boolean(active),
 
-    commentaire: String(
-      commentaire ?? ""
-    ).trim(),
-  };
+    commentaire: String(commentaire ?? '').trim(),
+  }
 }

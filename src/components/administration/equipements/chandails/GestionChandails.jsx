@@ -117,6 +117,7 @@ function GestionChandails({
     ensembleId: '',
     saisonId: '',
     joueuseId: '',
+    typeUtilisation: 'JOUEUSE',
     commentaire: '',
   })
 
@@ -434,11 +435,9 @@ function GestionChandails({
 
     setFormulaireDistribution({
       ensembleId: ensemble.id,
-
       saisonId: saisonActive?.id || '',
-
       joueuseId: '',
-
+      typeUtilisation: 'JOUEUSE',
       commentaire: '',
     })
 
