@@ -1,6 +1,4 @@
-import {
-  formaterTempsPendantSaisie,
-} from "../utils/temps";
+import { formaterTempsPendantSaisie } from '../utils/temps'
 
 export default function GardienneModal({
   ouverte,
@@ -14,7 +12,7 @@ export default function GardienneModal({
   confirmer,
   fermer,
 }) {
-  if (!ouverte) return null;
+  if (!ouverte) return null
 
   return (
     <div className="modal-backdrop">
@@ -27,34 +25,33 @@ export default function GardienneModal({
           onChange={(e) => setEquipeGardienne(e.target.value)}
         >
           <option value="Local">
-            {matchInfo.equipeLocale || "Équipe locale"}
+            {matchInfo.equipeLocale || 'Équipe locale'}
           </option>
 
           <option value="Visiteur">
-            {matchInfo.equipeVisiteuse || "Équipe visiteuse"}
+            {matchInfo.equipeVisiteuse || 'Équipe visiteuse'}
           </option>
         </select>
 
         <label>Temps affiché au tableau</label>
         <input
-  value={tempsGardienneTableau}
-  onChange={(e) =>
-    setTempsGardienneTableau(
-      formaterTempsPendantSaisie(
-        e.target.value
-      )
-    )
-  }
-  placeholder="Exemple : 832 → 8:32"
-  inputMode="numeric"
-/>
+          value={tempsGardienneTableau}
+          onChange={(e) => setTempsGardienneTableau(e.target.value)}
+          onBlur={() =>
+            setTempsGardienneTableau(
+              formaterTempsPendantSaisie(tempsGardienneTableau)
+            )
+          }
+          placeholder="Exemple : 832 → 8:32"
+          inputMode="numeric"
+        />
 
         <p>
           Période : <strong>{periode}</strong>
         </p>
 
         <p>
-          Temps corrigé : <strong>{tempsCorrige || "--:--"}</strong>
+          Temps corrigé : <strong>{tempsCorrige || '--:--'}</strong>
         </p>
 
         <div className="modal-actions">
@@ -66,5 +63,5 @@ export default function GardienneModal({
         </div>
       </div>
     </div>
-  );
+  )
 }
