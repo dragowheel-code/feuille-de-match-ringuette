@@ -1,91 +1,58 @@
-import {
-  TYPES_CONFIGURATION_MATCH,
-} from "./typesConfigurationMatch";
+import { TYPES_CONFIGURATION_MATCH } from './typesConfigurationMatch'
 
 export function obtenirEquipesDisponibles({
   typeConfiguration,
 
-  associationLocaleId = "",
-  associationVisiteuseId = "",
+  associationLocaleId = '',
+  associationVisiteuseId = '',
 
-  tournoiId = "",
+  tournoiId = '',
 
   equipes = [],
   inscriptionsEquipesTournoi = [],
 } = {}) {
-  if (
-    typeConfiguration ===
-    TYPES_CONFIGURATION_MATCH.LOCAL
-  ) {
+  if (typeConfiguration === TYPES_CONFIGURATION_MATCH.LOCAL) {
     if (!associationLocaleId) {
-      return [];
+      return []
     }
 
     return equipes.filter(
-      (equipe) =>
-        String(equipe.associationId) ===
-        String(associationLocaleId)
-    );
+      (equipe) => String(equipe.associationId) === String(associationLocaleId)
+    )
   }
 
-  if (
-    typeConfiguration ===
-    TYPES_CONFIGURATION_MATCH.INTER_ASSOCIATION
-  ) {
-    if (
-      !associationLocaleId ||
-      !associationVisiteuseId
-    ) {
-      return [];
+  if (typeConfiguration === TYPES_CONFIGURATION_MATCH.INTER_ASSOCIATION) {
+    if (!associationLocaleId) {
+      return []
     }
 
-    const associationsPermises =
-      new Set([
-        String(associationLocaleId),
-        String(associationVisiteuseId),
-      ]);
+    const associationsPermises = new Set([String(associationLocaleId)])
 
-    return equipes.filter(
-      (equipe) =>
-        associationsPermises.has(
-          String(equipe.associationId)
-        )
-    );
+    if (associationVisiteuseId) {
+      associationsPermises.add(String(associationVisiteuseId))
+    }
+    return equipes.filter((equipe) =>
+      associationsPermises.has(String(equipe.associationId))
+    )
   }
 
-  if (
-    typeConfiguration ===
-    TYPES_CONFIGURATION_MATCH.TOURNOI
-  ) {
+  if (typeConfiguration === TYPES_CONFIGURATION_MATCH.TOURNOI) {
     if (!tournoiId) {
-      return [];
+      return []
     }
 
-    const idsEquipesInscrites =
-      new Set(
-        inscriptionsEquipesTournoi
-          .filter(
-            (inscription) =>
-              String(
-                inscription.tournoiId
-              ) ===
-              String(tournoiId)
-          )
-          .map(
-            (inscription) =>
-              String(
-                inscription.equipeId
-              )
-          )
-      );
-
-    return equipes.filter(
-      (equipe) =>
-        idsEquipesInscrites.has(
-          String(equipe.id)
+    const idsEquipesInscrites = new Set(
+      inscriptionsEquipesTournoi
+        .filter(
+          (inscription) => String(inscription.tournoiId) === String(tournoiId)
         )
-    );
+        .map((inscription) => String(inscription.equipeId))
+    )
+
+    return equipes.filter((equipe) =>
+      idsEquipesInscrites.has(String(equipe.id))
+    )
   }
 
-  return [];
+  return []
 }

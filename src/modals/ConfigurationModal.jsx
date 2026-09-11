@@ -1,10 +1,10 @@
-import { DUREES_PERIODE } from "../constants/dureesPeriode";
-import { mettreAJourMatch } from "../domain/match";
+import { DUREES_PERIODE } from '../constants/dureesPeriode'
+import { mettreAJourMatch } from '../domain/match'
 import {
   obtenirEquipesDisponibles,
   obtenirOfficielsDisponibles,
-  } from "../domain/configurationMatch";
-import { obtenirNomEquipe as obtenirDesignationEquipe } from "../domain/equipes/obtenirNomEquipe";
+} from '../domain/configurationMatch'
+import { obtenirNomEquipe as obtenirDesignationEquipe } from '../domain/equipes/obtenirNomEquipe'
 
 export default function ConfigurationModal({
   ouverte,
@@ -25,102 +25,78 @@ export default function ConfigurationModal({
   destinataires,
   chargerAlignementPublic,
 }) {
-  const equipesDisponibles =
-  obtenirEquipesDisponibles({
-    typeConfiguration:
-      matchInfo.typeConfiguration,
-
-    associationLocaleId:
-      matchInfo.associationLocaleId,
-
-    associationVisiteuseId:
-      matchInfo.associationVisiteuseId,
-
-    tournoiId:
-      matchInfo.tournoiId,
-
-    equipes:
-      equipesAdministration,
-
+  const equipesDisponibles = obtenirEquipesDisponibles({
+    typeConfiguration: matchInfo.typeConfiguration,
+    associationLocaleId: matchInfo.associationLocaleId,
+    associationVisiteuseId: matchInfo.associationVisiteuseId,
+    tournoiId: matchInfo.tournoiId,
+    equipes: equipesAdministration,
     inscriptionsEquipesTournoi,
-  });
+  })
+  const equipesLocalesDisponibles =
+    matchInfo.typeConfiguration === 'inter-association'
+      ? equipesAdministration.filter(
+          (equipe) =>
+            String(equipe.associationId) ===
+            String(matchInfo.associationLocaleId)
+        )
+      : equipesDisponibles
 
-  const officielsDisponiblesConfiguration =
-  obtenirOfficielsDisponibles({
-    typeConfiguration:
-      matchInfo.typeConfiguration,
+  const equipesVisiteusesDisponibles =
+    matchInfo.typeConfiguration === 'inter-association'
+      ? equipesAdministration.filter(
+          (equipe) =>
+            String(equipe.associationId) ===
+            String(matchInfo.associationVisiteuseId)
+        )
+      : equipesDisponibles
 
-    associationLocaleId:
-      matchInfo.associationLocaleId,
-
-    associationVisiteuseId:
-      matchInfo.associationVisiteuseId,
-
-    tournoiId:
-      matchInfo.tournoiId,
-
+  const officielsDisponiblesConfiguration = obtenirOfficielsDisponibles({
+    typeConfiguration: matchInfo.typeConfiguration,
+    associationLocaleId: matchInfo.associationLocaleId,
+    associationVisiteuseId: matchInfo.associationVisiteuseId,
+    tournoiId: matchInfo.tournoiId,
     officiels,
-
     inscriptionsOfficielsTournoi,
-  });
+  })
 
-  const arbitresConfiguration =
-  officielsDisponiblesConfiguration.filter(
-    (officiel) =>
-      officiel.arbitre
-  );
+  const arbitresConfiguration = officielsDisponiblesConfiguration.filter(
+    (officiel) => officiel.arbitre
+  )
 
-const chronometreursConfiguration =
-  officielsDisponiblesConfiguration.filter(
-    (officiel) =>
-      officiel.chronometreur
-  );
+  const chronometreursConfiguration = officielsDisponiblesConfiguration.filter(
+    (officiel) => officiel.chronometreur
+  )
 
-const marqueursConfiguration =
-  officielsDisponiblesConfiguration.filter(
-    (officiel) =>
-      officiel.marqueur
-  );
+  const marqueursConfiguration = officielsDisponiblesConfiguration.filter(
+    (officiel) => officiel.marqueur
+  )
 
-const operateurs30sConfiguration =
-  officielsDisponiblesConfiguration.filter(
-    (officiel) =>
-      officiel.operateur30s
-  );
+  const operateurs30sConfiguration = officielsDisponiblesConfiguration.filter(
+    (officiel) => officiel.operateur30s
+  )
 
-  if (!ouverte) return null;
+  if (!ouverte) return null
 
   function modifierMatch(modifications) {
-    setMatchInfo(
-      mettreAJourMatch(
-        matchInfo,
-        modifications
-      )
-    );
+    setMatchInfo(mettreAJourMatch(matchInfo, modifications))
   }
 
-  function obtenirNomEquipe(
-  equipe,
-  associations
-) {
-  const association =
-    associations.find(
-      (element) =>
-        String(element.id) ===
-        String(equipe.associationId)
-    );
+  function obtenirNomEquipe(equipe, associations) {
+    const association = associations.find(
+      (element) => String(element.id) === String(equipe.associationId)
+    )
 
-  const nomAssociation =
-    association?.nomEquipes ||
-    association?.abreviation ||
-    association?.nom ||
-    "Association";
+    const nomAssociation =
+      association?.nomEquipes ||
+      association?.abreviation ||
+      association?.nom ||
+      'Association'
 
-  const nomEquipe =
-    obtenirDesignationEquipe(equipe);
+    const nomEquipe = obtenirDesignationEquipe(equipe)
 
-  return `${nomAssociation} — ${nomEquipe}`;
-}
+    return `${nomAssociation} — ${nomEquipe}`
+  }
 
   return (
     <div className="modal-backdrop">
@@ -132,284 +108,240 @@ const operateurs30sConfiguration =
 
           <label>Numéro de partie</label>
           <input
-            value={matchInfo.numeroPartie || ""}
-           onChange={(e) =>
-  modifierMatch({
-    numeroPartie: e.target.value,
-  })
-}
+            value={matchInfo.numeroPartie || ''}
+            onChange={(e) =>
+              modifierMatch({
+                numeroPartie: e.target.value,
+              })
+            }
             placeholder="Exemple : 104"
           />
 
           <label>Date</label>
           <input
             type="date"
-            value={matchInfo.date || ""}
+            value={matchInfo.date || ''}
             onChange={(e) =>
-  modifierMatch({
-    date: e.target.value,
-  })
-}
+              modifierMatch({
+                date: e.target.value,
+              })
+            }
           />
 
           <label>Aréna</label>
           <input
-            value={matchInfo.arena || ""}
+            value={matchInfo.arena || ''}
             onChange={(e) =>
               modifierMatch({
                 arena: e.target.value,
-              })            }
+              })
+            }
             placeholder="Exemple : Aréna Guy Carbonneau"
           />
           <div className="config-section">
-  <h3>Type de match</h3>
+            <h3>Type de match</h3>
 
-  <label>
-    <input
-      type="radio"
-      name="typeConfiguration"
-      value="local"
-      checked={
-        matchInfo.typeConfiguration === "local"
-      }
-      onChange={(event) =>
-  setMatchInfo((ancien) => ({
-    ...ancien,
+            <label>
+              <input
+                type="radio"
+                name="typeConfiguration"
+                value="local"
+                checked={matchInfo.typeConfiguration === 'local'}
+                onChange={(event) =>
+                  setMatchInfo((ancien) => ({
+                    ...ancien,
 
-    typeConfiguration:
-      event.target.value,
+                    typeConfiguration: event.target.value,
 
-    associationLocaleId: "",
-    associationVisiteuseId: "",
-    tournoiId: "",
+                    associationLocaleId: '',
+                    associationVisiteuseId: '',
+                    tournoiId: '',
 
-    equipeLocaleId: "",
-    equipeVisiteuseId: "",
+                    equipeLocaleId: '',
+                    equipeVisiteuseId: '',
 
-    equipeLocale: "",
-    equipeVisiteuse: "",
-  }))
-}
-    />
-    Match local
-  </label>
+                    equipeLocale: '',
+                    equipeVisiteuse: '',
+                  }))
+                }
+              />
+              Match local
+            </label>
 
-  <label>
-  <input
-    type="radio"
-    name="typeConfiguration"
-    value="inter-association"
-    checked={
-      matchInfo.typeConfiguration ===
-      "inter-association"
-    }
-    onChange={(event) =>
-      setMatchInfo((ancien) => ({
-        ...ancien,
+            <label>
+              <input
+                type="radio"
+                name="typeConfiguration"
+                value="inter-association"
+                checked={matchInfo.typeConfiguration === 'inter-association'}
+                onChange={(event) =>
+                  setMatchInfo((ancien) => ({
+                    ...ancien,
 
-        typeConfiguration:
-          event.target.value,
+                    typeConfiguration: event.target.value,
 
-        associationLocaleId: "",
-        associationVisiteuseId: "",
-        tournoiId: "",
+                    associationLocaleId: '',
+                    associationVisiteuseId: '',
+                    tournoiId: '',
 
-        equipeLocaleId: "",
-        equipeVisiteuseId: "",
+                    equipeLocaleId: '',
+                    equipeVisiteuseId: '',
 
-        equipeLocale: "",
-        equipeVisiteuse: "",
-      }))
-    }
-  />
-  Match inter-association
-</label>
+                    equipeLocale: '',
+                    equipeVisiteuse: '',
+                  }))
+                }
+              />
+              Match inter-association
+            </label>
 
-  <label>
-    <input
-      type="radio"
-      name="typeConfiguration"
-      value="tournoi"
-      checked={
-        matchInfo.typeConfiguration ===
-        "tournoi"
-      }
-      onChange={(event) =>
-  setMatchInfo((ancien) => ({
-    ...ancien,
+            <label>
+              <input
+                type="radio"
+                name="typeConfiguration"
+                value="tournoi"
+                checked={matchInfo.typeConfiguration === 'tournoi'}
+                onChange={(event) =>
+                  setMatchInfo((ancien) => ({
+                    ...ancien,
 
-    typeConfiguration:
-      event.target.value,
+                    typeConfiguration: event.target.value,
 
-    associationLocaleId: "",
-    associationVisiteuseId: "",
-    tournoiId: "",
+                    associationLocaleId: '',
+                    associationVisiteuseId: '',
+                    tournoiId: '',
 
-    equipeLocaleId: "",
-    equipeVisiteuseId: "",
+                    equipeLocaleId: '',
+                    equipeVisiteuseId: '',
 
-    equipeLocale: "",
-    equipeVisiteuse: "",
-  }))
-}
-    />
-    Tournoi
-  </label>
-</div>
+                    equipeLocale: '',
+                    equipeVisiteuse: '',
+                  }))
+                }
+              />
+              Tournoi
+            </label>
+          </div>
 
-{matchInfo.typeConfiguration === "local" && (
-  <div className="config-section">
-    <label>
-      Association locale
+          {matchInfo.typeConfiguration === 'local' && (
+            <div className="config-section">
+              <label>
+                Association locale
+                <select
+                  value={matchInfo.associationLocaleId}
+                  onChange={(event) =>
+                    setMatchInfo((ancien) => ({
+                      ...ancien,
 
-      <select
-  value={matchInfo.associationLocaleId}
-  onChange={(event) =>
-    setMatchInfo((ancien) => ({
-      ...ancien,
+                      associationLocaleId: event.target.value,
 
-      associationLocaleId:
-        event.target.value,
+                      equipeLocaleId: '',
+                      equipeVisiteuseId: '',
 
-      equipeLocaleId: "",
-      equipeVisiteuseId: "",
+                      equipeLocale: '',
+                      equipeVisiteuse: '',
+                    }))
+                  }
+                >
+                  <option value="">Sélectionner une association</option>
 
-      equipeLocale: "",
-      equipeVisiteuse: "",
-    }))
-  }
->
-  <option value="">
-    Sélectionner une association
-  </option>
+                  {associations.map((association) => (
+                    <option key={association.id} value={association.id}>
+                      {association.nom}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          )}
 
-  {associations.map((association) => (
-    <option
-      key={association.id}
-      value={association.id}
-    >
-      {association.nom}
-    </option>
-  ))}
-</select>
-    </label>
-  </div>
-)}
+          {matchInfo.typeConfiguration === 'inter-association' && (
+            <div className="config-section">
+              <label>
+                Association locale
+                <select
+                  value={matchInfo.associationLocaleId}
+                  onChange={(event) =>
+                    setMatchInfo((ancien) => ({
+                      ...ancien,
+                      associationLocaleId: event.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Sélectionner une association</option>
 
-{matchInfo.typeConfiguration ===
-  "inter-association" && (
-  <div className="config-section">
-    <label>
-      Association locale
+                  {associations.map((association) => (
+                    <option key={association.id} value={association.id}>
+                      {association.nom}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-      <select
-        value={matchInfo.associationLocaleId}
-        onChange={(event) =>
-          setMatchInfo((ancien) => ({
-            ...ancien,
-            associationLocaleId:
-              event.target.value,
-          }))
-        }
-      >
-        <option value="">
-          Sélectionner une association
-        </option>
+              <label>
+                Association visiteuse
+                <select
+                  value={matchInfo.associationVisiteuseId}
+                  onChange={(event) =>
+                    setMatchInfo((ancien) => ({
+                      ...ancien,
+                      associationVisiteuseId: event.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Sélectionner une association</option>
 
-        {associations.map((association) => (
-          <option
-            key={association.id}
-            value={association.id}
-          >
-            {association.nom}
-          </option>
-        ))}
-      </select>
-    </label>
+                  {associations
+                    .filter(
+                      (association) =>
+                        String(association.id) !==
+                        String(matchInfo.associationLocaleId)
+                    )
+                    .map((association) => (
+                      <option key={association.id} value={association.id}>
+                        {association.nom}
+                      </option>
+                    ))}
+                </select>
+              </label>
+            </div>
+          )}
 
-    <label>
-      Association visiteuse
+          {matchInfo.typeConfiguration === 'tournoi' && (
+            <div className="config-section">
+              <label>
+                Tournoi
+                <select
+                  value={matchInfo.tournoiId}
+                  onChange={(event) =>
+                    setMatchInfo((ancien) => ({
+                      ...ancien,
+                      tournoiId: event.target.value,
+                    }))
+                  }
+                >
+                  <option value="">Sélectionner un tournoi</option>
 
-      <select
-        value={matchInfo.associationVisiteuseId}
-        onChange={(event) =>
-          setMatchInfo((ancien) => ({
-            ...ancien,
-            associationVisiteuseId:
-              event.target.value,
-          }))
-        }
-      >
-        <option value="">
-          Sélectionner une association
-        </option>
-
-        {associations
-          .filter(
-            (association) =>
-              String(association.id) !==
-              String(
-                matchInfo.associationLocaleId
-              )
-          )
-          .map((association) => (
-            <option
-              key={association.id}
-              value={association.id}
-            >
-              {association.nom}
-            </option>
-          ))}
-      </select>
-    </label>
-  </div>
-)}
-
-{matchInfo.typeConfiguration === "tournoi" && (
-  <div className="config-section">
-    <label>
-      Tournoi
-
-      <select
-        value={matchInfo.tournoiId}
-        onChange={(event) =>
-          setMatchInfo((ancien) => ({
-            ...ancien,
-            tournoiId:
-              event.target.value,
-          }))
-        }
-      >
-        <option value="">
-          Sélectionner un tournoi
-        </option>
-
-        {tournois
-          .filter(
-            (tournoi) =>
-              tournoi.actif !== false
-          )
-          .map((tournoi) => (
-            <option
-              key={tournoi.id}
-              value={tournoi.id}
-            >
-              {tournoi.nom}
-            </option>
-          ))}
-      </select>
-    </label>
-  </div>
-)}
+                  {tournois
+                    .filter((tournoi) => tournoi.actif !== false)
+                    .map((tournoi) => (
+                      <option key={tournoi.id} value={tournoi.id}>
+                        {tournoi.nom}
+                      </option>
+                    ))}
+                </select>
+              </label>
+            </div>
+          )}
 
           <label>Calibre</label>
           <select
-            value={matchInfo.calibre || "U12"}
+            value={matchInfo.calibre || 'U12'}
             onChange={(e) =>
               modifierMatch({
                 calibre: e.target.value,
-                })
-              }
+              })
+            }
           >
             <option value="U10">U10</option>
             <option value="U12">U12</option>
@@ -422,9 +354,7 @@ const operateurs30sConfiguration =
           <label>Durée des périodes</label>
           <select
             value={dureePeriode}
-            onChange={(e) =>
-              setDureePeriode(Number(e.target.value))
-            }
+            onChange={(e) => setDureePeriode(Number(e.target.value))}
           >
             {DUREES_PERIODE.map((duree) => (
               <option key={duree} value={duree}>
@@ -443,89 +373,55 @@ const operateurs30sConfiguration =
 
               <label>Équipe</label>
               <select
-  value={matchInfo.equipeLocaleId || ""}
-  onChange={async (e) => {
-  const equipeId = e.target.value;
+                value={matchInfo.equipeLocaleId || ''}
+                onChange={async (e) => {
+                  const equipeId = e.target.value
 
-  const equipeSelectionnee =
-    equipesDisponibles.find(
-      (equipe) =>
-        String(equipe.id) ===
-        String(equipeId)
-    );
+                  const equipeSelectionnee = equipesLocalesDisponibles.find(
+                    (equipe) => String(equipe.id) === String(equipeId)
+                  )
 
-  const nomEquipeLocale =
-    equipeSelectionnee
-      ? obtenirNomEquipe(
-          equipeSelectionnee,
-          associations
-        )
-      : "";
+                  const nomEquipeLocale = equipeSelectionnee
+                    ? obtenirNomEquipe(equipeSelectionnee, associations)
+                    : ''
 
-  let alignementLocal = [];
+                  let alignementLocal = []
 
-  if (
-    equipeSelectionnee &&
-    chargerAlignementPublic
-  ) {
-    const resultat =
-      await chargerAlignementPublic(
-        equipeSelectionnee.id
-      );
+                  if (equipeSelectionnee && chargerAlignementPublic) {
+                    const resultat = await chargerAlignementPublic(
+                      equipeSelectionnee.id
+                    )
 
-    if (resultat.succes) {
-      alignementLocal =
-        resultat.joueuses.map(
-          (joueuse) => ({
-            ...joueuse,
-            equipe:
-              nomEquipeLocale,
-          })
-        );
-    }
-  }
+                    if (resultat.succes) {
+                      alignementLocal = resultat.joueuses.map((joueuse) => ({
+                        ...joueuse,
+                        equipe: nomEquipeLocale,
+                      }))
+                    }
+                  }
 
-  modifierMatch({
-    equipeLocaleId: equipeId,
-    equipeLocale:
-      nomEquipeLocale,
-  });
+                  modifierMatch({
+                    equipeLocaleId: equipeId,
+                    equipeLocale: nomEquipeLocale,
+                  })
 
-  setJoueuses(
-    (anciennesJoueuses) => {
-      const autresJoueuses =
-        anciennesJoueuses.filter(
-          (joueuse) =>
-            joueuse.equipe !==
-            matchInfo.equipeLocale
-        );
+                  setJoueuses((anciennesJoueuses) => {
+                    const autresJoueuses = anciennesJoueuses.filter(
+                      (joueuse) => joueuse.equipe !== matchInfo.equipeLocale
+                    )
 
-      return [
-        ...autresJoueuses,
-        ...alignementLocal,
-      ];
-    }
-  );
-}}
->
-  <option value="">
-    Choisir
-  </option>
+                    return [...autresJoueuses, ...alignementLocal]
+                  })
+                }}
+              >
+                <option value="">Choisir</option>
 
-  {equipesDisponibles.map(
-    (equipe) => (
-      <option
-        key={equipe.id}
-        value={equipe.id}
-      >
-        {obtenirNomEquipe(
-  equipe,
-  associations
-)}
-      </option>
-    )
-  )}
-</select>
+                {equipesLocalesDisponibles.map((equipe) => (
+                  <option key={equipe.id} value={equipe.id}>
+                    {obtenirNomEquipe(equipe, associations)}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="team-config-card">
@@ -533,93 +429,55 @@ const operateurs30sConfiguration =
 
               <label>Équipe</label>
               <select
-  value={
-    matchInfo.equipeVisiteuseId ||
-    ""
-  }
-  onChange={async (e) => {
-  const equipeId = e.target.value;
+                value={matchInfo.equipeVisiteuseId || ''}
+                onChange={async (e) => {
+                  const equipeId = e.target.value
 
-  const equipeSelectionnee =
-    equipesDisponibles.find(
-      (equipe) =>
-        String(equipe.id) ===
-        String(equipeId)
-    );
+                  const equipeSelectionnee = equipesVisiteusesDisponibles.find(
+                    (equipe) => String(equipe.id) === String(equipeId)
+                  )
 
-  const nomEquipeVisiteuse =
-    equipeSelectionnee
-      ? obtenirNomEquipe(
-          equipeSelectionnee,
-          associations
-        )
-      : "";
+                  const nomEquipeVisiteuse = equipeSelectionnee
+                    ? obtenirNomEquipe(equipeSelectionnee, associations)
+                    : ''
 
-  let alignementVisiteur = [];
+                  let alignementVisiteur = []
 
-  if (
-    equipeSelectionnee &&
-    chargerAlignementPublic
-  ) {
-    const resultat =
-      await chargerAlignementPublic(
-        equipeSelectionnee.id
-      );
+                  if (equipeSelectionnee && chargerAlignementPublic) {
+                    const resultat = await chargerAlignementPublic(
+                      equipeSelectionnee.id
+                    )
 
-    if (resultat.succes) {
-      alignementVisiteur =
-        resultat.joueuses.map(
-          (joueuse) => ({
-            ...joueuse,
-            equipe:
-              nomEquipeVisiteuse,
-          })
-        );
-    }
-  }
+                    if (resultat.succes) {
+                      alignementVisiteur = resultat.joueuses.map((joueuse) => ({
+                        ...joueuse,
+                        equipe: nomEquipeVisiteuse,
+                      }))
+                    }
+                  }
 
-  modifierMatch({
-    equipeVisiteuseId:
-      equipeId,
-    equipeVisiteuse:
-      nomEquipeVisiteuse,
-  });
+                  modifierMatch({
+                    equipeVisiteuseId: equipeId,
+                    equipeVisiteuse: nomEquipeVisiteuse,
+                  })
 
-  setJoueuses(
-    (anciennesJoueuses) => {
-      const autresJoueuses =
-        anciennesJoueuses.filter(
-          (joueuse) =>
-            joueuse.equipe !==
-            matchInfo.equipeVisiteuse
-        );
+                  setJoueuses((anciennesJoueuses) => {
+                    const autresJoueuses = anciennesJoueuses.filter(
+                      (joueuse) => joueuse.equipe !== matchInfo.equipeVisiteuse
+                    )
 
-      return [
-        ...autresJoueuses,
-        ...alignementVisiteur,
-      ];
-    }
-  );
-}}
->
-  <option value="">
-    Choisir
-  </option>
+                    return [...autresJoueuses, ...alignementVisiteur]
+                  })
+                }}
+              >
+                <option value="">Choisir</option>
 
-  {equipesDisponibles.map(
-    (equipe) => (
-      <option
-        key={equipe.id}
-        value={equipe.id}
-      >
-        {obtenirNomEquipe(
-  equipe,
-  associations
-)}
-      </option>
-    )
-  )}
-</select>
+                {equipesVisiteusesDisponibles.map((equipe) => (
+                  <option key={equipe.id} value={equipe.id}>
+                    {obtenirNomEquipe(equipe, associations)}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
@@ -632,24 +490,21 @@ const operateurs30sConfiguration =
               type="checkbox"
               checked={matchInfo.envoyerCourrielLocal || false}
               onChange={(e) =>
-              modifierMatch({
+                modifierMatch({
                   envoyerCourrielLocal: e.target.checked,
                 })
               }
             />
 
             <span>
-              Local :{" "}
-              {equipeLocaleData?.courriel || "Aucun courriel"}
+              Local : {equipeLocaleData?.courriel || 'Aucun courriel'}
             </span>
           </label>
 
           <label className="courriel-option">
             <input
               type="checkbox"
-              checked={
-                matchInfo.envoyerCourrielVisiteur || false
-              }
+              checked={matchInfo.envoyerCourrielVisiteur || false}
               onChange={(e) =>
                 modifierMatch({
                   envoyerCourrielVisiteur: e.target.checked,
@@ -658,16 +513,14 @@ const operateurs30sConfiguration =
             />
 
             <span>
-              Visiteur :{" "}
-              {equipeVisiteuseData?.courriel ||
-                "Aucun courriel"}
+              Visiteur : {equipeVisiteuseData?.courriel || 'Aucun courriel'}
             </span>
           </label>
 
           <label>Courriels supplémentaires</label>
           <input
             type="text"
-            value={matchInfo.courrielPersonnalise || ""}
+            value={matchInfo.courrielPersonnalise || ''}
             onChange={(e) =>
               modifierMatch({
                 courrielPersonnalise: e.target.value,
@@ -677,11 +530,9 @@ const operateurs30sConfiguration =
           />
 
           <p>
-            Destinataires utilisés :{" "}
+            Destinataires utilisés :{' '}
             <strong>
-              {destinataires.length
-                ? destinataires.join(", ")
-                : "Aucun"}
+              {destinataires.length ? destinataires.join(', ') : 'Aucun'}
             </strong>
           </p>
         </div>
@@ -691,7 +542,7 @@ const operateurs30sConfiguration =
 
           <label>Arbitre principal</label>
           <select
-            value={matchInfo.arbitrePrincipal || ""}
+            value={matchInfo.arbitrePrincipal || ''}
             onChange={(e) =>
               modifierMatch({
                 arbitrePrincipal: e.target.value,
@@ -709,7 +560,7 @@ const operateurs30sConfiguration =
 
           <label>Arbitre secondaire</label>
           <select
-            value={matchInfo.arbitreSecondaire || ""}
+            value={matchInfo.arbitreSecondaire || ''}
             onChange={(e) =>
               modifierMatch({
                 arbitreSecondaire: e.target.value,
@@ -727,7 +578,7 @@ const operateurs30sConfiguration =
 
           <label>Chronométreur</label>
           <select
-            value={matchInfo.chronometreur || ""}
+            value={matchInfo.chronometreur || ''}
             onChange={(e) =>
               modifierMatch({
                 chronometreur: e.target.value,
@@ -745,7 +596,7 @@ const operateurs30sConfiguration =
 
           <label>Marqueur</label>
           <select
-            value={matchInfo.marqueur || ""}
+            value={matchInfo.marqueur || ''}
             onChange={(e) =>
               modifierMatch({
                 marqueur: e.target.value,
@@ -763,7 +614,7 @@ const operateurs30sConfiguration =
 
           <label>Opérateur 30 secondes</label>
           <select
-            value={matchInfo.operateur30s || ""}
+            value={matchInfo.operateur30s || ''}
             onChange={(e) =>
               modifierMatch({
                 operateur30s: e.target.value,
@@ -783,14 +634,11 @@ const operateurs30sConfiguration =
         <div className="modal-actions">
           <button onClick={fermer}>Confirmer</button>
 
-          <button
-            className="cancel-button"
-            onClick={fermer}
-          >
+          <button className="cancel-button" onClick={fermer}>
             Annuler
           </button>
         </div>
       </div>
     </div>
-  );
+  )
 }
