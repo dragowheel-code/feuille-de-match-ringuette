@@ -1,46 +1,45 @@
-import { useState } from "react";
+import { useState } from 'react'
 
-import AdministrationAccueil from "./AdministrationAccueil";
-import ImportationAdministration from "./importation/ImportationAdministration";
+import AdministrationAccueil from './AdministrationAccueil'
+import ImportationAdministration from './importation/ImportationAdministration'
 
-import "./administration.css";
+import './administration.css'
 
 // Composants
-import GestionAssociations from "../../components/administration/associations/GestionAssociations";
-import GestionSaisons from "../../components/administration/saisons/GestionSaisons";
-import GestionEquipes from "../../components/administration/equipes/GestionEquipes";
-import GestionJoueuses from "../../components/administration/joueuses/GestionJoueuses";
-import GestionAffectations from "../../components/administration/affectations/GestionAffectations";
-import GestionEquipements from "../../components/administration/equipements/GestionEquipements";
-import GestionChandails from "../../components/administration/equipements/chandails/GestionChandails";
-import GestionPantalons from "../../components/administration/equipements/pantalons/GestionPantalons";
-import GestionPersonnelEquipe from "../../components/administration/personnelEquipe/GestionPersonnelEquipe";
-import GestionAffectationsPersonnel from "../../components/administration/personnelEquipe/GestionAffectationsPersonnel";
-import GestionOfficiels from "../../components/administration/officiels/GestionOfficiels";
-import GestionTournois from "../../components/administration/tournois/GestionTournois";
+import GestionAssociations from '../../components/administration/associations/GestionAssociations'
+import GestionSaisons from '../../components/administration/saisons/GestionSaisons'
+import GestionEquipes from '../../components/administration/equipes/GestionEquipes'
+import GestionJoueuses from '../../components/administration/joueuses/GestionJoueuses'
+import GestionAffectations from '../../components/administration/affectations/GestionAffectations'
+import GestionEquipements from '../../components/administration/equipements/GestionEquipements'
+import GestionChandails from '../../components/administration/equipements/chandails/GestionChandails'
+import GestionPantalons from '../../components/administration/equipements/pantalons/GestionPantalons'
+import GestionPersonnelEquipe from '../../components/administration/personnelEquipe/GestionPersonnelEquipe'
+import GestionAffectationsPersonnel from '../../components/administration/personnelEquipe/GestionAffectationsPersonnel'
+import GestionOfficiels from '../../components/administration/officiels/GestionOfficiels'
+import GestionTournois from '../../components/administration/tournois/GestionTournois'
 
 // Hooks
-import { useGestionSaisons } from "../../hooks/useGestionSaisons";
-import { useGestionPantalons } from "../../hooks/useGestionPantalons";
-import { useGestionPantalonsJoueuses } from "../../hooks/useGestionPantalonsJoueuses";
+import { useGestionSaisons } from '../../hooks/useGestionSaisons'
+import { useGestionPantalons } from '../../hooks/useGestionPantalons'
+import { useGestionPantalonsJoueuses } from '../../hooks/useGestionPantalonsJoueuses'
 
 const PAGES_ADMINISTRATION = {
-  ACCUEIL: "accueil",
-  ASSOCIATIONS: "associations",
-  SAISONS: "saisons",
-  AFFECTATIONS: "affectations",
-  EQUIPES: "equipes",
-  JOUEUSES: "joueuses",
-  EQUIPEMENTS: "equipements",
-  CHANDAILS: "chandails",
-  PANTALONS: "pantalons",
-  PERSONNEL_EQUIPE: "personnel-equipe",
-  AFFECTATIONS_PERSONNEL:
-    "affectations-personnel",
-  OFFICIELS: "officiels",
-  TOURNOIS: "tournois",
-  IMPORTATION: "importation",
-};
+  ACCUEIL: 'accueil',
+  ASSOCIATIONS: 'associations',
+  SAISONS: 'saisons',
+  AFFECTATIONS: 'affectations',
+  EQUIPES: 'equipes',
+  JOUEUSES: 'joueuses',
+  EQUIPEMENTS: 'equipements',
+  CHANDAILS: 'chandails',
+  PANTALONS: 'pantalons',
+  PERSONNEL_EQUIPE: 'personnel-equipe',
+  AFFECTATIONS_PERSONNEL: 'affectations-personnel',
+  OFFICIELS: 'officiels',
+  TOURNOIS: 'tournois',
+  IMPORTATION: 'importation',
+}
 
 function AdministrationApp({
   gestionAssociations,
@@ -59,35 +58,21 @@ function AdministrationApp({
 
   authentification,
 }) {
-  const [
-    pageActive,
-    setPageActive,
-  ] = useState(
-    PAGES_ADMINISTRATION.ACCUEIL
-  );
+  const [pageActive, setPageActive] = useState(PAGES_ADMINISTRATION.ACCUEIL)
 
-  const gestionSaisons =
-    useGestionSaisons();
+  const gestionSaisons = useGestionSaisons()
 
-  const gestionPantalons =
-    useGestionPantalons();
+  const gestionPantalons = useGestionPantalons()
 
-  const gestionPantalonsJoueuses =
-    useGestionPantalonsJoueuses({
-      pantalons:
-        gestionPantalons.pantalons,
+  const gestionPantalonsJoueuses = useGestionPantalonsJoueuses({
+    pantalons: gestionPantalons.pantalons,
 
-      setPantalons:
-        gestionPantalons.setPantalons,
-    });
+    setPantalons: gestionPantalons.setPantalons,
+  })
 
-  const estPlateforme =
-    authentification?.estPlateforme ===
-    true;
+  const estPlateforme = authentification?.estPlateforme === true
 
-  const estAssociation =
-    authentification?.estAssociation ===
-    true;
+  const estAssociation = authentification?.estAssociation === true
 
   /*
    * Pour le compte plateforme :
@@ -98,179 +83,124 @@ function AdministrationApp({
    * l'association est imposée par
    * le compte connecté.
    */
-  const associationActive =
-    estAssociation
-      ? gestionAssociations.associations.find(
-          (association) =>
-            String(
-              association.id
-            ) ===
-            String(
-              authentification
-                ?.utilisateur
-                ?.associationId
-            )
-        ) ?? null
-      : gestionAssociations
-          .obtenirAssociationActive();
+  const associationActive = estAssociation
+    ? (gestionAssociations.associations.find(
+        (association) =>
+          String(association.id) ===
+          String(authentification?.utilisateur?.associationId)
+      ) ?? null)
+    : gestionAssociations.obtenirAssociationActive()
 
   /*
    * Un compte association ne doit
    * jamais recevoir les autres
    * associations dans les sélecteurs.
    */
-  const associationsDisponibles =
-    estPlateforme
-      ? gestionAssociations.associations
-      : associationActive
+  const associationsDisponibles = estPlateforme
+    ? gestionAssociations.associations
+    : associationActive
       ? [associationActive]
-      : [];
+      : []
 
-  const saisonActive =
-    gestionSaisons
-      .obtenirSaisonActive();
+  const saisonActive = gestionSaisons.obtenirSaisonActive()
 
   function retournerFeuilleMatch() {
-    window.location.hash = "";
+    window.location.hash = ''
   }
 
-  function ouvrirSection(
-    sectionId
-  ) {
+  function ouvrirSection(sectionId) {
     /*
      * Protection interface :
      * seul le compte plateforme
      * peut accéder à Associations.
      */
-    if (
-      sectionId === "associations"
-    ) {
+    if (sectionId === 'associations') {
       if (!estPlateforme) {
-        return;
+        return
       }
 
-      setPageActive(
-        PAGES_ADMINISTRATION.ASSOCIATIONS
-      );
+      setPageActive(PAGES_ADMINISTRATION.ASSOCIATIONS)
 
-      return;
+      return
     }
 
-    if (sectionId === "saisons") {
-      setPageActive(
-        PAGES_ADMINISTRATION.SAISONS
-      );
+    if (sectionId === 'saisons') {
+      setPageActive(PAGES_ADMINISTRATION.SAISONS)
 
-      return;
+      return
     }
 
-    if (
-      sectionId === "affectations"
-    ) {
-      setPageActive(
-        PAGES_ADMINISTRATION.AFFECTATIONS
-      );
+    if (sectionId === 'affectations') {
+      setPageActive(PAGES_ADMINISTRATION.AFFECTATIONS)
 
-      return;
+      return
     }
 
-    if (sectionId === "equipes") {
-      setPageActive(
-        PAGES_ADMINISTRATION.EQUIPES
-      );
+    if (sectionId === 'equipes') {
+      setPageActive(PAGES_ADMINISTRATION.EQUIPES)
 
-      return;
+      return
     }
 
-    if (sectionId === "joueuses") {
-      setPageActive(
-        PAGES_ADMINISTRATION.JOUEUSES
-      );
+    if (sectionId === 'joueuses') {
+      setPageActive(PAGES_ADMINISTRATION.JOUEUSES)
 
-      return;
+      return
     }
 
-    if (
-      sectionId === "equipements"
-    ) {
-      setPageActive(
-        PAGES_ADMINISTRATION.EQUIPEMENTS
-      );
+    if (sectionId === 'equipements') {
+      setPageActive(PAGES_ADMINISTRATION.EQUIPEMENTS)
 
-      return;
+      return
     }
 
-    if (sectionId === "chandails") {
-      setPageActive(
-        PAGES_ADMINISTRATION.CHANDAILS
-      );
+    if (sectionId === 'chandails') {
+      setPageActive(PAGES_ADMINISTRATION.CHANDAILS)
 
-      return;
+      return
     }
 
-    if (sectionId === "pantalons") {
-      setPageActive(
-        PAGES_ADMINISTRATION.PANTALONS
-      );
+    if (sectionId === 'pantalons') {
+      setPageActive(PAGES_ADMINISTRATION.PANTALONS)
 
-      return;
+      return
     }
 
-    if (
-      sectionId ===
-      "personnel-equipe"
-    ) {
-      setPageActive(
-        PAGES_ADMINISTRATION.PERSONNEL_EQUIPE
-      );
+    if (sectionId === 'personnel-equipe') {
+      setPageActive(PAGES_ADMINISTRATION.PERSONNEL_EQUIPE)
 
-      return;
+      return
     }
 
-    if (
-      sectionId ===
-      "affectations-personnel"
-    ) {
-      setPageActive(
-        PAGES_ADMINISTRATION.AFFECTATIONS_PERSONNEL
-      );
+    if (sectionId === 'affectations-personnel') {
+      setPageActive(PAGES_ADMINISTRATION.AFFECTATIONS_PERSONNEL)
 
-      return;
+      return
     }
 
-    if (sectionId === "officiels") {
-      setPageActive(
-        PAGES_ADMINISTRATION.OFFICIELS
-      );
+    if (sectionId === 'officiels') {
+      setPageActive(PAGES_ADMINISTRATION.OFFICIELS)
 
-      return;
+      return
     }
 
-    if (sectionId === "tournois") {
-      setPageActive(
-        PAGES_ADMINISTRATION.TOURNOIS
-      );
+    if (sectionId === 'tournois') {
+      setPageActive(PAGES_ADMINISTRATION.TOURNOIS)
 
-      return;
+      return
     }
 
-    if (sectionId === "donnees") {
-      setPageActive(
-        PAGES_ADMINISTRATION.IMPORTATION
-      );
+    if (sectionId === 'donnees') {
+      setPageActive(PAGES_ADMINISTRATION.IMPORTATION)
     }
   }
 
   function retournerAccueilAdministration() {
-    setPageActive(
-      PAGES_ADMINISTRATION.ACCUEIL
-    );
+    setPageActive(PAGES_ADMINISTRATION.ACCUEIL)
   }
 
   function retournerEquipements() {
-    setPageActive(
-      PAGES_ADMINISTRATION.EQUIPEMENTS
-    );
+    setPageActive(PAGES_ADMINISTRATION.EQUIPEMENTS)
   }
 
   return (
@@ -278,313 +208,177 @@ function AdministrationApp({
       <header className="administration-entete">
         <div>
           <p className="administration-surtitre">
-            Plateforme de gestion de la
-            ringuette
+            Plateforme de gestion de la ringuette
           </p>
 
-          <h1>
-            Administration
-          </h1>
+          <h1>Administration</h1>
 
           <p className="administration-description">
             {estPlateforme
-              ? "Gestion globale des données permanentes utilisées par la plateforme."
+              ? 'Gestion globale des données permanentes utilisées par la plateforme.'
               : associationActive
-              ? `Administration — ${associationActive.nom}`
-              : "Administration de l'association."}
+                ? `Administration — ${associationActive.nom}`
+                : "Administration de l'association."}
           </p>
         </div>
 
         <div className="administration-actions-entete">
-  <button
-    type="button"
-    className="administration-bouton-retour"
-    onClick={retournerFeuilleMatch}
-  >
-    Retour à la feuille de match
-  </button>
+          <button
+            type="button"
+            className="administration-bouton-retour"
+            onClick={retournerFeuilleMatch}
+          >
+            Retour à la feuille de match
+          </button>
 
-  <button
-    type="button"
-    className="administration-bouton-retour"
-    onClick={async () => {
-      const resultat =
-        await authentification.deconnecter();
+          <button
+            type="button"
+            className="administration-bouton-retour"
+            onClick={async () => {
+              const resultat = await authentification.deconnecter()
 
-      if (resultat.succes) {
-        window.location.hash =
-          "/administration";
-      }
-    }}
-  >
-    Déconnexion
-  </button>
-</div>
+              if (resultat.succes) {
+                window.location.hash = '/administration'
+              }
+            }}
+          >
+            Déconnexion
+          </button>
+        </div>
       </header>
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.ACCUEIL && (
+      {pageActive === PAGES_ADMINISTRATION.ACCUEIL && (
         <AdministrationAccueil
-          ouvrirSection={
-            ouvrirSection
-          }
-          estPlateforme={
-            estPlateforme
-          }
+          ouvrirSection={ouvrirSection}
+          estPlateforme={estPlateforme}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.ASSOCIATIONS &&
-        estPlateforme && (
-          <GestionAssociations
-            retournerAccueil={
-              retournerAccueilAdministration
-            }
-            gestionAssociations={
-              gestionAssociations
-            }
-          />
-        )}
+      {pageActive === PAGES_ADMINISTRATION.ASSOCIATIONS && estPlateforme && (
+        <GestionAssociations
+          retournerAccueil={retournerAccueilAdministration}
+          gestionAssociations={gestionAssociations}
+        />
+      )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.SAISONS && (
+      {pageActive === PAGES_ADMINISTRATION.SAISONS && (
         <GestionSaisons
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          associationActive={
-            associationActive
-          }
-          gestionSaisons={
-            gestionSaisons
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          associationActive={associationActive}
+          gestionSaisons={gestionSaisons}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.AFFECTATIONS && (
+      {pageActive === PAGES_ADMINISTRATION.AFFECTATIONS && (
         <GestionAffectations
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          associationActive={
-            associationActive
-          }
-          saisonActive={
-            saisonActive
-          }
-          equipes={
-            gestionEquipes.equipes
-          }
-          joueuses={
-            gestionJoueuses.joueuses
-          }
-          gestionAffectations={
-            gestionAffectations
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          associationActive={associationActive}
+          saisonActive={saisonActive}
+          equipes={gestionEquipes.equipes}
+          joueuses={gestionJoueuses.joueuses}
+          gestionAffectations={gestionAffectations}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.EQUIPES && (
+      {pageActive === PAGES_ADMINISTRATION.EQUIPES && (
         <GestionEquipes
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          associationActive={
-            associationActive
-          }
-          saisonActive={
-            saisonActive
-          }
-          gestionEquipes={
-            gestionEquipes
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          associationActive={associationActive}
+          saisonActive={saisonActive}
+          gestionEquipes={gestionEquipes}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.JOUEUSES && (
+      {pageActive === PAGES_ADMINISTRATION.JOUEUSES && (
         <GestionJoueuses
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          associations={
-            associationsDisponibles
-          }
-          gestionJoueuses={
-            gestionJoueuses
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          associations={associationsDisponibles}
+          gestionJoueuses={gestionJoueuses}
+          gestionAffectations={gestionAffectations}
+          gestionEquipes={gestionEquipes}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.EQUIPEMENTS && (
+      {pageActive === PAGES_ADMINISTRATION.EQUIPEMENTS && (
         <GestionEquipements
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          ouvrirSection={
-            ouvrirSection
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          ouvrirSection={ouvrirSection}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.CHANDAILS && (
+      {pageActive === PAGES_ADMINISTRATION.CHANDAILS && (
         <GestionChandails
-          retour={
-            retournerEquipements
-          }
-          associationActive={
-            associationActive
-          }
-          saisonActive={
-            saisonActive
-          }
-          saisons={
-            gestionSaisons.saisons
-          }
-          gestionChandails={
-            gestionChandails
-          }
-          gestionAttributionsChandails={
-            gestionAttributionsChandails
-          }
-          gestionJoueuses={
-            gestionJoueuses
-          }
-          affectations={
-            gestionAffectations.affectations
-          }
+          retour={retournerEquipements}
+          associationActive={associationActive}
+          saisonActive={saisonActive}
+          saisons={gestionSaisons.saisons}
+          gestionChandails={gestionChandails}
+          gestionAttributionsChandails={gestionAttributionsChandails}
+          gestionJoueuses={gestionJoueuses}
+          affectations={gestionAffectations.affectations}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.PANTALONS && (
+      {pageActive === PAGES_ADMINISTRATION.PANTALONS && (
         <GestionPantalons
-          retour={
-            retournerEquipements
-          }
-          associationActive={
-            associationActive
-          }
-          joueuses={
-            gestionJoueuses.joueuses
-          }
-          gestionPantalons={
-            gestionPantalons
-          }
-          gestionPantalonsJoueuses={
-            gestionPantalonsJoueuses
-          }
+          retour={retournerEquipements}
+          associationActive={associationActive}
+          joueuses={gestionJoueuses.joueuses}
+          gestionPantalons={gestionPantalons}
+          gestionPantalonsJoueuses={gestionPantalonsJoueuses}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.PERSONNEL_EQUIPE && (
+      {pageActive === PAGES_ADMINISTRATION.PERSONNEL_EQUIPE && (
         <GestionPersonnelEquipe
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          associationActive={
-            associationActive
-          }
-          gestionPersonnelEquipe={
-            gestionPersonnelEquipe
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          associationActive={associationActive}
+          gestionPersonnelEquipe={gestionPersonnelEquipe}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.AFFECTATIONS_PERSONNEL && (
+      {pageActive === PAGES_ADMINISTRATION.AFFECTATIONS_PERSONNEL && (
         <GestionAffectationsPersonnel
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          associationActive={
-            associationActive
-          }
-          saisonActive={
-            saisonActive
-          }
-          equipes={
-            gestionEquipes.equipes
-          }
-          personnel={
-            gestionPersonnelEquipe.personnelEquipe
-          }
-          gestionAffectationsPersonnel={
-            gestionAffectationsPersonnel
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          associationActive={associationActive}
+          saisonActive={saisonActive}
+          equipes={gestionEquipes.equipes}
+          personnel={gestionPersonnelEquipe.personnelEquipe}
+          gestionAffectationsPersonnel={gestionAffectationsPersonnel}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.OFFICIELS && (
+      {pageActive === PAGES_ADMINISTRATION.OFFICIELS && (
         <GestionOfficiels
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          associationActive={
-            associationActive
-          }
-          gestionOfficiels={
-            gestionOfficiels
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          associationActive={associationActive}
+          gestionOfficiels={gestionOfficiels}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.TOURNOIS && (
+      {pageActive === PAGES_ADMINISTRATION.TOURNOIS && (
         <GestionTournois
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          associationActive={
-            associationActive
-          }
-          saisonActive={
-            saisonActive
-          }
-          associations={
-            associationsDisponibles
-          }
-          equipes={
-            gestionEquipes.equipes
-          }
-          officiels={
-            gestionOfficiels.officiels
-          }
-          gestionTournois={
-            gestionTournois
-          }
-          gestionInscriptionsTournoi={
-            gestionInscriptionsTournoi
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          associationActive={associationActive}
+          saisonActive={saisonActive}
+          associations={associationsDisponibles}
+          equipes={gestionEquipes.equipes}
+          officiels={gestionOfficiels.officiels}
+          gestionTournois={gestionTournois}
+          gestionInscriptionsTournoi={gestionInscriptionsTournoi}
         />
       )}
 
-      {pageActive ===
-        PAGES_ADMINISTRATION.IMPORTATION && (
+      {pageActive === PAGES_ADMINISTRATION.IMPORTATION && (
         <ImportationAdministration
-          retournerAccueil={
-            retournerAccueilAdministration
-          }
-          associationActive={
-            associationActive
-          }
-          joueuses={
-            gestionJoueuses.joueuses
-          }
-          importerJoueuses={
-            gestionJoueuses.importerJoueuses
-          }
+          retournerAccueil={retournerAccueilAdministration}
+          associationActive={associationActive}
+          joueuses={gestionJoueuses.joueuses}
+          importerJoueuses={gestionJoueuses.importerJoueuses}
         />
       )}
     </main>
-  );
+  )
 }
 
-export default AdministrationApp;
+export default AdministrationApp

@@ -1,12 +1,11 @@
 .administration-app {
   min-height: 100vh;
   padding: 32px;
-  background:
-    linear-gradient(
-      135deg,
-      rgba(7, 31, 56, 0.97),
-      rgba(18, 61, 94, 0.94)
-    );
+  background: linear-gradient(
+    135deg,
+    rgba(7, 31, 56, 0.97),
+    rgba(18, 61, 94, 0.94)
+  );
   color: #ffffff;
 }
 
@@ -83,8 +82,7 @@
 
 .administration-grille {
   display: grid;
-  grid-template-columns:
-    repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 18px;
 }
 
@@ -241,8 +239,7 @@
   background: #0d2b46;
   color: #ffffff;
 
-  box-shadow:
-    0 18px 50px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.45);
 }
 
 .affectation-modal {
@@ -413,7 +410,7 @@
 .table-administration th {
   background: rgba(255, 255, 255, 0.1);
 }
-.table-administration td input[type="checkbox"] {
+.table-administration td input[type='checkbox'] {
   display: block;
   margin: 0 auto;
 }
@@ -504,7 +501,7 @@
   vertical-align: middle;
 }
 
-.table-affectations td input[type="checkbox"] {
+.table-affectations td input[type='checkbox'] {
   display: inline-block;
   margin: 0;
 }
@@ -515,7 +512,7 @@
 
   border-radius: 8px;
 
-  background: rgba(255,255,255,0.08);
+  background: rgba(255, 255, 255, 0.08);
 
   font-weight: 600;
 }
@@ -539,8 +536,7 @@
   margin: 12px 0 18px;
   padding: 10px 14px;
 
-  border: 1px solid
-    rgba(255,255,255,0.25);
+  border: 1px solid rgba(255, 255, 255, 0.25);
 
   border-radius: 8px;
 
@@ -549,8 +545,7 @@
 .accordeon-categorie {
   margin-bottom: 12px;
   overflow: hidden;
-  border: 1px solid
-    rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.06);
 }
@@ -637,8 +632,7 @@
 
 .carte-ensemble-selectionnee {
   border-color: #ffffff;
-  box-shadow:
-    0 0 0 3px rgba(255, 255, 255, 0.35);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.35);
 }
 .inventaire-chandails {
   display: grid;
@@ -658,11 +652,9 @@
 
 .groupe-taille {
   padding: 18px;
-  border: 1px solid
-    rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
-  background:
-    rgba(255, 255, 255, 0.07);
+  background: rgba(255, 255, 255, 0.07);
 }
 
 .groupe-taille h2 {
@@ -680,11 +672,9 @@
   top: 24px;
   min-height: 260px;
   padding: 22px;
-  border: 1px solid
-    rgba(255, 255, 255, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.16);
   border-radius: 14px;
-  background:
-    rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.09);
 }
 
 .fiche-chandail h2 {
@@ -707,10 +697,7 @@
 }
 .resume-inventaire {
   display: grid;
-  grid-template-columns: repeat(
-    auto-fit,
-    minmax(140px, 1fr)
-  );
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
   gap: 16px;
   margin: 24px 0;
 }
@@ -774,8 +761,7 @@
 
 .fiche-chandail-section {
   padding: 16px 0;
-  border-top: 1px solid
-    rgba(255, 255, 255, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .fiche-chandail-section h3 {
@@ -818,12 +804,178 @@
   display: flex;
   gap: 12px;
   padding-top: 18px;
-  border-top: 1px solid
-    rgba(255, 255, 255, 0.15);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
 }
 .administration-actions-entete {
   display: flex;
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+}
+/* =========================
+   Joueuses — tableau
+   ========================= */
+
+.joueuses-tableau-conteneur {
+  width: 100%;
+  margin-top: 24px;
+}
+
+.joueuses-recherche {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.joueuses-recherche input {
+  flex: 1;
+  min-width: 0;
+  padding: 11px 14px;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9px;
+
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+
+  font: inherit;
+}
+
+.joueuses-recherche input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.joueuses-recherche input:focus {
+  outline: 2px solid rgba(56, 189, 248, 0.65);
+  outline-offset: 1px;
+}
+
+.joueuses-recherche span {
+  flex-shrink: 0;
+  font-weight: 700;
+  opacity: 0.85;
+}
+
+.joueuses-tableau-scroll {
+  width: 100%;
+  overflow-x: auto;
+
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 12px;
+}
+
+.joueuses-tableau {
+  width: 100%;
+  border-collapse: collapse;
+
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.joueuses-tableau th,
+.joueuses-tableau td {
+  padding: 11px 14px;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+
+  text-align: left;
+  vertical-align: middle;
+}
+
+.joueuses-tableau th {
+  background: rgba(255, 255, 255, 0.12);
+
+  font-size: 0.9rem;
+  font-weight: 700;
+
+  white-space: nowrap;
+}
+
+.joueuses-tableau tbody tr:hover {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.joueuses-tableau tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.joueuse-nom-bouton {
+  padding: 0;
+  border: 0;
+
+  background: transparent;
+  color: #ffffff;
+
+  font: inherit;
+  font-weight: 700;
+
+  cursor: pointer;
+  text-align: left;
+}
+
+.joueuse-nom-bouton:hover {
+  text-decoration: underline;
+}
+
+.joueuse-statut {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 70px;
+  padding: 4px 9px;
+
+  border-radius: 999px;
+
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.joueuse-statut-active {
+  background: rgba(25, 135, 84, 0.9);
+}
+
+.joueuse-statut-inactive {
+  background: rgba(108, 117, 125, 0.9);
+}
+
+.joueuse-tableau-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.joueuse-tableau-actions button {
+  padding: 7px 11px;
+
+  border: 0;
+  border-radius: 7px;
+
+  font: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.joueuses-etat-vide {
+  padding: 24px;
+  text-align: center;
+
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0.06);
+}
+
+@media (max-width: 700px) {
+  .joueuses-recherche {
+    align-items: stretch;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .joueuses-tableau {
+    min-width: 700px;
+  }
 }
