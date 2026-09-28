@@ -202,10 +202,16 @@ export function useGestionAffectations() {
       }
     }
 
-    const { error } = await supabase
+    const dateFin = new Date().toISOString().slice(0, 10)
+
+    const { data, error } = await supabase
       .from('affectations')
-      .delete()
+      .update({
+        active: false,
+        date_fin: dateFin,
+      })
       .eq('id', idAffectation)
+      .select()
 
     if (error) {
       return {
@@ -215,15 +221,27 @@ export function useGestionAffectations() {
       }
     }
 
+    if (!data || data.length === 0) {
+      return {
+        succes: false,
+        affectation: null,
+        erreur: "L'affectation n'a pas pu être désactivée.",
+      }
+    }
+
+    const affectationDesactivee = convertirAffectationDepuisSupabase(data[0])
+
     setAffectations((actuelles) =>
-      actuelles.filter(
-        (affectation) => String(affectation.id) !== String(idAffectation)
+      actuelles.map((affectation) =>
+        String(affectation.id) === String(idAffectation)
+          ? affectationDesactivee
+          : affectation
       )
     )
 
     return {
       succes: true,
-      affectation: affectationExistante,
+      affectation: affectationDesactivee,
     }
   }
 
@@ -234,16 +252,50 @@ export function useGestionAffectations() {
         affectation.active !== false
     )
 
-    const idsNouvelles = new Set(
-      nouvellesAffectations
-        .map((affectation) => affectation.id)
+    function trouverExistante(nouvelle) {
+      // Si l'ID existe réellement dans les affectations chargées,
+      // c'est la correspondance la plus fiable.
+      if (nouvelle.id) {
+        const parId = anciennes.find(
+          (ancienne) => String(ancienne.id) === String(nouvelle.id)
+        )
+
+        if (parId) {
+          return parId
+        }
+      }
+
+      // Sinon, on retrouve l'affectation par la joueuse.
+      return anciennes.find(
+        (ancienne) => String(ancienne.joueuseId) === String(nouvelle.joueuseId)
+      )
+    }
+
+    // --------------------------------------------------
+    // 1. Déterminer les affectations qui restent
+    // --------------------------------------------------
+
+    const correspondances = nouvellesAffectations.map((nouvelle) => ({
+      nouvelle,
+      existante: trouverExistante(nouvelle),
+    }))
+
+    // --------------------------------------------------
+    // 2. Désactiver les joueuses retirées
+    // --------------------------------------------------
+
+    const idsConserves = new Set(
+      correspondances
+        .map(({ existante }) => existante?.id)
         .filter(Boolean)
         .map(String)
     )
 
     const aDesactiver = anciennes.filter(
-      (affectation) => !idsNouvelles.has(String(affectation.id))
+      (ancienne) => !idsConserves.has(String(ancienne.id))
     )
+
+    const dateFin = new Date().toISOString().slice(0, 10)
 
     if (aDesactiver.length > 0) {
       const ids = aDesactiver.map((affectation) => affectation.id)
@@ -252,7 +304,7 @@ export function useGestionAffectations() {
         .from('affectations')
         .update({
           active: false,
-          date_fin: new Date().toISOString().slice(0, 10),
+          date_fin: dateFin,
         })
         .in('id', ids)
 
@@ -264,24 +316,34 @@ export function useGestionAffectations() {
       }
     }
 
+    // --------------------------------------------------
+    // 3. Mettre à jour celles qui existaient déjà
+    //    et créer seulement les nouvelles
+    // --------------------------------------------------
+
     const affectationsSauvegardees = []
 
-    for (const affectation of nouvellesAffectations) {
-      if (affectation.id) {
-        const donnees = convertirAffectationVersSupabase(
-          creerAffectation({
-            ...affectation,
-            active: true,
-            dateFin: '',
-          })
-        )
+    for (const { nouvelle, existante } of correspondances) {
+      if (existante) {
+        const affectationModifiee = creerAffectation({
+          ...existante,
+          ...nouvelle,
+
+          // On conserve impérativement l'ID Supabase
+          // de l'affectation existante.
+          id: existante.id,
+
+          active: true,
+          dateFin: '',
+        })
+
+        const donnees = convertirAffectationVersSupabase(affectationModifiee)
 
         const { data, error } = await supabase
           .from('affectations')
           .update(donnees)
-          .eq('id', affectation.id)
+          .eq('id', existante.id)
           .select()
-          .single()
 
         if (error) {
           return {
@@ -290,49 +352,74 @@ export function useGestionAffectations() {
           }
         }
 
-        affectationsSauvegardees.push(convertirAffectationDepuisSupabase(data))
-      } else {
-        const donnees = convertirAffectationVersSupabase(
-          creerAffectation({
-            ...affectation,
-            active: true,
-            dateFin: '',
-          })
+        if (!data || data.length === 0) {
+          return {
+            succes: false,
+            erreurs: [
+              `Impossible de mettre à jour l'affectation de la joueuse ${nouvelle.joueuseId}.`,
+            ],
+          }
+        }
+
+        affectationsSauvegardees.push(
+          convertirAffectationDepuisSupabase(data[0])
         )
 
-        const { data, error } = await supabase
-          .from('affectations')
-          .insert(donnees)
-          .select()
-          .single()
-
-        if (error) {
-          return {
-            succes: false,
-            erreurs: [error.message],
-          }
-        }
-
-        affectationsSauvegardees.push(convertirAffectationDepuisSupabase(data))
+        continue
       }
+
+      // Nouvelle affectation : on ne conserve surtout
+      // pas un éventuel ID provenant du formulaire.
+      const nouvelleAffectation = creerAffectation({
+        ...nouvelle,
+        id: undefined,
+        active: true,
+        dateFin: '',
+      })
+
+      const donnees = convertirAffectationVersSupabase(nouvelleAffectation)
+
+      // L'ID doit être généré par la base.
+      delete donnees.id
+
+      const { data, error } = await supabase
+        .from('affectations')
+        .insert(donnees)
+        .select()
+
+      if (error) {
+        return {
+          succes: false,
+          erreurs: [error.message],
+        }
+      }
+
+      if (!data || data.length === 0) {
+        return {
+          succes: false,
+          erreurs: [
+            `Impossible de créer l'affectation de la joueuse ${nouvelle.joueuseId}.`,
+          ],
+        }
+      }
+
+      affectationsSauvegardees.push(convertirAffectationDepuisSupabase(data[0]))
     }
+
+    // --------------------------------------------------
+    // 4. Synchroniser l'état React
+    // --------------------------------------------------
 
     setAffectations((actuelles) => {
       const horsEquipe = actuelles.filter(
         (affectation) => String(affectation.equipeId) !== String(equipeId)
       )
 
-      const anciennesInactives = anciennes
-        .filter((affectation) =>
-          aDesactiver.some(
-            (element) => String(element.id) === String(affectation.id)
-          )
-        )
-        .map((affectation) => ({
-          ...affectation,
-          active: false,
-          dateFin: new Date().toISOString().slice(0, 10),
-        }))
+      const anciennesInactives = aDesactiver.map((affectation) => ({
+        ...affectation,
+        active: false,
+        dateFin,
+      }))
 
       return [...horsEquipe, ...anciennesInactives, ...affectationsSauvegardees]
     })
