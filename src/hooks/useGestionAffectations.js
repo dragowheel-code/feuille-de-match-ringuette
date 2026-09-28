@@ -229,32 +229,32 @@ export function useGestionAffectations() {
 
   async function remplacerAffectationsEquipe(equipeId, nouvellesAffectations) {
     const anciennes = affectations.filter(
-      (affectation) => String(affectation.equipeId) === String(equipeId)
+      (affectation) =>
+        String(affectation.equipeId) === String(equipeId) &&
+        affectation.active !== false
     )
 
-    if (anciennes.length > 0) {
-      const { error: erreurSuppression } = await supabase
+    const idsNouvelles = new Set(
+      nouvellesAffectations
+        .map((affectation) => affectation.id)
+        .filter(Boolean)
+        .map(String)
+    )
+
+    const aDesactiver = anciennes.filter(
+      (affectation) => !idsNouvelles.has(String(affectation.id))
+    )
+
+    if (aDesactiver.length > 0) {
+      const ids = aDesactiver.map((affectation) => affectation.id)
+
+      const { error } = await supabase
         .from('affectations')
-        .delete()
-        .eq('equipe_id', equipeId)
-
-      if (erreurSuppression) {
-        return {
-          succes: false,
-          erreurs: [erreurSuppression.message],
-        }
-      }
-    }
-
-    if (nouvellesAffectations.length > 0) {
-      const donnees = nouvellesAffectations.map((affectation) =>
-        convertirAffectationVersSupabase(creerAffectation(affectation))
-      )
-
-      const { data, error } = await supabase
-        .from('affectations')
-        .insert(donnees)
-        .select()
+        .update({
+          active: false,
+          date_fin: new Date().toISOString().slice(0, 10),
+        })
+        .in('id', ids)
 
       if (error) {
         return {
@@ -262,27 +262,80 @@ export function useGestionAffectations() {
           erreurs: [error.message],
         }
       }
+    }
 
-      const nouvelles = (data ?? []).map(convertirAffectationDepuisSupabase)
+    const affectationsSauvegardees = []
 
-      setAffectations((actuelles) => [
-        ...actuelles.filter(
-          (affectation) => String(affectation.equipeId) !== String(equipeId)
-        ),
-        ...nouvelles,
-      ])
+    for (const affectation of nouvellesAffectations) {
+      if (affectation.id) {
+        const donnees = convertirAffectationVersSupabase(
+          creerAffectation({
+            ...affectation,
+            active: true,
+            dateFin: '',
+          })
+        )
 
-      return {
-        succes: true,
-        erreurs: [],
+        const { data, error } = await supabase
+          .from('affectations')
+          .update(donnees)
+          .eq('id', affectation.id)
+          .select()
+          .single()
+
+        if (error) {
+          return {
+            succes: false,
+            erreurs: [error.message],
+          }
+        }
+
+        affectationsSauvegardees.push(convertirAffectationDepuisSupabase(data))
+      } else {
+        const donnees = convertirAffectationVersSupabase(
+          creerAffectation({
+            ...affectation,
+            active: true,
+            dateFin: '',
+          })
+        )
+
+        const { data, error } = await supabase
+          .from('affectations')
+          .insert(donnees)
+          .select()
+          .single()
+
+        if (error) {
+          return {
+            succes: false,
+            erreurs: [error.message],
+          }
+        }
+
+        affectationsSauvegardees.push(convertirAffectationDepuisSupabase(data))
       }
     }
 
-    setAffectations((actuelles) =>
-      actuelles.filter(
+    setAffectations((actuelles) => {
+      const horsEquipe = actuelles.filter(
         (affectation) => String(affectation.equipeId) !== String(equipeId)
       )
-    )
+
+      const anciennesInactives = anciennes
+        .filter((affectation) =>
+          aDesactiver.some(
+            (element) => String(element.id) === String(affectation.id)
+          )
+        )
+        .map((affectation) => ({
+          ...affectation,
+          active: false,
+          dateFin: new Date().toISOString().slice(0, 10),
+        }))
+
+      return [...horsEquipe, ...anciennesInactives, ...affectationsSauvegardees]
+    })
 
     return {
       succes: true,
