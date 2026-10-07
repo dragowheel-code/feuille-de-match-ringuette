@@ -1,16 +1,20 @@
 export const ROLES_OFFICIEL = [
-  "arbitre",
-  "chronometreur",
-  "marqueur",
-  "operateur30s",
-];
+  'arbitre',
+  'chronometreur',
+  'marqueur',
+  'operateur30s',
+]
 
 export function creerOfficiel({
   id = crypto.randomUUID(),
 
-  associationId = "",
+  associationId = '',
 
-  nom = "",
+  nom = '',
+  prenom = '',
+  nomFamille = '',
+  courriel = '',
+  telephone = '',
 
   arbitre = false,
   chronometreur = false,
@@ -22,25 +26,19 @@ export function creerOfficiel({
   return {
     id,
 
-    associationId:
-      String(associationId).trim(),
+    associationId: String(associationId).trim(),
 
-    nom:
-      String(nom).trim(),
+    nom: String(nom).trim(),
+    prenom: String(prenom).trim(),
+    nomFamille: String(nomFamille).trim(),
+    courriel: String(courriel).trim(),
+    telephone: String(telephone).trim(),
 
-    arbitre:
-      Boolean(arbitre),
+    arbitre: Boolean(arbitre),
+    chronometreur: Boolean(chronometreur),
+    marqueur: Boolean(marqueur),
+    operateur30s: Boolean(operateur30s),
 
-    chronometreur:
-      Boolean(chronometreur),
-
-    marqueur:
-      Boolean(marqueur),
-
-    operateur30s:
-      Boolean(operateur30s),
-
-    actif:
-      Boolean(actif),
-  };
+    actif: Boolean(actif),
+  }
 }
