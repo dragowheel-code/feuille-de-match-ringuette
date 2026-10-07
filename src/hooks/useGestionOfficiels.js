@@ -1,321 +1,210 @@
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useEffect, useState } from 'react'
 
-import { supabase } from "../services/supabase";
+import { supabase } from '../services/supabase'
 
-import {
-  creerOfficiel,
-} from "../domain/officiels";
+import { creerOfficiel } from '../domain/officiels'
 
-function convertirOfficielDepuisSupabase(
-  officiel
-) {
+function convertirOfficielDepuisSupabase(officiel) {
   return {
     id: officiel.id,
 
-    associationId:
-      officiel.association_id ?? "",
+    associationId: officiel.association_id ?? '',
 
-    nom:
-      officiel.nom ?? "",
+    nom: officiel.nom ?? '',
+    prenom: officiel.prenom ?? '',
 
-    arbitre:
-      officiel.arbitre === true,
+    nomFamille: officiel.nom_famille ?? '',
 
-    chronometreur:
-      officiel.chronometreur === true,
+    courriel: officiel.courriel ?? '',
 
-    marqueur:
-      officiel.marqueur === true,
+    telephone: officiel.telephone ?? '',
 
-    operateur30s:
-      officiel.operateur_30s === true,
+    arbitre: officiel.arbitre === true,
 
-    actif:
-      officiel.actif !== false,
-  };
+    chronometreur: officiel.chronometreur === true,
+
+    marqueur: officiel.marqueur === true,
+
+    operateur30s: officiel.operateur_30s === true,
+
+    actif: officiel.actif !== false,
+  }
 }
 
-function convertirOfficielVersSupabase(
-  officiel
-) {
+function convertirOfficielVersSupabase(officiel) {
   return {
-    id:
-      officiel.id,
+    id: officiel.id,
 
-    association_id:
-      officiel.associationId || null,
+    association_id: officiel.associationId || null,
 
-    nom:
-      officiel.nom,
+    nom: officiel.nom,
+    prenom: officiel.prenom || null,
 
-    arbitre:
-      officiel.arbitre === true,
+    nom_famille: officiel.nomFamille || null,
 
-    chronometreur:
-      officiel.chronometreur === true,
+    courriel: officiel.courriel || null,
 
-    marqueur:
-      officiel.marqueur === true,
+    telephone: officiel.telephone || null,
 
-    operateur_30s:
-      officiel.operateur30s === true,
+    arbitre: officiel.arbitre === true,
 
-    actif:
-      officiel.actif !== false,
-  };
+    chronometreur: officiel.chronometreur === true,
+
+    marqueur: officiel.marqueur === true,
+
+    operateur_30s: officiel.operateur30s === true,
+
+    actif: officiel.actif !== false,
+  }
 }
 
 export function useGestionOfficiels() {
-  const [
-    officiels,
-    setOfficiels,
-  ] = useState([]);
+  const [officiels, setOfficiels] = useState([])
 
-  const [
-    chargement,
-    setChargement,
-  ] = useState(true);
+  const [chargement, setChargement] = useState(true)
 
-  const [
-    erreurChargement,
-    setErreurChargement,
-  ] = useState(null);
+  const [erreurChargement, setErreurChargement] = useState(null)
 
   useEffect(() => {
     async function chargerOfficiels() {
-      setChargement(true);
-      setErreurChargement(null);
+      setChargement(true)
+      setErreurChargement(null)
 
-      const {
-        data,
-        error,
-      } = await supabase
-        .from("officiels")
-        .select("*")
-        .order("nom");
+      const { data, error } = await supabase
+        .from('officiels')
+        .select('*')
+        .order('nom')
 
       if (error) {
-        console.error(
-          "Erreur chargement officiels :",
-          error
-        );
+        console.error('Erreur chargement officiels :', error)
 
-        setErreurChargement(
-          error.message
-        );
+        setErreurChargement(error.message)
 
-        setChargement(false);
-        return;
+        setChargement(false)
+        return
       }
 
-      setOfficiels(
-        (data ?? []).map(
-          convertirOfficielDepuisSupabase
-        )
-      );
+      setOfficiels((data ?? []).map(convertirOfficielDepuisSupabase))
 
-      setChargement(false);
+      setChargement(false)
     }
 
-    chargerOfficiels();
-  }, []);
+    chargerOfficiels()
+  }, [])
 
   function obtenirOfficielParId(id) {
     return (
-      officiels.find(
-        (officiel) =>
-          String(officiel.id) ===
-          String(id)
-      ) ?? null
-    );
+      officiels.find((officiel) => String(officiel.id) === String(id)) ?? null
+    )
   }
 
-  async function ajouterOfficiel(
-    formulaire
-  ) {
-    const nouvelOfficiel =
-      creerOfficiel(formulaire);
+  async function ajouterOfficiel(formulaire) {
+    const nouvelOfficiel = creerOfficiel(formulaire)
 
-    const {
-      data,
-      error,
-    } = await supabase
-      .from("officiels")
-      .insert(
-        convertirOfficielVersSupabase(
-          nouvelOfficiel
-        )
-      )
+    const { data, error } = await supabase
+      .from('officiels')
+      .insert(convertirOfficielVersSupabase(nouvelOfficiel))
       .select()
-      .single();
+      .single()
 
     if (error) {
       return {
         succes: false,
         officiel: null,
-        erreurs: [
-          error.message,
-        ],
-      };
+        erreurs: [error.message],
+      }
     }
 
-    const officielCree =
-      convertirOfficielDepuisSupabase(
-        data
-      );
+    const officielCree = convertirOfficielDepuisSupabase(data)
 
-    setOfficiels(
-      (actuels) => [
-        ...actuels,
-        officielCree,
-      ]
-    );
+    setOfficiels((actuels) => [...actuels, officielCree])
 
     return {
       succes: true,
-      officiel:
-        officielCree,
+      officiel: officielCree,
       erreurs: [],
-    };
+    }
   }
 
-  async function modifierOfficielSupabase(
-    formulaire
-  ) {
-    const officielExistant =
-      obtenirOfficielParId(
-        formulaire.id
-      );
+  async function modifierOfficielSupabase(formulaire) {
+    const officielExistant = obtenirOfficielParId(formulaire.id)
 
     if (!officielExistant) {
       return {
         succes: false,
         officiel: null,
-        erreurs: [
-          "Officiel introuvable.",
-        ],
-      };
+        erreurs: ['Officiel introuvable.'],
+      }
     }
 
-    const officielModifie =
-      creerOfficiel({
-        ...officielExistant,
-        ...formulaire,
-        id:
-          officielExistant.id,
-      });
+    const officielModifie = creerOfficiel({
+      ...officielExistant,
+      ...formulaire,
+      id: officielExistant.id,
+    })
 
-    const {
-      data,
-      error,
-    } = await supabase
-      .from("officiels")
-      .update(
-        convertirOfficielVersSupabase(
-          officielModifie
-        )
-      )
-      .eq(
-        "id",
-        officielModifie.id
-      )
+    const { data, error } = await supabase
+      .from('officiels')
+      .update(convertirOfficielVersSupabase(officielModifie))
+      .eq('id', officielModifie.id)
       .select()
-      .single();
+      .single()
 
     if (error) {
       return {
         succes: false,
         officiel: null,
-        erreurs: [
-          error.message,
-        ],
-      };
+        erreurs: [error.message],
+      }
     }
 
-    const officielSauvegarde =
-      convertirOfficielDepuisSupabase(
-        data
-      );
+    const officielSauvegarde = convertirOfficielDepuisSupabase(data)
 
-    setOfficiels(
-      (actuels) =>
-        actuels.map(
-          (officiel) =>
-            String(
-              officiel.id
-            ) ===
-            String(
-              officielSauvegarde.id
-            )
-              ? officielSauvegarde
-              : officiel
-        )
-    );
+    setOfficiels((actuels) =>
+      actuels.map((officiel) =>
+        String(officiel.id) === String(officielSauvegarde.id)
+          ? officielSauvegarde
+          : officiel
+      )
+    )
 
     return {
       succes: true,
-      officiel:
-        officielSauvegarde,
+      officiel: officielSauvegarde,
       erreurs: [],
-    };
+    }
   }
 
-  async function supprimerOfficielSupabase(
-    id
-  ) {
-    const officielExistant =
-      obtenirOfficielParId(id);
+  async function supprimerOfficielSupabase(id) {
+    const officielExistant = obtenirOfficielParId(id)
 
     if (!officielExistant) {
       return {
         succes: false,
         officiel: null,
-        erreurs: [
-          "Officiel introuvable.",
-        ],
-      };
+        erreurs: ['Officiel introuvable.'],
+      }
     }
 
-    const {
-      error,
-    } = await supabase
-      .from("officiels")
-      .delete()
-      .eq(
-        "id",
-        id
-      );
+    const { error } = await supabase.from('officiels').delete().eq('id', id)
 
     if (error) {
       return {
         succes: false,
         officiel: null,
-        erreurs: [
-          error.message,
-        ],
-      };
+        erreurs: [error.message],
+      }
     }
 
-    setOfficiels(
-      (actuels) =>
-        actuels.filter(
-          (officiel) =>
-            String(
-              officiel.id
-            ) !==
-            String(id)
-        )
-    );
+    setOfficiels((actuels) =>
+      actuels.filter((officiel) => String(officiel.id) !== String(id))
+    )
 
     return {
       succes: true,
-      officiel:
-        officielExistant,
+      officiel: officielExistant,
       erreurs: [],
-    };
+    }
   }
 
   return {
@@ -326,11 +215,9 @@ export function useGestionOfficiels() {
     erreurChargement,
 
     ajouterOfficiel,
-    modifierOfficiel:
-      modifierOfficielSupabase,
-    supprimerOfficiel:
-      supprimerOfficielSupabase,
+    modifierOfficiel: modifierOfficielSupabase,
+    supprimerOfficiel: supprimerOfficielSupabase,
 
     obtenirOfficielParId,
-  };
+  }
 }

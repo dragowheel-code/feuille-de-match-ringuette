@@ -5,48 +5,72 @@ export default function OfficielModal({
   confirmer,
   fermer,
 }) {
-  if (!ouverte) return null;
+  if (!ouverte) return null
 
-  const modeModification =
-    officiel.mode === "modification";
+  const modeModification = officiel.mode === 'modification'
 
   function modifierChamp(event) {
-    const { name, value, type, checked } =
-      event.target;
+    const { name, value, type, checked } = event.target
 
     setOfficiel((ancienOfficiel) => ({
       ...ancienOfficiel,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+      [name]: type === 'checkbox' ? checked : value,
+    }))
   }
 
   function soumettreFormulaire(event) {
-    event.preventDefault();
-    confirmer();
+    event.preventDefault()
+    confirmer()
   }
 
   return (
     <div className="modal-backdrop">
       <div className="modal config-modal">
         <h2>
-          {modeModification
-            ? "Modifier un officiel"
-            : "Ajouter un officiel"}
+          {modeModification ? 'Modifier un officiel' : 'Ajouter un officiel'}
         </h2>
 
         <form onSubmit={soumettreFormulaire}>
           <div className="config-section">
-            <label htmlFor="nom-officiel">
-              Nom de l’officiel
-            </label>
+            <label htmlFor="prenom-officiel">Prénom</label>
 
             <input
-              id="nom-officiel"
-              name="nom"
+              id="prenom-officiel"
+              name="prenom"
               type="text"
-              value={officiel.nom}
+              value={officiel.prenom ?? ''}
               onChange={modifierChamp}
               autoFocus
+            />
+
+            <label htmlFor="nom-famille-officiel">Nom</label>
+
+            <input
+              id="nom-famille-officiel"
+              name="nomFamille"
+              type="text"
+              value={officiel.nomFamille ?? ''}
+              onChange={modifierChamp}
+            />
+
+            <label htmlFor="courriel-officiel">Courriel</label>
+
+            <input
+              id="courriel-officiel"
+              name="courriel"
+              type="email"
+              value={officiel.courriel ?? ''}
+              onChange={modifierChamp}
+            />
+
+            <label htmlFor="telephone-officiel">Téléphone</label>
+
+            <input
+              id="telephone-officiel"
+              name="telephone"
+              type="tel"
+              value={officiel.telephone ?? ''}
+              onChange={modifierChamp}
             />
           </div>
 
@@ -97,36 +121,30 @@ export default function OfficielModal({
           <div className="modal-actions">
             <button type="submit">
               {modeModification
-                ? "Enregistrer les modifications"
-                : "Ajouter l’officiel"}
+                ? 'Enregistrer les modifications'
+                : 'Ajouter l’officiel'}
             </button>
-            
+
             <div className="config-section">
-  <h3>Statut</h3>
+              <h3>Statut</h3>
 
-  <label>
-    <input
-      type="checkbox"
-      name="actif"
-      checked={
-        officiel.actif !== false
-      }
-      onChange={modifierChamp}
-    />
-    Actif
-  </label>
-</div>
+              <label>
+                <input
+                  type="checkbox"
+                  name="actif"
+                  checked={officiel.actif !== false}
+                  onChange={modifierChamp}
+                />
+                Actif
+              </label>
+            </div>
 
-            <button
-              type="button"
-              className="cancel-button"
-              onClick={fermer}
-            >
+            <button type="button" className="cancel-button" onClick={fermer}>
               Annuler
             </button>
           </div>
         </form>
       </div>
     </div>
-  );
+  )
 }

@@ -1,33 +1,41 @@
 export const ROLES_OFFICIEL = [
-  "arbitre",
-  "chronometreur",
-  "marqueur",
-  "operateur30s",
-];
+  'arbitre',
+  'chronometreur',
+  'marqueur',
+  'operateur30s',
+]
 
 export function creerOfficiel({
   id,
+  associationId = '',
   nom,
+  prenom = '',
+  nomFamille = '',
+  courriel = '',
+  telephone = '',
   arbitre = false,
   chronometreur = false,
   marqueur = false,
   operateur30s = false,
+  actif = true,
 }) {
   return {
     id,
+    associationId,
     nom: nom.trim(),
+    prenom: prenom.trim(),
+    nomFamille: nomFamille.trim(),
+    courriel: courriel.trim(),
+    telephone: telephone.trim(),
     arbitre,
     chronometreur,
     marqueur,
     operateur30s,
-  };
+    actif,
+  }
 }
 
-export function modifierOfficiel(
-  officiels,
-  idOfficiel,
-  modifications
-) {
+export function modifierOfficiel(officiels, idOfficiel, modifications) {
   return officiels.map((officiel) =>
     String(officiel.id) === String(idOfficiel)
       ? {
@@ -39,52 +47,33 @@ export function modifierOfficiel(
               : officiel.nom,
         }
       : officiel
-  );
+  )
 }
 
-export function supprimerOfficiel(
-  officiels,
-  idOuNomOfficiel
-) {
+export function supprimerOfficiel(officiels, idOuNomOfficiel) {
   return officiels.filter(
     (officiel) =>
       String(officiel.id) !== String(idOuNomOfficiel) &&
       officiel.nom !== idOuNomOfficiel
-  );
+  )
 }
 
-export function retirerOfficielDesRoles(
-  matchInfo,
-  nomOfficiel
-) {
+export function retirerOfficielDesRoles(matchInfo, nomOfficiel) {
   return {
     ...matchInfo,
 
-    arbitre1:
-      matchInfo.arbitre1 === nomOfficiel
-        ? ""
-        : matchInfo.arbitre1,
+    arbitre1: matchInfo.arbitre1 === nomOfficiel ? '' : matchInfo.arbitre1,
 
-    arbitre2:
-      matchInfo.arbitre2 === nomOfficiel
-        ? ""
-        : matchInfo.arbitre2,
+    arbitre2: matchInfo.arbitre2 === nomOfficiel ? '' : matchInfo.arbitre2,
 
     chronometreur:
-      matchInfo.chronometreur === nomOfficiel
-        ? ""
-        : matchInfo.chronometreur,
+      matchInfo.chronometreur === nomOfficiel ? '' : matchInfo.chronometreur,
 
-    marqueur:
-      matchInfo.marqueur === nomOfficiel
-        ? ""
-        : matchInfo.marqueur,
+    marqueur: matchInfo.marqueur === nomOfficiel ? '' : matchInfo.marqueur,
 
     operateur30s:
-      matchInfo.operateur30s === nomOfficiel
-        ? ""
-        : matchInfo.operateur30s,
-  };
+      matchInfo.operateur30s === nomOfficiel ? '' : matchInfo.operateur30s,
+  }
 }
 
 export function remplacerNomOfficielDansRoles(
@@ -96,14 +85,10 @@ export function remplacerNomOfficielDansRoles(
     ...matchInfo,
 
     arbitre1:
-      matchInfo.arbitre1 === ancienNom
-        ? nouveauNom
-        : matchInfo.arbitre1,
+      matchInfo.arbitre1 === ancienNom ? nouveauNom : matchInfo.arbitre1,
 
     arbitre2:
-      matchInfo.arbitre2 === ancienNom
-        ? nouveauNom
-        : matchInfo.arbitre2,
+      matchInfo.arbitre2 === ancienNom ? nouveauNom : matchInfo.arbitre2,
 
     chronometreur:
       matchInfo.chronometreur === ancienNom
@@ -111,13 +96,11 @@ export function remplacerNomOfficielDansRoles(
         : matchInfo.chronometreur,
 
     marqueur:
-      matchInfo.marqueur === ancienNom
-        ? nouveauNom
-        : matchInfo.marqueur,
+      matchInfo.marqueur === ancienNom ? nouveauNom : matchInfo.marqueur,
 
     operateur30s:
       matchInfo.operateur30s === ancienNom
         ? nouveauNom
         : matchInfo.operateur30s,
-  };
+  }
 }
