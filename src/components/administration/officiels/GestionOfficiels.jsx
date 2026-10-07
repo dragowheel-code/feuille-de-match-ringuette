@@ -213,7 +213,9 @@ function GestionOfficiels({
 
     setOfficielConsulte(null)
   }
-
+  function creerAccesOfficiel(officiel) {
+    console.log('Créer accès pour :', officiel)
+  }
   return (
     <section className="administration-contenu">
       <div className="administration-section-entete">
@@ -244,6 +246,7 @@ function GestionOfficiels({
         fermer={fermerFiche}
         modifier={ouvrirModification}
         supprimer={demanderSuppression}
+        creerAcces={creerAccesOfficiel}
       />
 
       <OfficielModal

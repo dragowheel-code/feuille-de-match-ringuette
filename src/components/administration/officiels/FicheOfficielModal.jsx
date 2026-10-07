@@ -6,7 +6,13 @@ function LigneRole({ actif, libelle }) {
   )
 }
 
-function FicheOfficielModal({ officiel, fermer, modifier, supprimer }) {
+function FicheOfficielModal({
+  officiel,
+  fermer,
+  modifier,
+  supprimer,
+  creerAcces,
+}) {
   if (!officiel) {
     return null
   }
@@ -51,7 +57,18 @@ function FicheOfficielModal({ officiel, fermer, modifier, supprimer }) {
             />
           </ul>
         </div>
+        <div className="config-section">
+          <h3>Accès au portail</h3>
 
+          <p>
+            Permettre à cet officiel ou à son parent/responsable d'accéder au
+            portail des officiels.
+          </p>
+
+          <button type="button" onClick={() => creerAcces(officiel)}>
+            Créer un accès
+          </button>
+        </div>
         <div className="modal-actions">
           <button type="button" onClick={() => modifier(officiel)}>
             Modifier
